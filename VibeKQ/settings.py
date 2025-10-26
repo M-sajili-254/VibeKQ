@@ -210,23 +210,16 @@ SPECTACULAR_SETTINGS = {
 
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # Add this line
 
-# Only include STATICFILES_DIRS if the static directory exists
-static_dir = os.path.join(BASE_DIR, 'static')
-if os.path.exists(static_dir):
-    STATICFILES_DIRS = [static_dir]
+# Optional: Additional locations of static files
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),
+]
 
 # Media files (user uploaded content)
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
-
-# Security settings for production (only in production)
-if not DEBUG:
-    SECURE_SSL_REDIRECT = True
-    SESSION_COOKIE_SECURE = True
-    CSRF_COOKIE_SECURE = True
 
 # Custom user model
 AUTH_USER_MODEL = 'accounts.User'
