@@ -135,6 +135,10 @@ export const communityService = {
     const response = await api.get('/community/merchandise/');
     return response.data;
   },
+  getVibeMemories: async () => {
+    const response = await api.get('/community/vibe-memories/');
+    return response.data;
+  },
   likePost: async (postId: number) => {
     const response = await api.post(`/community/posts/${postId}/like/`);
     return response.data;

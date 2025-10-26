@@ -1,100 +1,89 @@
 'use client';
 
-import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { authService } from '@/utils/api';
+import { Ticket, Briefcase, User, ArrowRight } from 'lucide-react';
+import VibeLogo from '@/components/VibeLogo';
 
-export default function Login() {
+export default function LoginSelection() {
   const router = useRouter();
-  const [formData, setFormData] = useState({
-    username: '',
-    password: '',
-  });
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-    setLoading(true);
-
-    try {
-      const data = await authService.signin(formData.username, formData.password);
-      localStorage.setItem('access_token', data.access);
-      localStorage.setItem('refresh_token', data.refresh);
-      router.push('/');
-      window.location.reload();
-    } catch (err: any) {
-      setError(err.response?.data?.error || err.response?.data?.detail || 'Login failed. Please check your credentials.');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4">
-      <div className="max-w-md w-full">
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold gradient-warm bg-clip-text text-transparent mb-2">
-            Welcome Back
+    <div className="min-h-screen bg-gradient-to-br from-red-50 to-orange-50 flex items-center justify-center py-12 px-4">
+      <div className="max-w-4xl w-full">
+        {/* Header */}
+        <div className="text-center mb-12">
+          <div className="flex justify-center mb-6">
+            <VibeLogo />
+          </div>
+          <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-red-600 to-red-800 bg-clip-text text-transparent">
+            Welcome to Vibe With KQ
           </h1>
-          <p className="text-gray-600">Sign in to continue your journey</p>
+          <p className="text-gray-600 text-lg">
+            Choose how you'd like to sign in
+          </p>
         </div>
 
-        <div className="bg-white rounded-lg shadow-lg p-8">
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {error && (
-              <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded">
-                {error}
+        {/* Login Options */}
+        <div className="grid md:grid-cols-2 gap-6">
+          {/* Customer Login */}
+          <button
+            onClick={() => router.push('/ticket-login')}
+            className="group bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all p-8 text-left border-2 border-transparent hover:border-red-500"
+          >
+            <div className="flex items-start justify-between mb-6">
+              <div className="w-16 h-16 bg-gradient-to-br from-red-500 to-red-700 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                <Ticket className="w-8 h-8 text-white" />
               </div>
-            )}
-
-            <div>
-              <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-2">
-                Username
-              </label>
-              <input
-                id="username"
-                type="text"
-                required
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none"
-                value={formData.username}
-                onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-              />
+              <ArrowRight className="w-6 h-6 text-gray-400 group-hover:text-red-600 group-hover:translate-x-1 transition-all" />
             </div>
-
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
-                Password
-              </label>
-              <input
-                id="password"
-                type="password"
-                required
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none"
-                value={formData.password}
-                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-              />
-            </div>
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full py-3 bg-primary text-white font-semibold rounded-lg hover:bg-primary/90 transition disabled:opacity-50"
-            >
-              {loading ? 'Signing in...' : 'Sign In'}
-            </button>
-          </form>
-
-          <div className="mt-6 text-center">
-            <p className="text-gray-600">
-              Don't have an account?{' '}
-              <Link href="/register" className="text-primary font-semibold hover:underline">
-                Sign up
-              </Link>
+            
+            <h2 className="text-2xl font-bold mb-3 text-gray-900">
+              I'm a Customer
+            </h2>
+            <p className="text-gray-600 mb-4">
+              Login with your airline ticket to access exclusive local services and experiences
             </p>
-          </div>
+            
+            <div className="flex items-center space-x-2 text-sm text-red-600 font-semibold">
+              <User className="w-4 h-4" />
+              <span>Login with Ticket Number</span>
+            </div>
+          </button>
+
+          {/* Partner Login */}
+          <button
+            onClick={() => router.push('/partner-login')}
+            className="group bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all p-8 text-left border-2 border-transparent hover:border-red-500"
+          >
+            <div className="flex items-start justify-between mb-6">
+              <div className="w-16 h-16 bg-gradient-to-br from-red-500 to-red-700 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                <Briefcase className="w-8 h-8 text-white" />
+              </div>
+              <ArrowRight className="w-6 h-6 text-gray-400 group-hover:text-red-600 group-hover:translate-x-1 transition-all" />
+            </div>
+            
+            <h2 className="text-2xl font-bold mb-3 text-gray-900">
+              I'm a Partner
+            </h2>
+            <p className="text-gray-600 mb-4">
+              Business partners and staff members login with username and password
+            </p>
+            
+            <div className="flex items-center space-x-2 text-sm text-red-600 font-semibold">
+              <Briefcase className="w-4 h-4" />
+              <span>Login with Credentials</span>
+            </div>
+          </button>
+        </div>
+
+        {/* Additional Info */}
+        <div className="mt-8 text-center">
+          <p className="text-gray-600 text-sm">
+            New business partner?{' '}
+            <a href="/business" className="text-red-600 hover:text-red-700 font-semibold hover:underline">
+              Apply for partnership
+            </a>
+          </p>
         </div>
       </div>
     </div>

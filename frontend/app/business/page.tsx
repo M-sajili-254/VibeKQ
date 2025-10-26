@@ -57,9 +57,9 @@ export default function Business() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}
-      <section className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-20 px-4">
+      <section className="bg-gradient-to-r from-red-600 to-red-800 text-white py-20 px-4">
         <div className="max-w-4xl mx-auto text-center">
-          <h1 className="text-5xl font-bold mb-6">Become a Verified Partner</h1>
+          <h1 className="text-5xl font-bold mb-6">Join the Business Community</h1>
           <p className="text-xl mb-8">
             Join our network of trusted local businesses and reach thousands of travelers
           </p>
@@ -73,8 +73,8 @@ export default function Business() {
           
           <div className="grid md:grid-cols-3 gap-8">
             <div className="text-center p-6">
-              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Users className="w-8 h-8 text-blue-600" />
+              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Users className="w-8 h-8 text-red-600" />
               </div>
               <h3 className="text-xl font-semibold mb-3">Access to Travelers</h3>
               <p className="text-gray-600">
@@ -83,22 +83,22 @@ export default function Business() {
             </div>
 
             <div className="text-center p-6">
-              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <TrendingUp className="w-8 h-8 text-blue-600" />
+              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <TrendingUp className="w-8 h-8 text-red-600" />
               </div>
               <h3 className="text-xl font-semibold mb-3">Grow Your Business</h3>
               <p className="text-gray-600">
-                Increase bookings and revenue with our commission-based model and marketing support.
+                Increase your visibility and bookings through our verified partner network.
               </p>
             </div>
 
             <div className="text-center p-6">
-              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <CheckCircle className="w-8 h-8 text-blue-600" />
+              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <CheckCircle className="w-8 h-8 text-red-600" />
               </div>
               <h3 className="text-xl font-semibold mb-3">Verified Badge</h3>
               <p className="text-gray-600">
-                Build trust with the official Vibe With KQ verified partner badge.
+                Get a verified badge that builds trust with travelers and boosts credibility.
               </p>
             </div>
           </div>
@@ -146,9 +146,11 @@ export default function Business() {
                     onChange={(e) => setFormData({ ...formData, business_category: e.target.value })}
                   >
                     <option value="">Select category</option>
-                    <option value="hotel">Hotel</option>
-                    <option value="taxi">Taxi/Transport</option>
-                    <option value="tour">Tour Operator</option>
+                    <option value="activities">Activities</option>
+                    <option value="adventure">Adventure</option>
+                    <option value="hotel">Hotel, Motel and Lodging</option>
+                    <option value="transport">Transport</option>
+                    <option value="merchandise">Merchandise and Shopping</option>
                     <option value="restaurant">Restaurant</option>
                     <option value="other">Other</option>
                   </select>

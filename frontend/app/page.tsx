@@ -74,7 +74,7 @@ export default function Home() {
               </div>
               <h3 className="text-xl font-semibold mb-3">Trip Assistant</h3>
               <p className="text-gray-600">
-                Book verified local services - hotels, taxis, tours - seamlessly tied to your destination.
+                Book verified local services - hotels, transport, adventure tours - seamlessly tied to your destination.
               </p>
               <Link href="/trip-assistant" className="text-primary font-semibold mt-4 inline-block hover:underline">
                 Explore Services →
@@ -85,7 +85,7 @@ export default function Home() {
               <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Users className="w-8 h-8 text-primary" />
               </div>
-              <h3 className="text-xl font-semibold mb-3">Vibe Community</h3>
+              <h3 className="text-xl font-semibold mb-3">Community Vibes</h3>
               <p className="text-gray-600">
                 Connect with KQ staff, share stories, and engage with passion projects and CSR initiatives.
               </p>

@@ -25,7 +25,7 @@ export default function Footer() {
               </li>
               <li>
                 <Link href="/community" className="text-gray-400 hover:text-white transition">
-                  Vibe Community
+                  Community Vibes
                 </Link>
               </li>
               <li>

@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Post, Comment, Like, Event, EventParticipant, Merchandise
+from .models import Post, Comment, Like, Event, EventParticipant, Merchandise, VibeMemory
 from accounts.serializers import UserSerializer
 
 
@@ -102,3 +102,18 @@ class MerchandiseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Merchandise
         fields = '__all__'
+
+
+class VibeMemorySerializer(serializers.ModelSerializer):
+    """Serializer for VibeMemory model"""
+    uploader_name = serializers.CharField(source='uploader.get_full_name', read_only=True)
+    uploader_profile_picture = serializers.ImageField(source='uploader.profile_picture', read_only=True)
+    
+    class Meta:
+        model = VibeMemory
+        fields = '__all__'
+        read_only_fields = ('uploader', 'likes_count')
+    
+    def create(self, validated_data):
+        validated_data['uploader'] = self.context['request'].user
+        return super().create(validated_data)

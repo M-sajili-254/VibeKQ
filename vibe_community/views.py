@@ -1,10 +1,11 @@
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from .models import Post, Comment, Like, Event, EventParticipant, Merchandise
+from .models import Post, Comment, Like, Event, EventParticipant, Merchandise, VibeMemory
 from .serializers import (
     PostSerializer, CommentSerializer, LikeSerializer,
-    EventSerializer, EventParticipantSerializer, MerchandiseSerializer
+    EventSerializer, EventParticipantSerializer, MerchandiseSerializer,
+    VibeMemorySerializer
 )
 
 
@@ -93,3 +94,10 @@ class MerchandiseViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Merchandise.objects.filter(available=True)
     serializer_class = MerchandiseSerializer
     permission_classes = [permissions.AllowAny]
+
+
+class VibeMemoryViewSet(viewsets.ModelViewSet):
+    """ViewSet for VibeMemory model"""
+    queryset = VibeMemory.objects.all()
+    serializer_class = VibeMemorySerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]

@@ -4,21 +4,25 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Menu, X, User, LogOut } from 'lucide-react';
 import { authService } from '@/utils/api';
+import VibeLogo from './VibeLogo';
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
     const checkAuth = async () => {
       const token = localStorage.getItem('access_token');
       if (token) {
+        setIsAuthenticated(true);
         try {
           const userData = await authService.getCurrentUser();
           setUser(userData);
         } catch (error) {
           console.error('Auth check failed:', error);
+          // Still authenticated even if user fetch fails
         }
       }
       setLoading(false);
@@ -30,7 +34,9 @@ export default function Navbar() {
   const handleLogout = () => {
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
+    localStorage.removeItem('user');
     setUser(null);
+    setIsAuthenticated(false);
     window.location.href = '/';
   };
 
@@ -39,11 +45,7 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex items-center">
-            <Link href="/" className="flex items-center">
-              <span className="text-2xl font-bold gradient-warm bg-clip-text text-transparent">
-                Vibe With KQ
-              </span>
-            </Link>
+            <VibeLogo />
           </div>
 
           {/* Desktop Menu */}
@@ -63,11 +65,11 @@ export default function Navbar() {
 
             {loading ? (
               <div className="w-20 h-8 bg-gray-200 rounded animate-pulse"></div>
-            ) : user ? (
+            ) : isAuthenticated ? (
               <div className="flex items-center space-x-4">
-                <Link href="/profile" className="flex items-center space-x-2 text-gray-700 hover:text-primary transition">
+                <Link href="/profile" className="flex items-center space-x-2 text-gray-700 hover:text-red-600 transition">
                   <User className="w-5 h-5" />
-                  <span>{user.username}</span>
+                  <span>{user?.username || 'Profile'}</span>
                 </Link>
                 <button
                   onClick={handleLogout}
@@ -76,19 +78,7 @@ export default function Navbar() {
                   <LogOut className="w-5 h-5" />
                 </button>
               </div>
-            ) : (
-              <div className="flex items-center space-x-4">
-                <Link href="/login" className="text-gray-700 hover:text-primary transition">
-                  Login
-                </Link>
-                <Link
-                  href="/register"
-                  className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition"
-                >
-                  Sign Up
-                </Link>
-              </div>
-            )}
+            ) : null}
           </div>
 
           {/* Mobile menu button */}
@@ -136,7 +126,7 @@ export default function Navbar() {
               Business
             </Link>
 
-            {user ? (
+            {isAuthenticated && (
               <>
                 <Link
                   href="/profile"
@@ -154,23 +144,6 @@ export default function Navbar() {
                 >
                   Logout
                 </button>
-              </>
-            ) : (
-              <>
-                <Link
-                  href="/login"
-                  className="block px-3 py-2 text-gray-700 hover:bg-gray-100 rounded"
-                  onClick={() => setIsOpen(false)}
-                >
-                  Login
-                </Link>
-                <Link
-                  href="/register"
-                  className="block px-3 py-2 bg-primary text-white hover:bg-primary/90 rounded text-center"
-                  onClick={() => setIsOpen(false)}
-                >
-                  Sign Up
-                </Link>
               </>
             )}
           </div>

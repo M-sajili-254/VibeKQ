@@ -121,3 +121,21 @@ class Merchandise(TimeStampedModel, IDModel):
     class Meta:
         ordering = ['-featured', 'name']
         verbose_name_plural = "Merchandise"
+
+
+class VibeMemory(TimeStampedModel, IDModel):
+    """Photo memories shared by KQ staff and community"""
+    uploader = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='vibe_memories')
+    title = models.CharField(max_length=255)
+    description = models.TextField(blank=True, null=True)
+    image = models.ImageField(upload_to='vibe_memories/')
+    location = models.CharField(max_length=255, blank=True, null=True)
+    featured = models.BooleanField(default=False)
+    likes_count = models.IntegerField(default=0)
+    
+    def __str__(self):
+        return f"{self.title} by {self.uploader.username}"
+    
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name_plural = "Vibe Memories"

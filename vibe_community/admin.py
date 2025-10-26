@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Post, Comment, Like, Event, EventParticipant, Merchandise
+from .models import Post, Comment, Like, Event, EventParticipant, Merchandise, VibeMemory
 
 
 @admin.register(Post)
@@ -188,3 +188,40 @@ class MerchandiseAdmin(admin.ModelAdmin):
     def unfeature_items(self, request, queryset):
         queryset.update(featured=False)
     unfeature_items.short_description = "Unfeature selected items"
+
+
+@admin.register(VibeMemory)
+class VibeMemoryAdmin(admin.ModelAdmin):
+    list_display = ('title', 'uploader', 'location', 'featured', 'likes_count', 'created_at')
+    list_filter = ('featured', 'created_at')
+    search_fields = ('title', 'description', 'uploader__username', 'location')
+    list_editable = ('featured',)
+    readonly_fields = ('likes_count', 'created_at', 'updated_at')
+    ordering = ('-created_at',)
+    date_hierarchy = 'created_at'
+    
+    fieldsets = (
+        ('Memory Information', {
+            'fields': ('uploader', 'title', 'description', 'location')
+        }),
+        ('Media', {
+            'fields': ('image',)
+        }),
+        ('Status & Engagement', {
+            'fields': ('featured', 'likes_count')
+        }),
+        ('Timestamps', {
+            'fields': ('created_at', 'updated_at'),
+            'classes': ('collapse',)
+        }),
+    )
+    
+    actions = ['feature_memories', 'unfeature_memories']
+    
+    def feature_memories(self, request, queryset):
+        queryset.update(featured=True)
+    feature_memories.short_description = "Feature selected memories"
+    
+    def unfeature_memories(self, request, queryset):
+        queryset.update(featured=False)
+    unfeature_memories.short_description = "Unfeature selected memories"

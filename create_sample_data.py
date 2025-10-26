@@ -91,11 +91,12 @@ for dest_data in destinations_data:
 
 # Create service categories
 categories_data = [
-    {'name': 'Hotels', 'icon': '🏨', 'description': 'Accommodation and lodging services'},
-    {'name': 'Taxis', 'icon': '🚕', 'description': 'Transportation and taxi services'},
-    {'name': 'Tours', 'icon': '🗺️', 'description': 'Guided tours and excursions'},
-    {'name': 'Restaurants', 'icon': '🍽️', 'description': 'Dining and culinary experiences'},
     {'name': 'Activities', 'icon': '🎯', 'description': 'Entertainment and activities'},
+    {'name': 'Adventure', 'icon': '🗺️', 'description': 'Guided tours and excursions'},
+    {'name': 'Hotel, Motel and Lodging', 'icon': '🏨', 'description': 'Accommodation and lodging services'},
+    {'name': 'Transport', 'icon': '🚕', 'description': 'Transportation services'},
+    {'name': 'Merchandise and Shopping', 'icon': '🛍️', 'description': 'Shopping and merchandise services'},
+    {'name': 'Restaurant', 'icon': '🍽️', 'description': 'Dining and culinary experiences'},
 ]
 
 for cat_data in categories_data:
@@ -109,9 +110,9 @@ for cat_data in categories_data:
 # Create services
 nairobi = Destination.objects.get(city='Nairobi')
 mombasa = Destination.objects.get(city='Mombasa')
-hotel_cat = ServiceCategory.objects.get(name='Hotels')
-tour_cat = ServiceCategory.objects.get(name='Tours')
-taxi_cat = ServiceCategory.objects.get(name='Taxis')
+hotel_cat = ServiceCategory.objects.get(name='Hotel, Motel and Lodging')
+tour_cat = ServiceCategory.objects.get(name='Adventure')
+taxi_cat = ServiceCategory.objects.get(name='Transport')
 
 services_data = [
     {

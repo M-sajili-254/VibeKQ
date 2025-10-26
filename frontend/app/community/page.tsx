@@ -2,24 +2,27 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Heart, MessageCircle, Calendar, Users, TrendingUp } from 'lucide-react';
+import { Heart, MessageCircle, Calendar, Users, TrendingUp, Camera, MapPin } from 'lucide-react';
 import { communityService } from '@/utils/api';
 
 export default function Community() {
   const [posts, setPosts] = useState([]);
   const [events, setEvents] = useState([]);
+  const [vibeMemories, setVibeMemories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('posts');
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [postsData, eventsData] = await Promise.all([
+        const [postsData, eventsData, memoriesData] = await Promise.all([
           communityService.getPosts(),
           communityService.getEvents(),
+          communityService.getVibeMemories(),
         ]);
         setPosts(postsData.results || postsData || []);
         setEvents(eventsData.results || eventsData || []);
+        setVibeMemories(memoriesData.results || memoriesData || []);
       } catch (error) {
         console.error('Error fetching data:', error);
       } finally {
@@ -44,9 +47,9 @@ export default function Community() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}
-      <section className="bg-gradient-to-r from-purple-600 to-pink-600 text-white py-20 px-4">
+      <section className="bg-gradient-to-r from-red-600 to-red-800 text-white py-20 px-4">
         <div className="max-w-4xl mx-auto text-center">
-          <h1 className="text-5xl font-bold mb-6">Vibe Community</h1>
+          <h1 className="text-5xl font-bold mb-6">Community Vibes</h1>
           <p className="text-xl mb-8">
             Connect with KQ staff, share stories, and engage with passion projects
           </p>
@@ -81,6 +84,19 @@ export default function Community() {
               <div className="flex items-center space-x-2">
                 <Calendar className="w-5 h-5" />
                 <span>Events</span>
+              </div>
+            </button>
+            <button
+              onClick={() => setActiveTab('memories')}
+              className={`py-4 px-2 border-b-2 font-semibold transition ${
+                activeTab === 'memories'
+                  ? 'border-primary text-primary'
+                  : 'border-transparent text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              <div className="flex items-center space-x-2">
+                <Camera className="w-5 h-5" />
+                <span>Vibe Memories</span>
               </div>
             </button>
             <Link
@@ -193,6 +209,79 @@ export default function Community() {
                 </div>
               </div>
             ))}
+          </div>
+        )}
+
+        {/* Vibe Memories Tab */}
+        {activeTab === 'memories' && (
+          <div>
+            <div className="mb-6 text-center">
+              <p className="text-gray-600">
+                Explore beautiful moments captured by our KQ community members around the world
+              </p>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              {loading ? (
+                <>
+                  {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+                    <div key={i} className="aspect-square bg-gray-300 rounded-lg animate-pulse"></div>
+                  ))}
+                </>
+              ) : vibeMemories.length === 0 ? (
+                <div className="col-span-full text-center py-20">
+                  <div className="w-20 h-20 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Camera className="w-10 h-10 text-gray-400" />
+                  </div>
+                  <h3 className="text-2xl font-semibold text-gray-600 mb-2">No Memories Yet</h3>
+                  <p className="text-gray-500">
+                    Be the first to share your travel memories with the community!
+                  </p>
+                </div>
+              ) : (
+                <>
+                  {vibeMemories.map((memory: any) => (
+                    <div
+                      key={memory.id}
+                      className="group relative aspect-square rounded-lg overflow-hidden shadow hover:shadow-xl transition cursor-pointer"
+                    >
+                      {memory.image ? (
+                        <img
+                          src={memory.image}
+                          alt={memory.title}
+                          className="w-full h-full object-cover group-hover:scale-110 transition duration-300"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center">
+                          <Camera className="w-12 h-12 text-white" />
+                        </div>
+                      )}
+                      
+                      {/* Overlay on hover */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition duration-300">
+                        <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
+                          <h4 className="font-semibold mb-1 line-clamp-1">{memory.title}</h4>
+                          {memory.location && (
+                            <div className="flex items-center text-xs text-white/90">
+                              <MapPin className="w-3 h-3 mr-1" />
+                              <span>{memory.location}</span>
+                            </div>
+                          )}
+                          {memory.description && (
+                            <p className="text-xs text-white/80 mt-2 line-clamp-2">{memory.description}</p>
+                          )}
+                          <div className="flex items-center mt-2 text-xs">
+                            <Heart className="w-3 h-3 mr-1" />
+                            <span>{memory.likes_count} likes</span>
+                            <span className="mx-2">•</span>
+                            <span>by {memory.uploader_name}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </>
+              )}
+            </div>
           </div>
         )}
       </div>
