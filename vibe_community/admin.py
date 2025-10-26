@@ -1,4 +1,4 @@
-rom django.contrib import admin
+from django.contrib import admin
 from .models import Post, Comment, Like, Event, EventParticipant, Merchandise, VibeMemory
 
 
