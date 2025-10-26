@@ -79,6 +79,8 @@ env/
 venv/
 ENV/
 env.bak/
+.env
+.env.local
 
 *.pot
 
