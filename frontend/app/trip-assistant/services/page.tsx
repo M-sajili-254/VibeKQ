@@ -1,12 +1,12 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { MapPin, Star, DollarSign, CheckCircle, ArrowLeft } from 'lucide-react';
 import { serviceService } from '@/utils/api';
 
-export default function Services() {
+function ServicesContent() {
   const searchParams = useSearchParams();
   const categoryId = searchParams.get('category');
   const destinationId = searchParams.get('destination');
@@ -182,5 +182,37 @@ export default function Services() {
         </div>
       </section>
     </div>
+  );
+}
+
+export default function Services() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gray-50">
+        <section className="bg-gradient-to-r from-red-700 to-red-600 text-white py-12 px-4">
+          <div className="max-w-7xl mx-auto">
+            <h1 className="text-4xl md:text-5xl font-bold mb-4">Loading Services...</h1>
+          </div>
+        </section>
+        <section className="py-12 px-4">
+          <div className="max-w-7xl mx-auto">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[1, 2, 3, 4, 5, 6].map((i) => (
+                <div key={i} className="bg-white rounded-lg shadow animate-pulse">
+                  <div className="h-48 bg-gray-300"></div>
+                  <div className="p-6">
+                    <div className="h-6 bg-gray-300 rounded mb-2"></div>
+                    <div className="h-4 bg-gray-300 rounded w-2/3 mb-4"></div>
+                    <div className="h-10 bg-gray-300 rounded"></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      </div>
+    }>
+      <ServicesContent />
+    </Suspense>
   );
 }
