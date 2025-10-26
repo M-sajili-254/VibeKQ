@@ -47,6 +47,7 @@ jsonschema==4.25.1
 jsonschema-specifications==2025.9.1
 pillow==11.0.0
 psycopg==3.2.12
+whitenoise
 psycopg2-binary==2.9.11
 PyJWT==2.10.1
 python-decouple==3.8
