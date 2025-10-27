@@ -12,6 +12,7 @@ class PostAdmin(admin.ModelAdmin):
     readonly_fields = ('likes_count', 'comments_count', 'views_count', 'created_at', 'updated_at')
     ordering = ('-created_at',)
     date_hierarchy = 'created_at'
+    readonly_fields = ('created_at', 'updated_at')
     
     fieldsets = (
         ('Post Information', {
@@ -59,7 +60,7 @@ class CommentAdmin(admin.ModelAdmin):
     readonly_fields = ('created_at', 'updated_at')
     ordering = ('-created_at',)
     date_hierarchy = 'created_at'
-    
+    readonly_fields = ('created_at', 'updated_at')
     fieldsets = (
         ('Comment Details', {
             'fields': ('post', 'author', 'content', 'parent')
@@ -91,6 +92,7 @@ class EventAdmin(admin.ModelAdmin):
     readonly_fields = ('participants_count', 'created_at', 'updated_at')
     ordering = ('start_date',)
     date_hierarchy = 'start_date'
+    readonly_fields = ('created_at', 'updated_at')
     
     fieldsets = (
         ('Event Information', {
@@ -134,6 +136,7 @@ class EventParticipantAdmin(admin.ModelAdmin):
     readonly_fields = ('registered_at',)
     ordering = ('-registered_at',)
     date_hierarchy = 'registered_at'
+    readonly_fields = ('created_at', 'updated_at')
     
     actions = ['mark_as_attended', 'mark_as_not_attended']
     
@@ -154,6 +157,9 @@ class MerchandiseAdmin(admin.ModelAdmin):
     list_editable = ('available', 'featured', 'stock_quantity')
     ordering = ('-featured', 'name')
     date_hierarchy = 'created_at'
+    
+    # Add this line to fix the error
+    readonly_fields = ('created_at', 'updated_at')
     
     fieldsets = (
         ('Product Information', {
@@ -199,6 +205,7 @@ class VibeMemoryAdmin(admin.ModelAdmin):
     readonly_fields = ('likes_count', 'created_at', 'updated_at')
     ordering = ('-created_at',)
     date_hierarchy = 'created_at'
+    readonly_fields = ('created_at', 'updated_at')
     
     fieldsets = (
         ('Memory Information', {

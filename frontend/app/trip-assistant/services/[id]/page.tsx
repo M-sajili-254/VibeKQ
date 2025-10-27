@@ -26,7 +26,8 @@ export default function ServiceDetail() {
   useEffect(() => {
     const fetchService = async () => {
       try {
-        const data = await serviceService.getById(parseInt(serviceId));
+        // Don't parse as int - IDs are UUIDs
+        const data = await serviceService.getById(serviceId);
         setService(data);
       } catch (error) {
         console.error('Error fetching service:', error);
@@ -50,17 +51,14 @@ export default function ServiceDetail() {
     }
 
     try {
-      await bookingService.create({
-        service: parseInt(serviceId),
+      const booking = await bookingService.create({
+        service: serviceId, // Use UUID string directly
         ...bookingData,
       });
-      setBookingSuccess(true);
-      setTimeout(() => {
-        router.push('/trip-assistant');
-      }, 2000);
+      // Redirect to checkout page with booking ID
+      router.push(`/checkout/${booking.id}`);
     } catch (error: any) {
       setBookingError(error.response?.data?.error || 'Booking failed. Please try again.');
-    } finally {
       setBookingLoading(false);
     }
   };

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Destination, ServiceCategory, Service, Booking, Review
+from .models import Destination, ServiceCategory, Service, Booking, Review, Payment
 
 
 @admin.register(Destination)
@@ -107,3 +107,45 @@ class ReviewAdmin(admin.ModelAdmin):
             'classes': ('collapse',)
         }),
     )
+
+
+@admin.register(Payment)
+class PaymentAdmin(admin.ModelAdmin):
+    list_display = ('id', 'booking', 'user', 'amount', 'currency', 'payment_method', 'status', 'created_at')
+    list_filter = ('status', 'payment_method', 'created_at')
+    search_fields = ('user__username', 'booking__id', 'transaction_reference', 'mpesa_transaction_id')
+    readonly_fields = ('transaction_reference', 'created_at', 'updated_at', 'completed_at', 'payment_response')
+    ordering = ('-created_at',)
+    date_hierarchy = 'created_at'
+    
+    fieldsets = (
+        ('Payment Details', {
+            'fields': ('booking', 'user', 'amount', 'currency', 'payment_method', 'status')
+        }),
+        ('M-Pesa Details', {
+            'fields': ('mpesa_phone_number', 'mpesa_transaction_id', 'mpesa_checkout_request_id'),
+            'classes': ('collapse',)
+        }),
+        ('Card Details', {
+            'fields': ('card_last_four', 'card_brand', 'stripe_payment_intent_id'),
+            'classes': ('collapse',)
+        }),
+        ('Transaction Info', {
+            'fields': ('transaction_reference', 'payment_response', 'completed_at')
+        }),
+        ('Timestamps', {
+            'fields': ('created_at', 'updated_at'),
+            'classes': ('collapse',)
+        }),
+    )
+    
+    actions = ['mark_as_completed', 'mark_as_failed']
+    
+    def mark_as_completed(self, request, queryset):
+        from django.utils import timezone
+        queryset.update(status='completed', completed_at=timezone.now())
+    mark_as_completed.short_description = "Mark selected payments as completed"
+    
+    def mark_as_failed(self, request, queryset):
+        queryset.update(status='failed')
+    mark_as_failed.short_description = "Mark selected payments as failed"
