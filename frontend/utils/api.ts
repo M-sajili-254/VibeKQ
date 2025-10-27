@@ -101,7 +101,7 @@ export const serviceService = {
     const response = await api.get('/trip-assistant/services/', { params });
     return response.data;
   },
-  getById: async (id: number) => {
+  getById: async (id: number | string) => {
     const response = await api.get(`/trip-assistant/services/${id}/`);
     return response.data;
   },

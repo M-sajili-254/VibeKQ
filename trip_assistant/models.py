@@ -93,3 +93,47 @@ class Review(TimeStampedModel, IDModel):
     
     class Meta:
         ordering = ['-created_at']
+
+
+class Payment(TimeStampedModel, IDModel):
+    """Payment records for bookings"""
+    PAYMENT_METHOD_CHOICES = (
+        ('mpesa', 'M-Pesa'),
+        ('card', 'Debit/Credit Card'),
+    )
+    
+    PAYMENT_STATUS_CHOICES = (
+        ('pending', 'Pending'),
+        ('processing', 'Processing'),
+        ('completed', 'Completed'),
+        ('failed', 'Failed'),
+        ('refunded', 'Refunded'),
+    )
+    
+    booking = models.OneToOneField(Booking, on_delete=models.CASCADE, related_name='payment')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='payments')
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    currency = models.CharField(max_length=3, default='KES')
+    payment_method = models.CharField(max_length=20, choices=PAYMENT_METHOD_CHOICES)
+    status = models.CharField(max_length=20, choices=PAYMENT_STATUS_CHOICES, default='pending')
+    
+    # M-Pesa specific fields
+    mpesa_phone_number = models.CharField(max_length=15, blank=True, null=True)
+    mpesa_transaction_id = models.CharField(max_length=100, blank=True, null=True)
+    mpesa_checkout_request_id = models.CharField(max_length=100, blank=True, null=True)
+    
+    # Card specific fields
+    card_last_four = models.CharField(max_length=4, blank=True, null=True)
+    card_brand = models.CharField(max_length=20, blank=True, null=True)
+    stripe_payment_intent_id = models.CharField(max_length=100, blank=True, null=True)
+    
+    # Additional info
+    transaction_reference = models.CharField(max_length=100, unique=True)
+    payment_response = models.JSONField(blank=True, null=True)
+    completed_at = models.DateTimeField(blank=True, null=True)
+    
+    def __str__(self):
+        return f"Payment #{self.id} - {self.booking.id} - {self.status}"
+    
+    class Meta:
+        ordering = ['-created_at']

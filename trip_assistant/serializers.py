@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Destination, ServiceCategory, Service, Booking, Review
+from .models import Destination, ServiceCategory, Service, Booking, Review, Payment
 from accounts.serializers import UserSerializer
 
 
@@ -94,3 +94,34 @@ class ReviewSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         validated_data['user'] = self.context['request'].user
         return super().create(validated_data)
+
+
+class PaymentSerializer(serializers.ModelSerializer):
+    """Serializer for Payment model"""
+    booking_details = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = Payment
+        fields = '__all__'
+        read_only_fields = ('user', 'transaction_reference', 'status', 'completed_at', 'payment_response')
+    
+    def get_booking_details(self, obj):
+        return {
+            'service_name': obj.booking.service.name,
+            'booking_date': obj.booking.booking_date,
+            'number_of_people': obj.booking.number_of_people
+        }
+
+
+class PaymentInitiateSerializer(serializers.Serializer):
+    """Serializer for initiating payment"""
+    booking_id = serializers.CharField()  # Changed to CharField to support UUID
+    payment_method = serializers.ChoiceField(choices=['mpesa', 'card'])
+    mpesa_phone_number = serializers.CharField(required=False, allow_blank=True)
+    
+    def validate(self, data):
+        if data['payment_method'] == 'mpesa' and not data.get('mpesa_phone_number'):
+            raise serializers.ValidationError({
+                'mpesa_phone_number': 'Phone number is required for M-Pesa payments'
+            })
+        return data

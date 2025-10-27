@@ -225,3 +225,14 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Custom user model
 AUTH_USER_MODEL = 'accounts.User'
+
+DARAJA_CONSUMER_KEY = config("DARAJA_CONSUMER_KEY", default="YkkO6skE8dsrfrSAlbzPD0AADe5MAnPf")
+DARAJA_CONSUMER_SECRET = config("DARAJA_CONSUMER_SECRET", default="YunbPn7hn1R9VV4o")
+DARAJA_PASSKEY = config("DARAJA_PASSKEY", default="bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919")
+DARAJA_SHORT_CODE = config("DARAJA_SHORT_CODE", default="174379")
+DARAJA_BASE_URL = config("DARAJA_BASE_URL", default="https://sandbox.safaricom.co.ke")
+DARAJA_CALLBACK_URL= config("DARAJA_CALLBACK_URL", default="https://msajili.onrender.com/api/mpesa_payments/")
+
+# Add to settings.py or .env
+STRIPE_SECRET_KEY = 'sk_live_...'
+STRIPE_PUBLISHABLE_KEY = 'pk_live_...'
