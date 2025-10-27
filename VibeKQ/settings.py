@@ -153,6 +153,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "https://vibe-kq.vercel.app",
     "http://127.0.0.1:3000",
+    "https://vibekq.vercel.app/",
 ]
 
 CORS_ALLOW_CREDENTIALS = True
