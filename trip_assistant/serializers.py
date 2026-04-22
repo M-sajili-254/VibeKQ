@@ -12,12 +12,15 @@ class DestinationSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
     def get_display_image(self, obj):
+        # Prefer external URL (works on all environments)
+        if obj.image_url:
+            return obj.image_url
         if obj.image and hasattr(obj.image, 'url'):
             try:
                 return obj.image.url
             except Exception:
                 pass
-        return obj.image_url or None
+        return None
 
 
 class ServiceCategorySerializer(serializers.ModelSerializer):
@@ -45,12 +48,14 @@ class ServiceSerializer(serializers.ModelSerializer):
         read_only_fields = ('rating', 'total_bookings', 'verified')
 
     def get_display_image(self, obj):
+        if obj.image_url:
+            return obj.image_url
         if obj.image and hasattr(obj.image, 'url'):
             try:
                 return obj.image.url
             except Exception:
                 pass
-        return obj.image_url or None
+        return None
 
 
 class ServiceDetailSerializer(serializers.ModelSerializer):

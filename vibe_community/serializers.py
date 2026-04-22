@@ -16,12 +16,14 @@ class PostSerializer(serializers.ModelSerializer):
         read_only_fields = ('author', 'likes_count', 'comments_count', 'views_count')
     
     def get_display_image(self, obj):
+        if obj.image_url:
+            return obj.image_url
         if obj.image and hasattr(obj.image, 'url'):
             try:
                 return obj.image.url
             except Exception:
                 pass
-        return obj.image_url or None
+        return None
 
     def get_is_liked(self, obj):
         request = self.context.get('request')
@@ -81,12 +83,14 @@ class EventSerializer(serializers.ModelSerializer):
         read_only_fields = ('organizer', 'participants_count')
     
     def get_display_image(self, obj):
+        if obj.image_url:
+            return obj.image_url
         if obj.image and hasattr(obj.image, 'url'):
             try:
                 return obj.image.url
             except Exception:
                 pass
-        return obj.image_url or None
+        return None
 
     def get_is_registered(self, obj):
         request = self.context.get('request')
@@ -123,12 +127,14 @@ class MerchandiseSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
     def get_display_image(self, obj):
+        if obj.image_url:
+            return obj.image_url
         if obj.image and hasattr(obj.image, 'url'):
             try:
                 return obj.image.url
             except Exception:
                 pass
-        return obj.image_url or None
+        return None
 
 
 class VibeMemorySerializer(serializers.ModelSerializer):
@@ -143,12 +149,14 @@ class VibeMemorySerializer(serializers.ModelSerializer):
         read_only_fields = ('uploader', 'likes_count')
     
     def get_display_image(self, obj):
+        if obj.image_url:
+            return obj.image_url
         if obj.image and hasattr(obj.image, 'url'):
             try:
                 return obj.image.url
             except Exception:
                 pass
-        return obj.image_url or None
+        return None
 
     def create(self, validated_data):
         validated_data['uploader'] = self.context['request'].user
