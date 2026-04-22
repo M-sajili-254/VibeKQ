@@ -4,7 +4,7 @@ import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { MapPin, Star, DollarSign, CheckCircle, ArrowLeft } from 'lucide-react';
-import { serviceService } from '@/utils/api';
+import { serviceService, getImageUrl } from '@/utils/api';
 
 function ServicesContent() {
   const searchParams = useSearchParams();
@@ -103,7 +103,7 @@ function ServicesContent() {
                   <div className="relative h-48 bg-gradient-to-br from-red-100 to-red-50 overflow-hidden">
                     {service.image ? (
                       <img
-                        src={service.image}
+                        src={getImageUrl(service.image) || ''}
                         alt={service.name}
                         className="w-full h-full object-cover group-hover:scale-110 transition duration-300"
                       />

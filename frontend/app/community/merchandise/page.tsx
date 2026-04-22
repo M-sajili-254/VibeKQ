@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { ShoppingBag, ShoppingCart, Plus, Minus } from 'lucide-react';
-import { communityService } from '@/utils/api';
+import { communityService, getImageUrl } from '@/utils/api';
 
 export default function Merchandise() {
   const [merchandise, setMerchandise] = useState([]);
@@ -108,7 +108,7 @@ export default function Merchandise() {
                   <div className="relative h-64 bg-gradient-to-br from-red-100 to-red-50 overflow-hidden rounded-t-lg">
                     {item.image ? (
                       <img
-                        src={item.image}
+                        src={getImageUrl(item.image) || ''}
                         alt={item.name}
                         className="w-full h-full object-cover group-hover:scale-110 transition duration-300"
                       />

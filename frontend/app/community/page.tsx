@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Heart, MessageCircle, Calendar, Users, TrendingUp, Camera, MapPin } from 'lucide-react';
-import { communityService } from '@/utils/api';
+import { Heart, MessageCircle, Calendar, Users, TrendingUp, Camera, MapPin, Loader2 } from 'lucide-react';
+import { communityService, getImageUrl } from '@/utils/api';
 
 export default function Community() {
   const [posts, setPosts] = useState([]);
@@ -11,6 +11,7 @@ export default function Community() {
   const [vibeMemories, setVibeMemories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('posts');
+  const [registeringEventId, setRegisteringEventId] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -41,6 +42,30 @@ export default function Community() {
       setPosts(postsData.results || postsData || []);
     } catch (error) {
       console.error('Error liking post:', error);
+    }
+  };
+
+  const handleEventRegister = async (eventId: string | number) => {
+    // Check if user is logged in
+    const token = localStorage.getItem('access_token');
+    if (!token) {
+      alert('Please log in to register for events');
+      window.location.href = '/login';
+      return;
+    }
+
+    setRegisteringEventId(String(eventId));
+    try {
+      await communityService.registerForEvent(eventId);
+      // Refresh events to get updated registration status
+      const eventsData = await communityService.getEvents();
+      setEvents(eventsData.results || eventsData || []);
+      alert('Successfully registered for the event!');
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.error || 'Failed to register for event';
+      alert(errorMessage);
+    } finally {
+      setRegisteringEventId(null);
     }
   };
 
@@ -136,7 +161,7 @@ export default function Community() {
                     {post.image && (
                       <div className="h-48 bg-gradient-to-br from-purple-400 to-pink-400 overflow-hidden">
                         <img
-                          src={post.image}
+                          src={getImageUrl(post.image) || ''}
                           alt={post.title}
                           className="w-full h-full object-cover"
                         />
@@ -201,8 +226,25 @@ export default function Community() {
                         <p>{event.location || 'Virtual Event'}</p>
                         <p>{event.participants_count} participants</p>
                       </div>
-                      <button className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition">
-                        {event.is_registered ? 'Registered' : 'Register'}
+                      <button 
+                        onClick={() => !event.is_registered && handleEventRegister(event.id)}
+                        disabled={event.is_registered || registeringEventId === event.id}
+                        className={`px-4 py-2 rounded-lg transition flex items-center gap-2 ${
+                          event.is_registered 
+                            ? 'bg-green-600 text-white cursor-default' 
+                            : 'bg-primary text-white hover:bg-primary/90'
+                        } ${registeringEventId === event.id ? 'opacity-70 cursor-wait' : ''}`}
+                      >
+                        {registeringEventId === event.id ? (
+                          <>
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                            Registering...
+                          </>
+                        ) : event.is_registered ? (
+                          '✓ Registered'
+                        ) : (
+                          'Register'
+                        )}
                       </button>
                     </div>
                   </div>
@@ -246,7 +288,7 @@ export default function Community() {
                     >
                       {memory.image ? (
                         <img
-                          src={memory.image}
+                          src={getImageUrl(memory.image) || ''}
                           alt={memory.title}
                           className="w-full h-full object-cover group-hover:scale-110 transition duration-300"
                         />
