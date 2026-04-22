@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Building2, CheckCircle, TrendingUp, Users, Globe, Star, ArrowRight } from 'lucide-react';
 import { businessService } from '@/utils/api';
@@ -68,7 +68,8 @@ const businessCommunities = {
 type CityKey = keyof typeof businessCommunities;
 const allCities = Object.keys(businessCommunities) as CityKey[];
 
-export default function Business() {
+// Component that uses useSearchParams - must be wrapped in Suspense
+function BusinessContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [selectedCity, setSelectedCity] = useState<CityKey | null>(null);
@@ -528,3 +529,25 @@ export default function Business() {
     </div>
   );
 }
+
+// Loading fallback component
+function BusinessLoading() {
+  return (
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="text-center">
+        <div className="w-16 h-16 border-4 border-red-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+        <p className="text-gray-600">Loading...</p>
+      </div>
+    </div>
+  );
+}
+
+// Main export with Suspense boundary
+export default function Business() {
+  return (
+    <Suspense fallback={<BusinessLoading />}>
+      <BusinessContent />
+    </Suspense>
+  );
+}
+
