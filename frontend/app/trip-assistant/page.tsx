@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Search, MapPin, Star, DollarSign, CheckCircle, Lock } from 'lucide-react';
-import { destinationService, serviceService, getImageUrl } from '@/utils/api';
+import { destinationService, serviceService, getImageUrl, getItemImage } from '@/utils/api';
 
 export default function TripAssistant() {
   const router = useRouter();
@@ -209,9 +209,9 @@ export default function TripAssistant() {
                   >
                     {/* Service Image */}
                     <div className="relative h-48 bg-gradient-to-br from-red-100 to-red-50 overflow-hidden">
-                      {service.image ? (
+                      {getItemImage(service) ? (
                         <img
-                          src={getImageUrl(service.image) || ''}
+                          src={getItemImage(service) || ''}
                           alt={service.name}
                           className="w-full h-full object-cover group-hover:scale-110 transition duration-300"
                         />
@@ -336,9 +336,9 @@ export default function TripAssistant() {
                   }`}
                 >
                   <div className="h-48 bg-gradient-to-br from-orange-400 to-yellow-400 relative overflow-hidden">
-                    {dest.image && (
+                    {getItemImage(dest) && (
                       <img
-                        src={getImageUrl(dest.image) || ''}
+                        src={getItemImage(dest) || ''}
                         alt={dest.name}
                         className="w-full h-full object-cover group-hover:scale-110 transition duration-300"
                       />

@@ -26,6 +26,13 @@ export const getImageUrl = (imagePath: string | null | undefined): string | null
   return `${MEDIA_BASE_URL}/media/${imagePath}`;
 };
 
+// Helper to get best available image from an API object
+// Checks display_image first (computed by serializer), then image_url, then image
+export const getItemImage = (item: any): string | null => {
+  if (!item) return null;
+  return getImageUrl(item.display_image) || getImageUrl(item.image_url) || getImageUrl(item.image);
+};
+
 const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
