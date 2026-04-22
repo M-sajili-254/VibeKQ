@@ -167,8 +167,12 @@ export const communityService = {
     const response = await api.post(`/community/posts/${postId}/like/`);
     return response.data;
   },
-  registerForEvent: async (eventId: number) => {
+  registerForEvent: async (eventId: number | string) => {
     const response = await api.post(`/community/events/${eventId}/register/`);
+    return response.data;
+  },
+  unregisterFromEvent: async (eventId: number | string) => {
+    const response = await api.post(`/community/events/${eventId}/unregister/`);
     return response.data;
   },
 };

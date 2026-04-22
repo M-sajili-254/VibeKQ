@@ -9,7 +9,7 @@ django.setup()
 
 from accounts.models import User
 from trip_assistant.models import Destination, ServiceCategory, Service
-from vibe_community.models import Post, Event
+from vibe_community.models import Post, Event, Merchandise, VibeMemory
 
 print("Creating sample data...")
 
@@ -431,6 +431,374 @@ for event_data in events_data:
     )
     if created:
         print(f"✓ Created event: {event.title}")
+
+# Create Kenya Airways Merchandise
+merchandise_data = [
+    # Apparel
+    {
+        'name': 'Kenya Airways Polo Shirt - Red',
+        'description': 'Official Kenya Airways branded polo shirt in signature red. Made from premium cotton blend with embroidered KQ logo on chest. Perfect for casual wear or travel. Available in various sizes.',
+        'price': 45.00,
+        'currency': 'USD',
+        'stock_quantity': 150,
+        'available': True,
+        'featured': True
+    },
+    {
+        'name': 'Kenya Airways Polo Shirt - White',
+        'description': 'Classic white polo shirt with Kenya Airways logo. Premium quality fabric with moisture-wicking technology. Ideal for a smart casual look.',
+        'price': 45.00,
+        'currency': 'USD',
+        'stock_quantity': 120,
+        'available': True,
+        'featured': False
+    },
+    {
+        'name': 'Kenya Airways Pilot Uniform Cap',
+        'description': 'Authentic Kenya Airways pilot-style cap with embroidered wings and KQ logo. Adjustable strap for perfect fit. A must-have for aviation enthusiasts.',
+        'price': 35.00,
+        'currency': 'USD',
+        'stock_quantity': 80,
+        'available': True,
+        'featured': True
+    },
+    {
+        'name': 'Kenya Airways Crew Scarf',
+        'description': 'Elegant silk scarf featuring traditional African patterns inspired by Kenya Airways cabin crew uniforms. Perfect accessory for any outfit.',
+        'price': 55.00,
+        'currency': 'USD',
+        'stock_quantity': 60,
+        'available': True,
+        'featured': False
+    },
+    {
+        'name': 'Pride of Africa T-Shirt',
+        'description': 'Comfortable cotton t-shirt featuring the iconic "Pride of Africa" slogan with artistic African wildlife design. Unisex fit.',
+        'price': 30.00,
+        'currency': 'USD',
+        'stock_quantity': 200,
+        'available': True,
+        'featured': True
+    },
+    {
+        'name': 'Kenya Airways Hoodie - Black',
+        'description': 'Premium quality hoodie in black with embroidered Kenya Airways logo. Warm fleece interior, perfect for travel or lounging.',
+        'price': 65.00,
+        'currency': 'USD',
+        'stock_quantity': 75,
+        'available': True,
+        'featured': False
+    },
+    # Bags and Accessories
+    {
+        'name': 'Kenya Airways Executive Travel Bag',
+        'description': 'Sleek black leather executive travel bag with KQ logo. Multiple compartments, laptop sleeve, and premium zippers. Perfect for business travelers.',
+        'price': 120.00,
+        'currency': 'USD',
+        'stock_quantity': 40,
+        'available': True,
+        'featured': True
+    },
+    {
+        'name': 'KQ Cabin Trolley Bag',
+        'description': 'Official Kenya Airways cabin-approved trolley bag. Lightweight design with 360° spinner wheels. Includes KQ luggage tag.',
+        'price': 150.00,
+        'currency': 'USD',
+        'stock_quantity': 50,
+        'available': True,
+        'featured': True
+    },
+    {
+        'name': 'Kenya Airways Backpack',
+        'description': 'Versatile backpack with Kenya Airways branding. Features padded laptop compartment, multiple pockets, and ergonomic design.',
+        'price': 75.00,
+        'currency': 'USD',
+        'stock_quantity': 90,
+        'available': True,
+        'featured': False
+    },
+    {
+        'name': 'KQ Leather Passport Holder',
+        'description': 'Premium leather passport holder with gold-embossed Kenya Airways logo. Includes card slots and boarding pass pocket.',
+        'price': 40.00,
+        'currency': 'USD',
+        'stock_quantity': 100,
+        'available': True,
+        'featured': True
+    },
+    {
+        'name': 'Kenya Airways Luggage Tag Set',
+        'description': 'Set of 3 premium luggage tags in red, black, and white with Kenya Airways branding. Durable design with privacy flap.',
+        'price': 18.00,
+        'currency': 'USD',
+        'stock_quantity': 200,
+        'available': True,
+        'featured': False
+    },
+    # Collectibles and Gifts
+    {
+        'name': 'Boeing 787 Dreamliner Model - KQ Livery',
+        'description': 'Detailed 1:200 scale model of the Kenya Airways Boeing 787 Dreamliner. Perfect for collectors and aviation enthusiasts. Comes with display stand.',
+        'price': 85.00,
+        'currency': 'USD',
+        'stock_quantity': 30,
+        'available': True,
+        'featured': True
+    },
+    {
+        'name': 'Embraer E190 Model - KQ Livery',
+        'description': 'Collectible 1:200 scale model of Kenya Airways Embraer E190 aircraft. Detailed finish with authentic livery.',
+        'price': 65.00,
+        'currency': 'USD',
+        'stock_quantity': 25,
+        'available': True,
+        'featured': False
+    },
+    {
+        'name': 'Kenya Airways Mug - Pride of Africa',
+        'description': 'Premium ceramic mug featuring Kenya Airways Pride of Africa design. Microwave and dishwasher safe. Perfect for your morning coffee.',
+        'price': 15.00,
+        'currency': 'USD',
+        'stock_quantity': 300,
+        'available': True,
+        'featured': False
+    },
+    {
+        'name': 'KQ Playing Cards Set',
+        'description': 'Premium playing cards featuring stunning African wildlife and Kenya Airways aircraft. Great for travel entertainment.',
+        'price': 12.00,
+        'currency': 'USD',
+        'stock_quantity': 150,
+        'available': True,
+        'featured': False
+    },
+    {
+        'name': 'Kenya Airways Metal Pin Badge',
+        'description': 'High-quality metal pin badge with Kenya Airways logo. Gold and red enamel finish. Perfect for jackets, bags, or collections.',
+        'price': 10.00,
+        'currency': 'USD',
+        'stock_quantity': 250,
+        'available': True,
+        'featured': False
+    },
+    {
+        'name': 'KQ Keychain - Aircraft Shape',
+        'description': 'Elegant metal keychain in aircraft shape with Kenya Airways engraving. Perfect gift for aviation lovers.',
+        'price': 12.00,
+        'currency': 'USD',
+        'stock_quantity': 180,
+        'available': True,
+        'featured': False
+    },
+    # Travel Accessories
+    {
+        'name': 'Kenya Airways Travel Pillow',
+        'description': 'Memory foam travel neck pillow with removable KQ-branded cover. Compact and comfortable for long flights.',
+        'price': 28.00,
+        'currency': 'USD',
+        'stock_quantity': 100,
+        'available': True,
+        'featured': False
+    },
+    {
+        'name': 'KQ Sleep Mask & Earplug Set',
+        'description': 'Premium silk sleep mask with Kenya Airways logo and high-quality earplugs. Perfect travel companion for restful journeys.',
+        'price': 22.00,
+        'currency': 'USD',
+        'stock_quantity': 120,
+        'available': True,
+        'featured': False
+    },
+    {
+        'name': 'Kenya Airways Toiletry Bag',
+        'description': 'Compact toiletry bag as used in Kenya Airways Business Class. Water-resistant with multiple compartments.',
+        'price': 35.00,
+        'currency': 'USD',
+        'stock_quantity': 80,
+        'available': True,
+        'featured': False
+    },
+]
+
+for merch_data in merchandise_data:
+    merch, created = Merchandise.objects.get_or_create(
+        name=merch_data['name'],
+        defaults=merch_data
+    )
+    if created:
+        print(f"✓ Created merchandise: {merch.name}")
+
+# Create Vibe Memories
+vibe_memories_data = [
+    {
+        'uploader': staff,
+        'title': 'Sunset at Masai Mara',
+        'description': 'Capturing the breathtaking sunset over the Masai Mara savannah. The golden hour creates magical colors that words cannot describe.',
+        'location': 'Masai Mara, Kenya',
+        'featured': True,
+        'likes_count': 245
+    },
+    {
+        'uploader': staff,
+        'title': 'Crew Celebration in Nairobi',
+        'description': 'Our amazing cabin crew celebrating after a successful international route launch. The pride of Africa!',
+        'location': 'JKIA, Nairobi',
+        'featured': True,
+        'likes_count': 189
+    },
+    {
+        'uploader': staff,
+        'title': 'Mount Kenya View from Above',
+        'description': 'A stunning aerial view of Mount Kenya as seen from the flight deck. Africa\'s second highest peak never fails to amaze.',
+        'location': 'Mount Kenya, Kenya',
+        'featured': True,
+        'likes_count': 312
+    },
+    {
+        'uploader': staff,
+        'title': 'Mombasa Beach Vibes',
+        'description': 'The pristine beaches of Diani. Crystal clear waters and white sand - Kenya\'s coastal paradise.',
+        'location': 'Diani Beach, Mombasa',
+        'featured': True,
+        'likes_count': 278
+    },
+    {
+        'uploader': staff,
+        'title': 'Zanzibar Spice Market',
+        'description': 'Exploring the vibrant spice markets of Stone Town. The colors and aromas are simply intoxicating!',
+        'location': 'Stone Town, Zanzibar',
+        'featured': False,
+        'likes_count': 156
+    },
+    {
+        'uploader': staff,
+        'title': 'KQ Dreamliner at Dawn',
+        'description': 'Our beautiful Boeing 787 Dreamliner ready for departure at sunrise. Pride of Africa taking to the skies!',
+        'location': 'JKIA, Nairobi',
+        'featured': True,
+        'likes_count': 423
+    },
+    {
+        'uploader': staff,
+        'title': 'Lake Nakuru Flamingos',
+        'description': 'Millions of flamingos painting Lake Nakuru pink. One of nature\'s most spectacular displays.',
+        'location': 'Lake Nakuru, Kenya',
+        'featured': True,
+        'likes_count': 298
+    },
+    {
+        'uploader': staff,
+        'title': 'Victoria Falls Adventure',
+        'description': 'The mighty Victoria Falls - one of the seven natural wonders of the world. Simply breathtaking!',
+        'location': 'Victoria Falls, Zimbabwe',
+        'featured': False,
+        'likes_count': 187
+    },
+    {
+        'uploader': staff,
+        'title': 'Cape Town Table Mountain',
+        'description': 'Stunning view of Table Mountain from our layover in Cape Town. What a magnificent city!',
+        'location': 'Cape Town, South Africa',
+        'featured': False,
+        'likes_count': 234
+    },
+    {
+        'uploader': staff,
+        'title': 'Traditional Maasai Welcome',
+        'description': 'Warmly welcomed by Maasai warriors during a community visit. Their culture and traditions are truly inspiring.',
+        'location': 'Maasai Mara, Kenya',
+        'featured': True,
+        'likes_count': 356
+    },
+    {
+        'uploader': staff,
+        'title': 'Kilimanjaro Sunrise',
+        'description': 'Mount Kilimanjaro\'s peak at sunrise, as seen during our flight to Dar es Salaam. Africa\'s highest point in all its glory.',
+        'location': 'En Route to Dar es Salaam',
+        'featured': True,
+        'likes_count': 445
+    },
+    {
+        'uploader': staff,
+        'title': 'Nairobi Skyline Night',
+        'description': 'The beautiful Nairobi city skyline at night. Our home base never fails to impress.',
+        'location': 'Nairobi, Kenya',
+        'featured': False,
+        'likes_count': 167
+    },
+    {
+        'uploader': staff,
+        'title': 'Amboseli Elephant Crossing',
+        'description': 'Majestic elephants crossing the Amboseli plains with Kilimanjaro in the background. Pure Africa!',
+        'location': 'Amboseli National Park, Kenya',
+        'featured': True,
+        'likes_count': 389
+    },
+    {
+        'uploader': staff,
+        'title': 'Lamu Island Dhow',
+        'description': 'Traditional dhow sailing off the coast of Lamu Island. Stepping back in time in this UNESCO heritage site.',
+        'location': 'Lamu Island, Kenya',
+        'featured': False,
+        'likes_count': 145
+    },
+    {
+        'uploader': staff,
+        'title': 'Pride of Africa Team',
+        'description': 'Our incredible ground crew team at JKIA. The heart and soul behind every successful flight!',
+        'location': 'JKIA, Nairobi',
+        'featured': True,
+        'likes_count': 512
+    },
+    {
+        'uploader': staff,
+        'title': 'Dubai Layover Sunset',
+        'description': 'Stunning Dubai skyline during our layover. Connecting Africa to the world!',
+        'location': 'Dubai, UAE',
+        'featured': False,
+        'likes_count': 198
+    },
+    {
+        'uploader': staff,
+        'title': 'Serengeti Great Migration',
+        'description': 'Witnessing the Great Migration in Serengeti - millions of wildebeest on the move. Nature at its finest!',
+        'location': 'Serengeti, Tanzania',
+        'featured': True,
+        'likes_count': 478
+    },
+    {
+        'uploader': staff,
+        'title': 'Ethiopian Coffee Ceremony',
+        'description': 'Experiencing a traditional Ethiopian coffee ceremony in Addis Ababa. The birthplace of coffee!',
+        'location': 'Addis Ababa, Ethiopia',
+        'featured': False,
+        'likes_count': 134
+    },
+    {
+        'uploader': staff,
+        'title': 'Giraffe Centre Nairobi',
+        'description': 'Meeting the friendly Rothschild giraffes at the Nairobi Giraffe Centre. An unforgettable experience!',
+        'location': 'Giraffe Centre, Nairobi',
+        'featured': True,
+        'likes_count': 267
+    },
+    {
+        'uploader': staff,
+        'title': 'Hell\'s Gate Adventure',
+        'description': 'Cycling through Hell\'s Gate National Park. The only park in Kenya where you can walk or cycle among wildlife!',
+        'location': 'Hell\'s Gate, Kenya',
+        'featured': False,
+        'likes_count': 156
+    },
+]
+
+for memory_data in vibe_memories_data:
+    memory, created = VibeMemory.objects.get_or_create(
+        title=memory_data['title'],
+        defaults=memory_data
+    )
+    if created:
+        print(f"✓ Created vibe memory: {memory.title}")
 
 print("\n" + "="*50)
 print("Sample data created successfully!")
