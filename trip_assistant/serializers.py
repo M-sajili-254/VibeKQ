@@ -5,10 +5,19 @@ from accounts.serializers import UserSerializer
 
 class DestinationSerializer(serializers.ModelSerializer):
     """Serializer for Destination model"""
-    
+    display_image = serializers.SerializerMethodField()
+
     class Meta:
         model = Destination
         fields = '__all__'
+
+    def get_display_image(self, obj):
+        if obj.image and hasattr(obj.image, 'url'):
+            try:
+                return obj.image.url
+            except Exception:
+                pass
+        return obj.image_url or None
 
 
 class ServiceCategorySerializer(serializers.ModelSerializer):
@@ -28,11 +37,20 @@ class ServiceSerializer(serializers.ModelSerializer):
     category_name = serializers.CharField(source='category.name', read_only=True)
     destination_name = serializers.CharField(source='destination.city', read_only=True)
     provider_name = serializers.CharField(source='provider.business_name', read_only=True)
-    
+    display_image = serializers.SerializerMethodField()
+
     class Meta:
         model = Service
         fields = '__all__'
         read_only_fields = ('rating', 'total_bookings', 'verified')
+
+    def get_display_image(self, obj):
+        if obj.image and hasattr(obj.image, 'url'):
+            try:
+                return obj.image.url
+            except Exception:
+                pass
+        return obj.image_url or None
 
 
 class ServiceDetailSerializer(serializers.ModelSerializer):

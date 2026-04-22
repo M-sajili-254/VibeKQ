@@ -33,6 +33,10 @@ INSTALLED_APPS = [
     'corsheaders',
     'drf_spectacular',
     
+    # Cloudinary
+    'cloudinary_storage',
+    'cloudinary',
+
     # Local apps
     'accounts',
     'trip_assistant',
@@ -110,6 +114,17 @@ if os.path.exists(static_dir):
 # Media files
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# Cloudinary configuration
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': config('CLOUDINARY_CLOUD_NAME', default=''),
+    'API_KEY': config('CLOUDINARY_API_KEY', default=''),
+    'API_SECRET': config('CLOUDINARY_API_SECRET', default=''),
+}
+
+# Use Cloudinary for media storage in production
+if CLOUDINARY_STORAGE['CLOUD_NAME']:
+    DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Heart, MessageCircle, Calendar, Users, TrendingUp, Camera, MapPin, Loader2 } from 'lucide-react';
-import { communityService, getImageUrl } from '@/utils/api';
+import { communityService, getImageUrl, getItemImage } from '@/utils/api';
 
 export default function Community() {
   const [posts, setPosts] = useState([]);
@@ -158,10 +158,10 @@ export default function Community() {
               <>
                 {posts.map((post: any) => (
                   <div key={post.id} className="bg-white rounded-lg shadow hover:shadow-lg transition">
-                    {post.image && (
+                    {(post.image || post.display_image || post.image_url) && (
                       <div className="h-48 bg-gradient-to-br from-purple-400 to-pink-400 overflow-hidden">
                         <img
-                          src={getImageUrl(post.image) || ''}
+                          src={getItemImage(post) || ''}
                           alt={post.title}
                           className="w-full h-full object-cover"
                         />
@@ -286,9 +286,9 @@ export default function Community() {
                       key={memory.id}
                       className="group relative aspect-square rounded-lg overflow-hidden shadow hover:shadow-xl transition cursor-pointer"
                     >
-                      {memory.image ? (
+                      {(memory.image || memory.display_image || memory.image_url) ? (
                         <img
-                          src={getImageUrl(memory.image) || ''}
+                          src={getItemImage(memory) || ''}
                           alt={memory.title}
                           className="w-full h-full object-cover group-hover:scale-110 transition duration-300"
                         />

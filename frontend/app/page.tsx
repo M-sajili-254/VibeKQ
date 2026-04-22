@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { MapPin, Users, Calendar, Star, Globe, Sparkles, ArrowRight, Building2 } from 'lucide-react';
-import { destinationService, communityService, getImageUrl } from '@/utils/api';
+import { destinationService, communityService, getImageUrl, getItemImage } from '@/utils/api';
 
 export default function Home() {
   const [destinations, setDestinations] = useState([]);
@@ -248,9 +248,9 @@ export default function Home() {
                 <Link key={dest.id} href={`/trip-assistant?destination=${dest.id}`}>
                   <div className="group bg-white rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300">
                     <div className="h-56 bg-gradient-to-br from-red-100 to-orange-100 relative overflow-hidden">
-                      {dest.image ? (
+                      {getItemImage(dest) ? (
                         <img
-                          src={getImageUrl(dest.image) || ''}
+                          src={getItemImage(dest) || ''}
                           alt={dest.name}
                           className="w-full h-full object-cover group-hover:scale-110 transition duration-500"
                         />

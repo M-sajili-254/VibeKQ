@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { MapPin, Star, DollarSign, CheckCircle, ArrowLeft, Calendar, Users } from 'lucide-react';
-import { serviceService, bookingService, getImageUrl } from '@/utils/api';
+import { serviceService, bookingService, getImageUrl, getItemImage } from '@/utils/api';
 
 export default function ServiceDetail() {
   const params = useParams();
@@ -113,9 +113,9 @@ export default function ServiceDetail() {
             <div className="lg:col-span-2">
               {/* Service Image */}
               <div className="relative h-96 bg-gradient-to-br from-red-100 to-red-50 rounded-lg overflow-hidden mb-6">
-                {service.image ? (
+                {getItemImage(service) ? (
                   <img
-                    src={getImageUrl(service.image) || ''}
+                    src={getItemImage(service) || ''}
                     alt={service.name}
                     className="w-full h-full object-cover"
                   />

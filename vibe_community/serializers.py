@@ -8,12 +8,21 @@ class PostSerializer(serializers.ModelSerializer):
     author_name = serializers.CharField(source='author.get_full_name', read_only=True)
     author_profile_picture = serializers.ImageField(source='author.profile_picture', read_only=True)
     is_liked = serializers.SerializerMethodField()
-    
+    display_image = serializers.SerializerMethodField()
+
     class Meta:
         model = Post
         fields = '__all__'
         read_only_fields = ('author', 'likes_count', 'comments_count', 'views_count')
     
+    def get_display_image(self, obj):
+        if obj.image and hasattr(obj.image, 'url'):
+            try:
+                return obj.image.url
+            except Exception:
+                pass
+        return obj.image_url or None
+
     def get_is_liked(self, obj):
         request = self.context.get('request')
         if request and request.user.is_authenticated:
@@ -64,12 +73,21 @@ class EventSerializer(serializers.ModelSerializer):
     """Serializer for Event model"""
     organizer_name = serializers.CharField(source='organizer.get_full_name', read_only=True)
     is_registered = serializers.SerializerMethodField()
-    
+    display_image = serializers.SerializerMethodField()
+
     class Meta:
         model = Event
         fields = '__all__'
         read_only_fields = ('organizer', 'participants_count')
     
+    def get_display_image(self, obj):
+        if obj.image and hasattr(obj.image, 'url'):
+            try:
+                return obj.image.url
+            except Exception:
+                pass
+        return obj.image_url or None
+
     def get_is_registered(self, obj):
         request = self.context.get('request')
         if request and request.user.is_authenticated:
@@ -98,22 +116,40 @@ class EventParticipantSerializer(serializers.ModelSerializer):
 
 class MerchandiseSerializer(serializers.ModelSerializer):
     """Serializer for Merchandise model"""
-    
+    display_image = serializers.SerializerMethodField()
+
     class Meta:
         model = Merchandise
         fields = '__all__'
+
+    def get_display_image(self, obj):
+        if obj.image and hasattr(obj.image, 'url'):
+            try:
+                return obj.image.url
+            except Exception:
+                pass
+        return obj.image_url or None
 
 
 class VibeMemorySerializer(serializers.ModelSerializer):
     """Serializer for VibeMemory model"""
     uploader_name = serializers.CharField(source='uploader.get_full_name', read_only=True)
     uploader_profile_picture = serializers.ImageField(source='uploader.profile_picture', read_only=True)
-    
+    display_image = serializers.SerializerMethodField()
+
     class Meta:
         model = VibeMemory
         fields = '__all__'
         read_only_fields = ('uploader', 'likes_count')
     
+    def get_display_image(self, obj):
+        if obj.image and hasattr(obj.image, 'url'):
+            try:
+                return obj.image.url
+            except Exception:
+                pass
+        return obj.image_url or None
+
     def create(self, validated_data):
         validated_data['uploader'] = self.context['request'].user
         return super().create(validated_data)

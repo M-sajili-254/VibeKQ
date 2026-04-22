@@ -9,7 +9,8 @@ class Destination(TimeStampedModel, IDModel):
     country = models.CharField(max_length=100)
     city = models.CharField(max_length=100)
     description = models.TextField()
-    image = models.ImageField(upload_to='destinations/')
+    image = models.ImageField(upload_to='destinations/', blank=True, null=True)
+    image_url = models.URLField(max_length=500, blank=True, null=True, help_text="External image URL fallback")
     featured = models.BooleanField(default=False)
     
     def __str__(self):
@@ -42,7 +43,8 @@ class Service(TimeStampedModel, IDModel):
     description = models.TextField()
     price = models.DecimalField(max_digits=10, decimal_places=2)
     currency = models.CharField(max_length=3, default='USD')
-    image = models.ImageField(upload_to='services/')
+    image = models.ImageField(upload_to='services/', blank=True, null=True)
+    image_url = models.URLField(max_length=500, blank=True, null=True, help_text="External image URL fallback")
     verified = models.BooleanField(default=False)
     rating = models.DecimalField(max_digits=3, decimal_places=2, default=0.0)
     total_bookings = models.IntegerField(default=0)
