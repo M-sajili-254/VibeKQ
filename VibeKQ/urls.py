@@ -39,6 +39,6 @@ urlpatterns = [
     path('api/community/', include('vibe_community.urls')),
 ]
 
-# Serve media files in development
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+# Serve media files in both development and production
+# In production, you should use a proper web server like Nginx for serving media
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

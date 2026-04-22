@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Heart, MessageCircle, Calendar, Users, TrendingUp, Camera, MapPin } from 'lucide-react';
-import { communityService } from '@/utils/api';
+import { communityService, getImageUrl } from '@/utils/api';
 
 export default function Community() {
   const [posts, setPosts] = useState([]);
@@ -136,7 +136,7 @@ export default function Community() {
                     {post.image && (
                       <div className="h-48 bg-gradient-to-br from-purple-400 to-pink-400 overflow-hidden">
                         <img
-                          src={post.image}
+                          src={getImageUrl(post.image) || ''}
                           alt={post.title}
                           className="w-full h-full object-cover"
                         />
@@ -246,7 +246,7 @@ export default function Community() {
                     >
                       {memory.image ? (
                         <img
-                          src={memory.image}
+                          src={getImageUrl(memory.image) || ''}
                           alt={memory.title}
                           className="w-full h-full object-cover group-hover:scale-110 transition duration-300"
                         />

@@ -54,7 +54,7 @@ destinations_data = [
         'name': 'Nairobi',
         'country': 'Kenya',
         'city': 'Nairobi',
-        'description': 'The vibrant capital city of Kenya, known for its national park, museums, and bustling markets.',
+        'description': 'The vibrant capital city of Kenya, known for its national park, museums, and bustling markets. Gateway to African safaris.',
         'featured': True
     },
     {
@@ -77,7 +77,29 @@ destinations_data = [
         'city': 'Cape Town',
         'description': 'Stunning coastal city with Table Mountain, wine estates, and diverse culture.',
         'featured': False
-    }
+    },
+    # Business Communities - International Cities
+    {
+        'name': 'Bangkok',
+        'country': 'Thailand',
+        'city': 'Bangkok',
+        'description': 'Thailand\'s vibrant capital, known for ornate shrines, bustling street life, and incredible cuisine. Discover authentic Thai hospitality.',
+        'featured': True
+    },
+    {
+        'name': 'Sydney',
+        'country': 'Australia',
+        'city': 'Sydney',
+        'description': 'Australia\'s harbor city featuring the iconic Opera House, beautiful beaches, and world-class dining experiences.',
+        'featured': True
+    },
+    {
+        'name': 'Rome',
+        'country': 'Italy',
+        'city': 'Rome',
+        'description': 'The Eternal City with ancient ruins, stunning architecture, and authentic Italian culture. Experience la dolce vita.',
+        'featured': True
+    },
 ]
 
 for dest_data in destinations_data:
@@ -110,11 +132,18 @@ for cat_data in categories_data:
 # Create services
 nairobi = Destination.objects.get(city='Nairobi')
 mombasa = Destination.objects.get(city='Mombasa')
+bangkok = Destination.objects.filter(city='Bangkok').first()
+sydney = Destination.objects.filter(city='Sydney').first()
+rome = Destination.objects.filter(city='Rome').first()
+
 hotel_cat = ServiceCategory.objects.get(name='Hotel, Motel and Lodging')
 tour_cat = ServiceCategory.objects.get(name='Adventure')
 taxi_cat = ServiceCategory.objects.get(name='Transport')
+activity_cat = ServiceCategory.objects.get(name='Activities')
+restaurant_cat = ServiceCategory.objects.get(name='Restaurant')
 
 services_data = [
+    # Nairobi Services
     {
         'name': 'Safari Park Hotel',
         'category': hotel_cat,
@@ -164,6 +193,165 @@ services_data = [
         'available': True
     },
 ]
+
+# Bangkok Services
+if bangkok:
+    services_data.extend([
+        {
+            'name': 'Thai Comfort Tours',
+            'category': tour_cat,
+            'destination': bangkok,
+            'provider': partner,
+            'description': 'Authentic temple tours, street food adventures, and cultural experiences in Bangkok.',
+            'price': 65.00,
+            'currency': 'USD',
+            'verified': True,
+            'rating': 4.9,
+            'available': True
+        },
+        {
+            'name': 'Bangkok River Hotels',
+            'category': hotel_cat,
+            'destination': bangkok,
+            'provider': partner,
+            'description': 'Luxury accommodation along the Chao Phraya River with stunning city views.',
+            'price': 180.00,
+            'currency': 'USD',
+            'verified': True,
+            'rating': 4.8,
+            'available': True
+        },
+        {
+            'name': 'Siam Transport Co.',
+            'category': taxi_cat,
+            'destination': bangkok,
+            'provider': partner,
+            'description': 'Professional airport transfers and city-wide transportation services.',
+            'price': 35.00,
+            'currency': 'USD',
+            'verified': True,
+            'rating': 4.7,
+            'available': True
+        },
+        {
+            'name': 'Thai Culinary Academy',
+            'category': activity_cat,
+            'destination': bangkok,
+            'provider': partner,
+            'description': 'Authentic Thai cooking classes with local chefs and market tours.',
+            'price': 55.00,
+            'currency': 'USD',
+            'verified': True,
+            'rating': 4.9,
+            'available': True
+        },
+    ])
+
+# Sydney Services
+if sydney:
+    services_data.extend([
+        {
+            'name': 'Sydney Harbor Cruises',
+            'category': tour_cat,
+            'destination': sydney,
+            'provider': partner,
+            'description': 'Scenic harbor cruises with views of the Opera House and Harbor Bridge.',
+            'price': 95.00,
+            'currency': 'USD',
+            'verified': True,
+            'rating': 4.8,
+            'available': True
+        },
+        {
+            'name': 'Aussie Outback Tours',
+            'category': tour_cat,
+            'destination': sydney,
+            'provider': partner,
+            'description': 'Day trips to the Blue Mountains and authentic Australian outback experiences.',
+            'price': 120.00,
+            'currency': 'USD',
+            'verified': True,
+            'rating': 4.9,
+            'available': True
+        },
+        {
+            'name': 'Bondi Beach Hotels',
+            'category': hotel_cat,
+            'destination': sydney,
+            'provider': partner,
+            'description': 'Beachfront accommodation at iconic Bondi Beach with ocean views.',
+            'price': 220.00,
+            'currency': 'USD',
+            'verified': True,
+            'rating': 4.7,
+            'available': True
+        },
+        {
+            'name': 'Sydney Executive Cars',
+            'category': taxi_cat,
+            'destination': sydney,
+            'provider': partner,
+            'description': 'Luxury airport transfers and executive chauffeur services.',
+            'price': 75.00,
+            'currency': 'USD',
+            'verified': True,
+            'rating': 4.8,
+            'available': True
+        },
+    ])
+
+# Rome Services
+if rome:
+    services_data.extend([
+        {
+            'name': 'Roma Antica Tours',
+            'category': tour_cat,
+            'destination': rome,
+            'provider': partner,
+            'description': 'Skip-the-line Vatican tours, Colosseum visits, and ancient Rome explorations.',
+            'price': 85.00,
+            'currency': 'USD',
+            'verified': True,
+            'rating': 4.9,
+            'available': True
+        },
+        {
+            'name': 'Tuscan Wine Experiences',
+            'category': activity_cat,
+            'destination': rome,
+            'provider': partner,
+            'description': 'Day trips to Tuscany with wine tasting and authentic Italian cuisine.',
+            'price': 150.00,
+            'currency': 'USD',
+            'verified': True,
+            'rating': 4.8,
+            'available': True
+        },
+        {
+            'name': 'Roman Holiday Hotels',
+            'category': hotel_cat,
+            'destination': rome,
+            'provider': partner,
+            'description': 'Boutique hotels near the Spanish Steps and historic city center.',
+            'price': 195.00,
+            'currency': 'USD',
+            'verified': True,
+            'rating': 4.7,
+            'available': True
+        },
+        {
+            'name': 'Italia Express Transport',
+            'category': taxi_cat,
+            'destination': rome,
+            'provider': partner,
+            'description': 'Airport transfers and private car services throughout Rome.',
+            'price': 55.00,
+            'currency': 'USD',
+            'verified': True,
+            'rating': 4.6,
+            'available': True
+        },
+    ])
 
 for service_data in services_data:
     service, created = Service.objects.get_or_create(

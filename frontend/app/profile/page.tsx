@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { User, Mail, Phone, Calendar, MapPin, Briefcase, Edit, Save, X } from 'lucide-react';
-import { authService } from '@/utils/api';
+import { authService, getImageUrl } from '@/utils/api';
 
 export default function Profile() {
   const router = useRouter();
@@ -101,7 +101,7 @@ export default function Profile() {
               <div className="w-32 h-32 bg-white rounded-full border-4 border-white shadow-lg flex items-center justify-center overflow-hidden">
                 {user.profile_picture ? (
                   <img
-                    src={user.profile_picture}
+                    src={getImageUrl(user.profile_picture) || ''}
                     alt={user.username}
                     className="w-full h-full object-cover"
                   />

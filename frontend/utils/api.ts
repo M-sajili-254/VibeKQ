@@ -1,6 +1,30 @@
 import axios from 'axios';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
+const MEDIA_BASE_URL = process.env.NEXT_PUBLIC_MEDIA_URL || 'http://localhost:8000';
+
+// Helper function to get full image URL
+export const getImageUrl = (imagePath: string | null | undefined): string | null => {
+  if (!imagePath) return null;
+
+  // If it's already a full URL, return as-is
+  if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
+    return imagePath;
+  }
+
+  // If it starts with /media/, prefix with media base URL
+  if (imagePath.startsWith('/media/')) {
+    return `${MEDIA_BASE_URL}${imagePath}`;
+  }
+
+  // If it starts with media/ (without leading slash), add it
+  if (imagePath.startsWith('media/')) {
+    return `${MEDIA_BASE_URL}/${imagePath}`;
+  }
+
+  // Otherwise, assume it's a relative media path
+  return `${MEDIA_BASE_URL}/media/${imagePath}`;
+};
 
 const api = axios.create({
   baseURL: API_BASE_URL,
