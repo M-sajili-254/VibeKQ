@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { MapPin, Users, Calendar, Star, Globe, Sparkles, ArrowRight, Building2 } from 'lucide-react';
-import { destinationService, communityService, getImageUrl, getItemImage } from '@/utils/api';
+import { destinationService, communityService, getItemImage } from '@/utils/api';
 
 export default function Home() {
   const [destinations, setDestinations] = useState([]);
@@ -17,7 +17,7 @@ export default function Home() {
           destinationService.getAll(),
           communityService.getEvents(),
         ]);
-        setDestinations(destData.results?.slice(0, 6) || []);
+        setDestinations(destData.results || destData || []);
         setEvents(eventData.results?.slice(0, 3) || []);
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -28,14 +28,6 @@ export default function Home() {
 
     fetchData();
   }, []);
-
-  // Featured cities for Business Communities
-  const businessCities = [
-    { name: 'Bangkok', country: 'Thailand', flag: '🇹🇭', image: 'https://images.unsplash.com/photo-1508009603885-50cf7c579365?w=600' },
-    { name: 'Sydney', country: 'Australia', flag: '🇦🇺', image: 'https://images.unsplash.com/photo-1506973035872-a4ec16b8e8d9?w=600' },
-    { name: 'Rome', country: 'Italy', flag: '🇮🇹', image: 'https://images.unsplash.com/photo-1552832230-c0197dd311b5?w=600' },
-    { name: 'Nairobi', country: 'Kenya', flag: '🇰🇪', image: 'https://images.unsplash.com/photo-1611348524140-53c9a25263d6?w=600' },
-  ];
 
   return (
     <div className="flex flex-col">
@@ -90,16 +82,16 @@ export default function Home() {
           {/* Stats */}
           <div className="mt-16 grid grid-cols-3 gap-8 max-w-lg mx-auto">
             <div className="text-center">
-              <p className="text-3xl md:text-4xl font-bold text-white">50+</p>
-              <p className="text-sm text-gray-400">Destinations</p>
+              <p className="text-3xl md:text-4xl font-bold text-white">{destinations.length || 7}</p>
+              <p className="text-sm text-gray-400">Demo Destinations</p>
             </div>
             <div className="text-center">
-              <p className="text-3xl md:text-4xl font-bold text-white">200+</p>
-              <p className="text-sm text-gray-400">Partners</p>
+              <p className="text-3xl md:text-4xl font-bold text-white">2</p>
+              <p className="text-sm text-gray-400">Business Communities</p>
             </div>
             <div className="text-center">
-              <p className="text-3xl md:text-4xl font-bold text-white">10K+</p>
-              <p className="text-sm text-gray-400">Happy Travelers</p>
+              <p className="text-3xl md:text-4xl font-bold text-white">1</p>
+              <p className="text-sm text-gray-400">Ticket Gateway</p>
             </div>
           </div>
         </div>
@@ -176,26 +168,26 @@ export default function Home() {
               Business Communities
             </h2>
             <p className="text-gray-400 mt-4 max-w-2xl mx-auto">
-              Discover verified local businesses in our partner cities across the globe
+              Discover localized airport and city business ecosystems powered by one ticket-linked destination passport
             </p>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-                        {businessCities.map((city) => (
+            {destinations.slice(0, 7).map((city: any) => (
               <Link
-                key={city.name}
-                href={`/business?city=${city.name.toLowerCase()}`}
+                key={city.id}
+                href={`/business?city=${city.city.toLowerCase()}`}
                 className="group relative h-72 rounded-2xl overflow-hidden"
               >
                 <img
-                  src={city.image}
-                  alt={city.name}
+                  src={getItemImage(city) || ''}
+                  alt={city.city}
                   className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
                 <div className="absolute bottom-0 left-0 right-0 p-6">
-                  <span className="text-3xl mb-2 block">{city.flag}</span>
-                  <h3 className="text-2xl font-bold">{city.name}</h3>
+                  <span className="text-xs uppercase tracking-widest text-yellow-400 font-semibold block mb-2">Destination Passport</span>
+                  <h3 className="text-2xl font-bold">{city.city}</h3>
                   <p className="text-gray-300 text-sm">{city.country}</p>
                   <div className="mt-3 flex items-center text-yellow-400 text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity">
                     Explore Partners <ArrowRight className="w-4 h-4 ml-1" />
@@ -206,11 +198,8 @@ export default function Home() {
           </div>
 
           <div className="text-center mt-12">
-            <Link
-              href="/business"
-              className="inline-flex items-center gap-2 px-8 py-4 bg-yellow-500 text-slate-900 font-bold rounded-full hover:bg-yellow-400 transition-all"
-            >
-              View All Cities
+            <Link href="/business" className="inline-flex items-center gap-2 px-8 py-4 bg-yellow-500 text-slate-900 font-bold rounded-full hover:bg-yellow-400 transition-all">
+              View All Ecosystems
               <Globe className="w-5 h-5" />
             </Link>
           </div>
@@ -244,7 +233,7 @@ export default function Home() {
             </div>
           ) : (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {destinations.map((dest: any) => (
+              {destinations.slice(0, 6).map((dest: any) => (
                 <Link key={dest.id} href={`/trip-assistant?destination=${dest.id}`}>
                   <div className="group bg-white rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300">
                     <div className="h-56 bg-gradient-to-br from-red-100 to-orange-100 relative overflow-hidden">

@@ -12,6 +12,7 @@ export default function TicketLogin() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+  const [destinationName, setDestinationName] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,12 +29,14 @@ export default function TicketLogin() {
       localStorage.setItem('access_token', response.data.access);
       localStorage.setItem('refresh_token', response.data.refresh);
       localStorage.setItem('user', JSON.stringify(response.data.user));
+      setDestinationName(response.data.flight_info?.destination || 'your destination');
 
       setSuccess(true);
 
       // Redirect after short delay
       setTimeout(() => {
-        router.push('/trip-assistant');
+        const destinationId = response.data.flight_info?.destination_id;
+        router.push(destinationId ? `/trip-assistant?destination=${destinationId}` : '/trip-assistant');
       }, 2000);
     } catch (err: any) {
       setError(err.response?.data?.error || 'Verification failed. Please check your ticket number.');
@@ -51,7 +54,7 @@ export default function TicketLogin() {
           </div>
           <h1 className="text-3xl font-bold mb-4">Ticket Verified!</h1>
           <p className="text-gray-600 mb-6">
-            Welcome aboard! Redirecting you to services...
+            Your {destinationName} destination passport is ready. Redirecting you to your marketplace...
           </p>
         </div>
       </div>
@@ -68,7 +71,7 @@ export default function TicketLogin() {
           </div>
           <h1 className="text-3xl font-bold mb-2">Ticket Verification</h1>
           <p className="text-gray-600">
-            Login with your airline ticket to access exclusive services
+            Login with your airline ticket to unlock one destination passport with airport services, local businesses, recommendations, and payments
           </p>
         </div>
 
@@ -144,11 +147,11 @@ export default function TicketLogin() {
               </li>
               <li className="flex items-start space-x-2">
                 <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
-                <span>Seamless booking experience</span>
+                <span>Airport and city business communities in one destination gateway</span>
               </li>
               <li className="flex items-start space-x-2">
                 <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
-                <span>Your account is remembered for future trips</span>
+                <span>Bookings and payments activated directly from your ticket</span>
               </li>
             </ul>
           </div>

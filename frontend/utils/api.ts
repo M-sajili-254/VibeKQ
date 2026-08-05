@@ -114,6 +114,10 @@ export const authService = {
     const response = await api.get('/accounts/users/me/');
     return response.data;
   },
+  updateProfile: async (userData: any) => {
+    const response = await api.patch('/accounts/users/me/', userData);
+    return response.data;
+  },
 };
 
 export const destinationService = {
@@ -123,6 +127,14 @@ export const destinationService = {
   },
   getById: async (id: number) => {
     const response = await api.get(`/trip-assistant/destinations/${id}/`);
+    return response.data;
+  },
+  getPassport: async () => {
+    const response = await api.get('/trip-assistant/passport/');
+    return response.data;
+  },
+  getEcosystem: async (id: number | string) => {
+    const response = await api.get(`/trip-assistant/destinations/${id}/ecosystem/`);
     return response.data;
   },
 };
@@ -189,12 +201,12 @@ export const businessService = {
     const response = await api.post('/business/applications/', applicationData);
     return response.data;
   },
-  getPartnerships: async () => {
-    const response = await api.get('/business/partnerships/');
+  getPartnerships: async (params?: any) => {
+    const response = await api.get('/business/partnerships/', { params });
     return response.data;
   },
-  getSponsoredContent: async () => {
-    const response = await api.get('/business/sponsored/');
+  getSponsoredContent: async (params?: any) => {
+    const response = await api.get('/business/sponsored/', { params });
     return response.data;
   },
 };
