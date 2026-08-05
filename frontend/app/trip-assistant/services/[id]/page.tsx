@@ -140,9 +140,9 @@ export default function ServiceDetail() {
                     <h1 className="text-3xl font-bold mb-2">{service.name}</h1>
                     <div className="flex items-center text-gray-600 mb-2">
                       <MapPin className="w-5 h-5 mr-2" />
-                      <span>{service.destination_name}</span>
+                      <span>{service.destination_name || service.destination?.city}</span>
                     </div>
-                    <p className="text-gray-600">by {service.provider_name}</p>
+                    <p className="text-gray-600">by {service.provider_name || service.provider?.business_name}</p>
                   </div>
                   {service.rating > 0 && (
                     <div className="flex items-center space-x-2 bg-yellow-50 px-4 py-2 rounded-lg">
@@ -199,6 +199,13 @@ export default function ServiceDetail() {
                     <span className="text-lg text-gray-500 ml-2">{service.currency}</span>
                   </p>
                 </div>
+
+                {(service.community_label || service.journey_stage_label) && (
+                  <div className="mb-6 rounded-2xl bg-red-50 p-4 text-sm text-red-800">
+                    <p className="font-semibold">{service.community_label}</p>
+                    {service.journey_stage_label && <p>{service.journey_stage_label}</p>}
+                  </div>
+                )}
 
                 {bookingSuccess ? (
                   <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg mb-4">

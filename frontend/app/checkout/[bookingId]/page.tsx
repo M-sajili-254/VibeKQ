@@ -17,7 +17,7 @@ export default function Checkout() {
   const [processing, setProcessing] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
-  const [paymentId, setPaymentId] = useState<number | null>(null);
+  const [, setPaymentId] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchBooking = async () => {
@@ -86,7 +86,7 @@ export default function Checkout() {
     }
   };
 
-  const pollPaymentStatus = async (paymentId: number) => {
+  const pollPaymentStatus = async (paymentId: string) => {
     let attempts = 0;
     const maxAttempts = 20; // Poll for 1 minute (3s * 20)
 
@@ -119,7 +119,7 @@ export default function Checkout() {
     }, 3000);
   };
 
-  const confirmPayment = async (paymentId: number) => {
+  const confirmPayment = async (paymentId: string) => {
     try {
       const response = await api.post(`/trip-assistant/payments/${paymentId}/confirm/`);
       
@@ -206,6 +206,20 @@ export default function Checkout() {
                   <p className="text-gray-600">Service</p>
                   <p className="font-semibold">{booking.service_name}</p>
                 </div>
+
+                {booking.destination_name && (
+                  <div>
+                    <p className="text-gray-600">Destination</p>
+                    <p className="font-semibold">{booking.destination_name}</p>
+                  </div>
+                )}
+
+                {booking.ticket_number && (
+                  <div>
+                    <p className="text-gray-600">Ticket passport</p>
+                    <p className="font-semibold">{booking.ticket_number}</p>
+                  </div>
+                )}
                 
                 <div>
                   <p className="text-gray-600">Date</p>
@@ -229,6 +243,12 @@ export default function Checkout() {
                   <p className="text-2xl font-bold text-red-700">${parseFloat(booking.total_price).toFixed(2)}</p>
                 </div>
               </div>
+
+              {booking.service?.community_label && (
+                <div className="mt-4 rounded-2xl bg-red-50 p-4 text-sm text-red-800">
+                  This purchase is part of the <strong>{booking.service.community_label}</strong>.
+                </div>
+              )}
             </div>
           </div>
 

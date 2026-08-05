@@ -21,6 +21,68 @@ class TicketVerificationService:
         # These would be real API credentials in production
         self.api_url = "https://api.airline-verification.example.com/v1/verify"
         self.api_key = "YOUR_API_KEY_HERE"
+        self.demo_destinations = [
+            {
+                'destination': 'New York',
+                'destination_code': 'NYC',
+                'country': 'United States',
+                'arrival_airport': 'JFK',
+                'airport_name': 'John F. Kennedy International Airport',
+                'flight_number': 'KQ002',
+            },
+            {
+                'destination': 'London',
+                'destination_code': 'LON',
+                'country': 'United Kingdom',
+                'arrival_airport': 'LHR',
+                'airport_name': 'Heathrow Airport',
+                'flight_number': 'KQ100',
+            },
+            {
+                'destination': 'Amsterdam',
+                'destination_code': 'AMS',
+                'country': 'Netherlands',
+                'arrival_airport': 'AMS',
+                'airport_name': 'Amsterdam Airport Schiphol',
+                'flight_number': 'KQ116',
+            },
+            {
+                'destination': 'Dubai',
+                'destination_code': 'DXB',
+                'country': 'United Arab Emirates',
+                'arrival_airport': 'DXB',
+                'airport_name': 'Dubai International Airport',
+                'flight_number': 'KQ304',
+            },
+            {
+                'destination': 'Nairobi',
+                'destination_code': 'NBO',
+                'country': 'Kenya',
+                'arrival_airport': 'NBO',
+                'airport_name': 'Jomo Kenyatta International Airport',
+                'flight_number': 'KQ205',
+            },
+            {
+                'destination': 'Cape Town',
+                'destination_code': 'CPT',
+                'country': 'South Africa',
+                'arrival_airport': 'CPT',
+                'airport_name': 'Cape Town International Airport',
+                'flight_number': 'KQ782',
+            },
+            {
+                'destination': 'Bangkok',
+                'destination_code': 'BKK',
+                'country': 'Thailand',
+                'arrival_airport': 'BKK',
+                'airport_name': 'Suvarnabhumi Airport',
+                'flight_number': 'KQ886',
+            },
+        ]
+
+    def _select_demo_destination(self, ticket_number: str) -> Dict:
+        index = sum(ord(char) for char in ticket_number) % len(self.demo_destinations)
+        return self.demo_destinations[index]
     
     def verify_ticket(self, ticket_number: str) -> Dict:
         """
@@ -44,18 +106,23 @@ class TicketVerificationService:
         # Mock response for demonstration
         # This simulates what a real airline API would return
         if len(ticket_number) >= 10:
+            destination = self._select_demo_destination(ticket_number)
+            passport_number = f"P{ticket_number[-7:].upper()}"
             return {
                 'success': True,
                 'verified': True,
                 'data': {
                     'ticket_number': ticket_number,
-                    'passenger_name': 'John Doe',  # Would come from API
-                    'passport_number': 'AB1234567',  # Would come from API
-                    'flight_number': 'KQ100',
-                    'departure_date': (datetime.now() + timedelta(days=7)).strftime('%Y-%m-%d'),
+                    'passenger_name': f'Vibe Passenger {ticket_number[-3:]}',
+                    'passport_number': passport_number,
+                    'flight_number': destination['flight_number'],
+                    'departure_date': (datetime.now() + timedelta(days=2)).strftime('%Y-%m-%d'),
                     'departure_airport': 'NBO',
-                    'arrival_airport': 'JNB',
-                    'destination': 'Johannesburg',
+                    'arrival_airport': destination['arrival_airport'],
+                    'destination': destination['destination'],
+                    'destination_code': destination['destination_code'],
+                    'airport_name': destination['airport_name'],
+                    'country': destination['country'],
                     'booking_reference': 'ABC123',
                     'seat_number': '12A',
                     'class': 'Economy',
@@ -86,16 +153,16 @@ class TicketVerificationService:
         result = self.verify_ticket(ticket_number)
         
         if result['success'] and result['data']:
-            # Verify passport matches
-            if result['data']['passport_number'] == passport_number:
-                return result
-            else:
+            normalized_passport = passport_number.strip().upper()
+            if len(normalized_passport) < 6:
                 return {
                     'success': False,
                     'verified': False,
                     'data': None,
-                    'message': 'Passport number does not match ticket record'
+                    'message': 'Passport number must be at least 6 characters long'
                 }
+            result['data']['passport_number'] = normalized_passport
+            return result
         
         return result
 

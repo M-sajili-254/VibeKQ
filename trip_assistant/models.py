@@ -6,9 +6,20 @@ from abstract.abstract import TimeStampedModel, IDModel
 class Destination(TimeStampedModel, IDModel):
     """Destinations available for booking"""
     name = models.CharField(max_length=255)
+    code = models.CharField(max_length=20, unique=True, blank=True, null=True)
     country = models.CharField(max_length=100)
     city = models.CharField(max_length=100)
     description = models.TextField()
+    airport_code = models.CharField(max_length=10, blank=True, null=True)
+    airport_name = models.CharField(max_length=255, blank=True, null=True)
+    currency_code = models.CharField(max_length=10, default='USD')
+    timezone = models.CharField(max_length=100, blank=True, null=True)
+    hero_tagline = models.CharField(max_length=255, blank=True, null=True)
+    highlights = models.JSONField(default=list, blank=True)
+    before_arrival_tips = models.JSONField(default=list, blank=True)
+    after_arrival_tips = models.JSONField(default=list, blank=True)
+    is_demo = models.BooleanField(default=False)
+    sort_order = models.PositiveIntegerField(default=0)
     image = models.ImageField(upload_to='destinations/', blank=True, null=True)
     image_url = models.URLField(max_length=500, blank=True, null=True, help_text="External image URL fallback")
     featured = models.BooleanField(default=False)
@@ -17,7 +28,7 @@ class Destination(TimeStampedModel, IDModel):
         return f"{self.city}, {self.country}"
     
     class Meta:
-        ordering = ['-featured', 'name']
+        ordering = ['sort_order', '-featured', 'name']
 
 
 class ServiceCategory(TimeStampedModel, IDModel):
@@ -36,11 +47,27 @@ class ServiceCategory(TimeStampedModel, IDModel):
 
 class Service(TimeStampedModel, IDModel):
     """Local services available at destinations"""
+    COMMUNITY_TYPE_CHOICES = (
+        ('airport', 'Airport Business'),
+        ('destination', 'Destination Business'),
+    )
+
+    JOURNEY_STAGE_CHOICES = (
+        ('before_arrival', 'Before arrival'),
+        ('after_arrival', 'After arrival'),
+        ('both', 'Before and after arrival'),
+    )
+
     name = models.CharField(max_length=255)
     category = models.ForeignKey(ServiceCategory, on_delete=models.CASCADE, related_name='services')
     destination = models.ForeignKey(Destination, on_delete=models.CASCADE, related_name='services')
     provider = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='provided_services')
     description = models.TextField()
+    community_type = models.CharField(max_length=20, choices=COMMUNITY_TYPE_CHOICES, default='destination')
+    journey_stage = models.CharField(max_length=20, choices=JOURNEY_STAGE_CHOICES, default='both')
+    location_label = models.CharField(max_length=255, blank=True, null=True)
+    tags = models.JSONField(default=list, blank=True)
+    priority_score = models.PositiveIntegerField(default=0)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     currency = models.CharField(max_length=3, default='USD')
     image = models.ImageField(upload_to='services/', blank=True, null=True)
@@ -72,6 +99,7 @@ class Booking(TimeStampedModel, IDModel):
     booking_time = models.TimeField(blank=True, null=True)
     number_of_people = models.IntegerField(default=1)
     total_price = models.DecimalField(max_digits=10, decimal_places=2)
+    ticket_number = models.CharField(max_length=50, blank=True, null=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     special_requests = models.TextField(blank=True, null=True)
     
@@ -116,6 +144,9 @@ class Payment(TimeStampedModel, IDModel):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='payments')
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     currency = models.CharField(max_length=3, default='KES')
+    commission_rate = models.DecimalField(max_digits=5, decimal_places=2, default=10.0)
+    commission_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
+    business_payout_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
     payment_method = models.CharField(max_length=20, choices=PAYMENT_METHOD_CHOICES)
     status = models.CharField(max_length=20, choices=PAYMENT_STATUS_CHOICES, default='pending')
     
