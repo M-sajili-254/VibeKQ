@@ -6,6 +6,8 @@ from accounts.serializers import UserSerializer
 class PartnerApplicationSerializer(serializers.ModelSerializer):
     """Serializer for PartnerApplication model"""
     user_name = serializers.CharField(source='user.get_full_name', read_only=True)
+    destination_name = serializers.CharField(source='destination.city', read_only=True)
+    community_label = serializers.CharField(source='get_community_type_display', read_only=True)
     
     class Meta:
         model = PartnerApplication
@@ -20,16 +22,20 @@ class PartnerApplicationSerializer(serializers.ModelSerializer):
 class PartnershipSerializer(serializers.ModelSerializer):
     """Serializer for Partnership model"""
     user = UserSerializer(read_only=True)
+    destination_name = serializers.CharField(source='destination.city', read_only=True)
+    destination_country = serializers.CharField(source='destination.country', read_only=True)
+    community_label = serializers.CharField(source='get_community_type_display', read_only=True)
     
     class Meta:
         model = Partnership
         fields = '__all__'
-        read_only_fields = ('user', 'total_revenue', 'total_bookings', 'rating')
+        read_only_fields = ('user', 'total_revenue', 'total_bookings', 'rating', 'commission_rate')
 
 
 class SponsoredContentSerializer(serializers.ModelSerializer):
     """Serializer for SponsoredContent model"""
     partner_name = serializers.CharField(source='partner.business_name', read_only=True)
+    destination_name = serializers.CharField(source='destination.city', read_only=True)
     
     class Meta:
         model = SponsoredContent

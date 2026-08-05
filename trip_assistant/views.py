@@ -4,15 +4,19 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.utils import timezone
 from django.shortcuts import get_object_or_404
+from decimal import Decimal, ROUND_HALF_UP
 import uuid
 
 from .models import Destination, ServiceCategory, Service, Booking, Review, Payment
+from .recommendations import score_services_for_profile
 from .serializers import (
     DestinationSerializer, ServiceCategorySerializer, ServiceSerializer,
     ServiceDetailSerializer, BookingSerializer, BookingDetailSerializer, ReviewSerializer,
     PaymentSerializer, PaymentInitiateSerializer
 )
 from .payment_services import mpesa_service, stripe_service
+from accounts.profile_utils import get_active_destination, get_or_create_passenger_profile
+from business_community.models import Partnership
 
 
 class DestinationViewSet(viewsets.ModelViewSet):
@@ -21,8 +25,40 @@ class DestinationViewSet(viewsets.ModelViewSet):
     serializer_class = DestinationSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
-    search_fields = ['name', 'city', 'country']
-    ordering_fields = ['name', 'created_at']
+    search_fields = ['name', 'city', 'country', 'code', 'airport_name']
+    ordering_fields = ['name', 'created_at', 'sort_order']
+
+    @action(detail=True, methods=['get'], permission_classes=[permissions.AllowAny])
+    def ecosystem(self, request, pk=None):
+        destination = self.get_object()
+        from business_community.models import Partnership
+        from business_community.serializers import PartnershipSerializer
+
+        airport_services = Service.objects.filter(
+            destination=destination,
+            community_type='airport',
+            available=True,
+        ).select_related('category', 'destination', 'provider')
+        destination_services = Service.objects.filter(
+            destination=destination,
+            community_type='destination',
+            available=True,
+        ).select_related('category', 'destination', 'provider')
+        partners = Partnership.objects.filter(destination=destination, active=True).select_related('user', 'destination')
+
+        return Response({
+            'destination': DestinationSerializer(destination).data,
+            'communities': {
+                'airport': {
+                    'services': ServiceSerializer(airport_services, many=True).data,
+                    'partners': PartnershipSerializer(partners.filter(community_type='airport'), many=True).data,
+                },
+                'destination': {
+                    'services': ServiceSerializer(destination_services, many=True).data,
+                    'partners': PartnershipSerializer(partners.filter(community_type='destination'), many=True).data,
+                },
+            },
+        })
 
 
 class ServiceCategoryViewSet(viewsets.ReadOnlyModelViewSet):
@@ -50,13 +86,24 @@ class ServiceViewSet(viewsets.ModelViewSet):
         queryset = super().get_queryset()
         category = self.request.query_params.get('category', None)
         destination = self.request.query_params.get('destination', None)
+        community_type = self.request.query_params.get('community_type', None)
+        journey_stage = self.request.query_params.get('journey_stage', None)
+        passport_only = self.request.query_params.get('passport_only', None)
         
         if category:
             queryset = queryset.filter(category_id=category)
         if destination:
             queryset = queryset.filter(destination_id=destination)
+        if community_type:
+            queryset = queryset.filter(community_type=community_type)
+        if journey_stage:
+            queryset = queryset.filter(journey_stage=journey_stage)
+        if passport_only and self.request.user.is_authenticated:
+            active_destination = get_active_destination(self.request.user)
+            if active_destination:
+                queryset = queryset.filter(destination=active_destination)
         
-        return queryset
+        return queryset.select_related('category', 'destination', 'provider')
 
 
 class BookingViewSet(viewsets.ModelViewSet):
@@ -98,6 +145,102 @@ class PaymentViewSet(viewsets.ReadOnlyModelViewSet):
         return Payment.objects.filter(user=self.request.user)
 
 
+class DestinationPassportView(APIView):
+    """Single-destination dashboard tied to the passenger's active ticket."""
+
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        destination = get_active_destination(request.user)
+        if not destination:
+            return Response(
+                {'error': 'No active destination passport found for this account.'},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        profile = get_or_create_passenger_profile(request.user)
+        latest_ticket = (
+            request.user.ticket_verifications.filter(linked_destination=destination)
+            .select_related('linked_destination')
+            .order_by('-verified_at', '-created_at')
+            .first()
+        )
+
+        services = list(
+            Service.objects.filter(destination=destination, available=True)
+            .select_related('category', 'destination', 'provider')
+        )
+        ranked_services = score_services_for_profile(request.user, services)
+
+        from business_community.serializers import PartnershipSerializer
+        from accounts.serializers import PassengerProfileSerializer
+
+        partners = Partnership.objects.filter(destination=destination, active=True).select_related('user', 'destination')
+        airport_services = [service for service in ranked_services if service.community_type == 'airport']
+        destination_services = [service for service in ranked_services if service.community_type == 'destination']
+
+        return Response({
+            'destination': DestinationSerializer(destination).data,
+            'profile': PassengerProfileSerializer(profile).data if profile else None,
+            'ticket': {
+                'ticket_number': latest_ticket.ticket_number if latest_ticket else request.user.last_ticket_number,
+                'flight_number': latest_ticket.flight_number if latest_ticket else None,
+                'departure_date': latest_ticket.departure_date if latest_ticket else None,
+                'destination': latest_ticket.destination if latest_ticket else destination.city,
+            },
+            'communities': {
+                'airport': {
+                    'services': ServiceSerializer(airport_services[:6], many=True).data,
+                    'partners': PartnershipSerializer(partners.filter(community_type='airport'), many=True).data,
+                },
+                'destination': {
+                    'services': ServiceSerializer(destination_services[:9], many=True).data,
+                    'partners': PartnershipSerializer(partners.filter(community_type='destination'), many=True).data,
+                },
+            },
+            'recommendations': ServiceSerializer(ranked_services[:8], many=True).data,
+            'marketplace': {
+                'bookings_count': request.user.bookings.count(),
+                'payments_count': request.user.payments.count(),
+                'ready_for_checkout': bool(request.user.last_ticket_number),
+            },
+        })
+
+
+def _calculate_commission(booking):
+    partnership = Partnership.objects.filter(user=booking.service.provider, active=True).first()
+    rate = partnership.commission_rate if partnership else Decimal('10.00')
+    amount = Decimal(booking.total_price)
+    commission_amount = (amount * Decimal(rate) / Decimal('100')).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+    business_payout_amount = (amount - commission_amount).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+    return partnership, Decimal(rate), commission_amount, business_payout_amount
+
+
+def _finalize_payment(payment):
+    if payment.status == 'completed':
+        return
+
+    partnership, commission_rate, commission_amount, business_payout_amount = _calculate_commission(payment.booking)
+    payment.status = 'completed'
+    payment.commission_rate = commission_rate
+    payment.commission_amount = commission_amount
+    payment.business_payout_amount = business_payout_amount
+    payment.completed_at = timezone.now()
+    payment.save()
+
+    payment.booking.status = 'confirmed'
+    payment.booking.save(update_fields=['status'])
+
+    if partnership:
+        partnership.total_revenue = Decimal(partnership.total_revenue) + business_payout_amount
+        partnership.total_bookings += 1
+        partnership.save(update_fields=['total_revenue', 'total_bookings', 'updated_at'])
+
+    service = payment.booking.service
+    service.total_bookings += 1
+    service.save(update_fields=['total_bookings'])
+
+
 class InitiatePaymentView(APIView):
     """API endpoint to initiate payment"""
     permission_classes = [permissions.IsAuthenticated]
@@ -119,20 +262,36 @@ class InitiatePaymentView(APIView):
                 return Response({
                     'error': 'This booking has already been paid for'
                 }, status=status.HTTP_400_BAD_REQUEST)
-        
-        # Generate transaction reference
-        transaction_ref = f'TXN-{uuid.uuid4().hex[:12].upper()}'
-        
-        # Create payment record
-        payment = Payment.objects.create(
-            booking=booking,
-            user=request.user,
-            amount=booking.total_price,
-            currency='KES' if payment_method == 'mpesa' else 'USD',
-            payment_method=payment_method,
-            transaction_reference=transaction_ref,
-            status='pending'
-        )
+            payment = booking.payment
+            partnership, commission_rate, commission_amount, business_payout_amount = _calculate_commission(booking)
+            payment.payment_method = payment_method
+            payment.status = 'pending'
+            payment.payment_response = None
+            payment.commission_rate = commission_rate
+            payment.commission_amount = commission_amount
+            payment.business_payout_amount = business_payout_amount
+        else:
+            # Generate transaction reference
+            transaction_ref = f'TXN-{uuid.uuid4().hex[:12].upper()}'
+            partnership, commission_rate, commission_amount, business_payout_amount = _calculate_commission(booking)
+            # Create payment record
+            payment = Payment(
+                booking=booking,
+                user=request.user,
+                amount=booking.total_price,
+                currency=booking.service.currency,
+                payment_method=payment_method,
+                transaction_reference=transaction_ref,
+                status='pending',
+                commission_rate=commission_rate,
+                commission_amount=commission_amount,
+                business_payout_amount=business_payout_amount,
+            )
+        if hasattr(payment, 'transaction_reference') and not payment.transaction_reference:
+            payment.transaction_reference = f'TXN-{uuid.uuid4().hex[:12].upper()}'
+        transaction_ref = payment.transaction_reference
+        payment.currency = booking.service.currency
+        payment.save()
         
         try:
             if payment_method == 'mpesa':
@@ -159,6 +318,8 @@ class InitiatePaymentView(APIView):
                         'message': 'STK Push sent to your phone. Please enter your M-Pesa PIN.',
                         'payment_id': payment.id,
                         'transaction_reference': transaction_ref,
+                        'commission_amount': str(payment.commission_amount),
+                        'business_payout_amount': str(payment.business_payout_amount),
                         'checkout_request_id': result.get('checkout_request_id')
                     })
                 else:
@@ -173,9 +334,9 @@ class InitiatePaymentView(APIView):
                 # Create Stripe Payment Intent
                 result = stripe_service.create_payment_intent(
                     amount=int(float(booking.total_price) * 100),  # Convert to cents
-                    currency='usd',
+                    currency=booking.service.currency.lower(),
                     metadata={
-                        'booking_id': booking.id,
+                        'booking_id': str(booking.id),
                         'transaction_reference': transaction_ref
                     }
                 )
@@ -191,6 +352,8 @@ class InitiatePaymentView(APIView):
                         'message': 'Payment intent created',
                         'payment_id': payment.id,
                         'transaction_reference': transaction_ref,
+                        'commission_amount': str(payment.commission_amount),
+                        'business_payout_amount': str(payment.business_payout_amount),
                         'client_secret': result.get('client_secret'),
                         'publishable_key': stripe_service.publishable_key
                     })
@@ -232,14 +395,9 @@ class ConfirmPaymentView(APIView):
                 )
                 
                 if result.get('success') and result.get('result_code') == '0':
-                    payment.status = 'completed'
                     payment.mpesa_transaction_id = result.get('transaction_id')
-                    payment.completed_at = timezone.now()
-                    payment.save()
-                    
-                    # Update booking status
-                    payment.booking.status = 'confirmed'
-                    payment.booking.save()
+                    payment.save(update_fields=['mpesa_transaction_id'])
+                    _finalize_payment(payment)
                     
                     return Response({
                         'success': True,
@@ -255,12 +413,7 @@ class ConfirmPaymentView(APIView):
             elif payment.payment_method == 'card':
                 # In production, verify with Stripe webhook
                 # For now, mark as completed
-                payment.status = 'completed'
-                payment.completed_at = timezone.now()
-                payment.save()
-                
-                payment.booking.status = 'confirmed'
-                payment.booking.save()
+                _finalize_payment(payment)
                 
                 return Response({
                     'success': True,

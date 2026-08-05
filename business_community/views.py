@@ -22,6 +22,18 @@ class PartnershipViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = PartnershipSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        destination = self.request.query_params.get('destination')
+        community_type = self.request.query_params.get('community_type')
+
+        if destination:
+            queryset = queryset.filter(destination_id=destination)
+        if community_type:
+            queryset = queryset.filter(community_type=community_type)
+
+        return queryset.select_related('user', 'destination')
+
 
 class SponsoredContentViewSet(viewsets.ModelViewSet):
     """ViewSet for SponsoredContent model"""
@@ -30,8 +42,14 @@ class SponsoredContentViewSet(viewsets.ModelViewSet):
     
     def get_queryset(self):
         queryset = SponsoredContent.objects.all()
+        destination = self.request.query_params.get('destination')
+        community_type = self.request.query_params.get('community_type')
         if self.action == 'list':
             queryset = queryset.filter(status='active')
         elif self.request.user.is_authenticated and self.request.user.user_type == 'business_partner':
             queryset = queryset.filter(partner=self.request.user)
+        if destination:
+            queryset = queryset.filter(destination_id=destination)
+        if community_type:
+            queryset = queryset.filter(community_type=community_type)
         return queryset
