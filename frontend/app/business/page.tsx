@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { Suspense, useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import {
@@ -29,7 +29,7 @@ const communityContent: Record<CommunityKey, { title: string; icon: any; blurb: 
   },
 };
 
-export default function BusinessPage() {
+function BusinessContent() {
   const searchParams = useSearchParams();
   const [destinations, setDestinations] = useState<any[]>([]);
   const [selectedDestinationId, setSelectedDestinationId] = useState<string | null>(null);
@@ -326,5 +326,13 @@ export default function BusinessPage() {
         </section>
       )}
     </div>
+  );
+}
+
+export default function BusinessPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-gray-50" />}>
+      <BusinessContent />
+    </Suspense>
   );
 }
