@@ -91,8 +91,8 @@ export default api;
 // API Services
 export const authService = {
   // New signin endpoint
-  signin: async (username: string, password: string) => {
-    const response = await api.post('/accounts/signin/', { username, password });
+  signin: async (username: string, password: string, portal?: 'partner') => {
+    const response = await api.post('/accounts/signin/', { username, password, portal });
     return response.data;
   },
   // New signup endpoint
@@ -198,7 +198,15 @@ export const communityService = {
 
 export const businessService = {
   applyForPartnership: async (applicationData: any) => {
-    const response = await api.post('/business/applications/', applicationData);
+    const response = await api.post('/business/applications/', applicationData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  },
+  getApplications: async () => {
+    const response = await api.get('/business/applications/');
     return response.data;
   },
   getPartnerships: async (params?: any) => {

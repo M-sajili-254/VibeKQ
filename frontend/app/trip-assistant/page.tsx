@@ -25,6 +25,24 @@ const communityLabels: Record<CommunityKey, string> = {
   destination: 'Destination Business',
 };
 
+const asArray = <T,>(value: unknown): T[] => (Array.isArray(value) ? value : []);
+
+const asStringArray = (value: unknown): string[] =>
+  asArray<unknown>(value).filter((item): item is string => typeof item === 'string' && item.trim().length > 0);
+
+const formatPreference = (value: unknown): string => {
+  if (typeof value !== 'string' || value.trim().length === 0) {
+    return 'Not set';
+  }
+
+  return value.replaceAll('_', ' ');
+};
+
+const formatPrice = (value: unknown): string => {
+  const amount = Number(value);
+  return Number.isFinite(amount) ? amount.toFixed(0) : '—';
+};
+
 function TripAssistantContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -46,6 +64,8 @@ function TripAssistantContent() {
     const destinationFromQuery = searchParams.get('destination');
     if (destinationFromQuery) {
       setSelectedDestinationId(destinationFromQuery);
+    } else {
+      setSelectedDestinationId((current) => current ?? null);
     }
   }, [searchParams]);
 
@@ -117,20 +137,31 @@ function TripAssistantContent() {
   }, [selectedDestinationId, passport, isAuthenticated]);
 
   const selectedDestination = useMemo(() => {
+    if (ecosystem?.destination?.id === selectedDestinationId) {
+      return ecosystem.destination;
+    }
+
+    if (passport?.destination?.id === selectedDestinationId) {
+      return passport.destination;
+    }
+
     return (
-      passport?.destination ||
-      ecosystem?.destination ||
       destinations.find((destination: any) => destination.id === selectedDestinationId) ||
       null
     );
   }, [destinations, ecosystem, passport, selectedDestinationId]);
 
   const communities = useMemo(() => {
-    if (passport?.destination?.id === selectedDestination?.id) {
-      return passport.communities;
+    if (passport?.destination?.id === selectedDestinationId) {
+      return passport?.communities || null;
     }
-    return ecosystem?.communities || null;
-  }, [ecosystem, passport, selectedDestination]);
+
+    if (ecosystem?.destination?.id === selectedDestinationId) {
+      return ecosystem?.communities || null;
+    }
+
+    return null;
+  }, [ecosystem, passport, selectedDestinationId]);
 
   const filteredCommunities = useMemo(() => {
     if (!communities) {
@@ -146,38 +177,44 @@ function TripAssistantContent() {
 
     return {
       airport: {
-        ...communities.airport,
-        services: filterByCategory(communities.airport?.services || []),
+        partners: asArray(communities.airport?.partners),
+        services: filterByCategory(asArray(communities.airport?.services)),
       },
       destination: {
-        ...communities.destination,
-        services: filterByCategory(communities.destination?.services || []),
+        partners: asArray(communities.destination?.partners),
+        services: filterByCategory(asArray(communities.destination?.services)),
       },
     };
   }, [communities, selectedCategory]);
 
-  const recommendations = useMemo(() => passport?.recommendations || [], [passport]);
+  const recommendations = useMemo(() => asArray(passport?.recommendations), [passport]);
   const categories = useMemo(() => {
     const sourceServices = [
-      ...(communities?.airport?.services || []),
-    ...(communities?.destination?.services || []),
+      ...asArray<any>(communities?.airport?.services),
+      ...asArray<any>(communities?.destination?.services),
     ];
     const seen = new Map<string, string>();
     sourceServices.forEach((service: any) => {
-      if (!seen.has(service.category)) {
-        seen.set(service.category, service.category_name);
+      if (typeof service?.category === 'string' && !seen.has(service.category)) {
+        seen.set(service.category, service.category_name || service.category);
       }
     });
     return Array.from(seen.entries()).map(([id, name]) => ({ id, name }));
   }, [communities]);
 
-  const activeTips =
-    selectedDestination && selectedDestination.before_arrival_tips && selectedDestination.after_arrival_tips
-      ? [
-          { title: 'Before arrival', items: selectedDestination.before_arrival_tips },
-          { title: 'After landing', items: selectedDestination.after_arrival_tips },
-        ]
-      : [];
+  const activeTips = useMemo(() => {
+    if (!selectedDestination) {
+      return [];
+    }
+
+    const beforeArrivalTips = asStringArray(selectedDestination.before_arrival_tips);
+    const afterArrivalTips = asStringArray(selectedDestination.after_arrival_tips);
+
+    return [
+      { title: 'Before arrival', items: beforeArrivalTips },
+      { title: 'After landing', items: afterArrivalTips },
+    ].filter((tipBlock) => tipBlock.items.length > 0);
+  }, [selectedDestination]);
 
   const handleDestinationClick = (destinationId: string) => {
     setSelectedDestinationId(destinationId);
@@ -409,18 +446,18 @@ function TripAssistantContent() {
                     <div className="grid grid-cols-2 gap-3 text-sm">
                       <div className="rounded-2xl bg-gray-50 p-4">
                         <p className="text-gray-500">Budget</p>
-                        <p className="font-semibold text-gray-900">{passport.profile.preferred_budget?.replace('_', ' ')}</p>
+                        <p className="font-semibold text-gray-900">{formatPreference(passport.profile.preferred_budget)}</p>
                       </div>
                       <div className="rounded-2xl bg-gray-50 p-4">
                         <p className="text-gray-500">Travel frequency</p>
-                        <p className="font-semibold text-gray-900">{passport.profile.travel_frequency?.replace('_', ' ')}</p>
+                        <p className="font-semibold text-gray-900">{formatPreference(passport.profile.travel_frequency)}</p>
                       </div>
                     </div>
                     <div className="mt-4 space-y-3 text-sm">
                       <div>
                         <p className="text-gray-500 mb-1">Interests</p>
                         <div className="flex flex-wrap gap-2">
-                          {(passport.profile.interests || []).map((interest: string) => (
+                          {asStringArray(passport.profile.interests).map((interest: string) => (
                             <span key={interest} className="px-3 py-1 rounded-full bg-red-50 text-red-700 font-medium">
                               {interest}
                             </span>
@@ -479,7 +516,7 @@ function TripAssistantContent() {
                       <h4 className="text-lg font-bold text-gray-900">{service.name}</h4>
                       <p className="text-sm text-gray-600 mt-2 line-clamp-3">{service.description}</p>
                       <div className="mt-4 flex flex-wrap gap-2">
-                        {(service.recommendation_reasons || []).map((reason: string) => (
+                        {asStringArray(service.recommendation_reasons).map((reason: string) => (
                           <span key={reason} className="px-3 py-1 rounded-full bg-red-50 text-red-700 text-xs font-medium">
                             {reason}
                           </span>
@@ -574,7 +611,7 @@ function TripAssistantContent() {
                             <div className="text-right shrink-0">
                               <p className="text-sm text-gray-500">From</p>
                               <p className="text-2xl font-black text-red-700">
-                                {parseFloat(service.price).toFixed(0)}
+                                {formatPrice(service.price)}
                               </p>
                               <p className="text-sm text-gray-500">{service.currency}</p>
                             </div>
