@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Ticket, Briefcase, User, ArrowRight } from 'lucide-react';
 import VibeLogo from '@/components/VibeLogo';
