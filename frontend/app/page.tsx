@@ -65,17 +65,17 @@ export default function Home() {
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
-              href="/trip-assistant"
+              href="/ticket-login"
               className="group px-8 py-4 bg-gradient-to-r from-red-600 to-red-500 text-white font-bold rounded-full hover:from-red-500 hover:to-red-400 transition-all shadow-lg shadow-red-500/30 flex items-center justify-center gap-2"
             >
               Plan Your Trip
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </Link>
             <Link
-              href="/community"
+              href="/business/apply"
               className="px-8 py-4 bg-white/10 backdrop-blur-sm border border-white/20 text-white font-semibold rounded-full hover:bg-white/20 transition-all"
             >
-              Join the Community
+              Become a Business Partner
             </Link>
           </div>
 

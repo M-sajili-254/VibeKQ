@@ -85,6 +85,12 @@ class TicketVerificationView(APIView):
                 return destination
 
         return None
+
+    def _format_verification_error(self, message):
+        normalized_message = (message or '').lower()
+        if 'passport' in normalized_message and 'match' in normalized_message:
+            return 'We could not verify your ticket with the provided details. Please re-check your ticket number and try again.'
+        return message
     
     def post(self, request):
         """
@@ -143,7 +149,7 @@ class TicketVerificationView(APIView):
         
         if not verification_result['success']:
             return Response({
-                'error': verification_result['message']
+                'error': self._format_verification_error(verification_result['message'])
             }, status=status.HTTP_400_BAD_REQUEST)
         
         passenger_data = verification_result['data']

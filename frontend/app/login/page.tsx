@@ -80,9 +80,9 @@ export default function LoginSelection() {
         <div className="mt-8 text-center">
           <p className="text-gray-600 text-sm">
             New business partner?{' '}
-            <a href="/business" className="text-red-600 hover:text-red-700 font-semibold hover:underline">
-              Apply for partnership
-            </a>
+            <Link href="/business/apply" className="text-red-600 hover:text-red-700 font-semibold hover:underline">
+              Apply for a business account
+            </Link>
           </p>
         </div>
       </div>

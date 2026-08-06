@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 from django.test import TestCase
 from rest_framework.test import APIClient
 
@@ -55,3 +57,95 @@ class TicketDestinationPassportTests(TestCase):
         self.assertEqual(response.status_code, 200)
         cities = {destination['city'] for destination in response.data['results']}
         self.assertTrue({'Nairobi', 'London', 'Dubai', 'Bangkok', 'New York'}.issubset(cities))
+
+
+class TicketVerificationMessagingTests(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+
+    @patch('accounts.views.ticket_verification_service.verify_ticket_with_passport')
+    def test_passport_mismatch_error_is_softened(self, mock_verify):
+        mock_verify.return_value = {
+            'success': False,
+            'verified': False,
+            'data': None,
+            'message': 'Passport number does not match ticket record',
+        }
+
+        response = self.client.post(
+            '/api/accounts/verify-ticket/',
+            {
+                'ticket_number': '1234567890',
+                'passport_number': 'WRONG9988',
+            },
+            format='json',
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(
+            response.data['error'],
+            'We could not verify your ticket with the provided details. Please re-check your ticket number and try again.',
+        )
+
+
+class BusinessSigninTests(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.partner = User.objects.create_user(
+            username='partner-login-user',
+            email='partner-login@example.com',
+            password='SecurePass123',
+            user_type='business_partner',
+            business_name='Airport Lounge Group',
+            business_category='Lounge',
+        )
+        self.passenger = User.objects.create_user(
+            username='passenger-login-user',
+            email='passenger-login@example.com',
+            password='SecurePass123',
+            user_type='passenger',
+        )
+
+    def test_partner_signin_returns_tokens_for_partner_portal(self):
+        response = self.client.post(
+            '/api/accounts/signin/',
+            {
+                'username': self.partner.username,
+                'password': 'SecurePass123',
+                'portal': 'partner',
+            },
+            format='json',
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('access', response.data)
+        self.assertIn('refresh', response.data)
+        self.assertEqual(response.data['user']['user_type'], 'business_partner')
+
+    def test_partner_signin_rejects_invalid_credentials(self):
+        response = self.client.post(
+            '/api/accounts/signin/',
+            {
+                'username': self.partner.username,
+                'password': 'wrong-password',
+                'portal': 'partner',
+            },
+            format='json',
+        )
+
+        self.assertEqual(response.status_code, 401)
+        self.assertEqual(response.data['error'], 'Invalid credentials')
+
+    def test_partner_signin_rejects_passenger_accounts(self):
+        response = self.client.post(
+            '/api/accounts/signin/',
+            {
+                'username': self.passenger.username,
+                'password': 'SecurePass123',
+                'portal': 'partner',
+            },
+            format='json',
+        )
+
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.data['error'], 'This sign-in is for business partners and staff only.')

@@ -5,6 +5,19 @@ import { useRouter } from 'next/navigation';
 import { Plane, Ticket, Lock, CheckCircle, AlertCircle } from 'lucide-react';
 import api from '@/utils/api';
 
+const formatTicketError = (errorMessage?: string) => {
+  if (!errorMessage) {
+    return 'Verification failed. Please check your ticket number.';
+  }
+
+  const normalized = errorMessage.toLowerCase();
+  if (normalized.includes('passport') && normalized.includes('match')) {
+    return 'We could not verify your ticket with the provided details. Please re-check your ticket number and try again.';
+  }
+
+  return errorMessage;
+};
+
 export default function TicketLogin() {
   const router = useRouter();
   const [ticketNumber, setTicketNumber] = useState('');
@@ -39,7 +52,7 @@ export default function TicketLogin() {
         router.push(destinationId ? `/trip-assistant?destination=${destinationId}` : '/trip-assistant');
       }, 2000);
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Verification failed. Please check your ticket number.');
+      setError(formatTicketError(err.response?.data?.error));
     } finally {
       setLoading(false);
     }
@@ -172,6 +185,9 @@ export default function TicketLogin() {
           <p className="text-xs text-blue-800">
             <strong>Demo Mode:</strong> Use any ticket number with 10+ characters to test the system.
             Example: <code className="bg-blue-100 px-2 py-1 rounded">1234567890</code>
+            {', '}
+            optional passport:{' '}
+            <code className="bg-blue-100 px-2 py-1 rounded">PA998877</code>
           </p>
         </div>
       </div>
