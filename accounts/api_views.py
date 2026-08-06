@@ -28,6 +28,7 @@ def signin(request):
     """
     username = request.data.get('username')
     password = request.data.get('password')
+    portal = request.data.get('portal')
     
     if not username or not password:
         return Response(
@@ -46,6 +47,12 @@ def signin(request):
     if not user.is_active:
         return Response(
             {'error': 'Account is disabled'},
+            status=status.HTTP_403_FORBIDDEN
+        )
+
+    if portal == 'partner' and user.user_type not in {'business_partner', 'staff', 'admin'}:
+        return Response(
+            {'error': 'This sign-in is for business partners and staff only.'},
             status=status.HTTP_403_FORBIDDEN
         )
     
@@ -75,7 +82,9 @@ def signup(request):
         "first_name": "string",
         "last_name": "string",
         "user_type": "passenger|business_partner|staff",
-        "phone_number": "string" (optional)
+        "phone_number": "string" (optional),
+        "business_name": "string" (optional),
+        "business_category": "string" (optional)
     }
     """
     from .serializers import UserRegistrationSerializer
