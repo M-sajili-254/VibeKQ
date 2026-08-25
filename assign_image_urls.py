@@ -21,6 +21,7 @@ destination_images = {
     'Zanzibar': 'https://images.unsplash.com/photo-1586861203927-800a5acdcc4d?w=800&q=80',
     'Cape Town': 'https://images.unsplash.com/photo-1580060839134-75a5edca2e99?w=800&q=80',
     'London': 'https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=800&q=80',
+    'Amsterdam': 'https://images.unsplash.com/photo-1534351590666-13e3e96b5017?w=800&q=80',
     'New York': 'https://images.unsplash.com/photo-1499092346589-b9b6be3e94b2?w=800&q=80',
     'Dubai': 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=800&q=80',
 }
@@ -44,6 +45,10 @@ service_images = {
     'Bangkok River Hotels': 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&q=80',
     'Siam Transport Co.': 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=800&q=80',
     'Thai Culinary Academy': 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800&q=80',
+    'Schiphol Arrival Lounge': 'https://images.unsplash.com/photo-1540339832862-474599807836?w=800&q=80',
+    'Canal View Stays': 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800&q=80',
+    'Schiphol City Transfers': 'https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?w=800&q=80',
+    'Dutch Culture Walks': 'https://images.unsplash.com/photo-1512470876302-972faa2aa9a4?w=800&q=80',
     'Sydney Harbor Cruises': 'https://images.unsplash.com/photo-1523482580672-f109ba8cb9be?w=800&q=80',
     'Aussie Outback Tours': 'https://images.unsplash.com/photo-1529108190281-9a4f620bc2d8?w=800&q=80',
     'Bondi Beach Hotels': 'https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=800&q=80',

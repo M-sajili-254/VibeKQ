@@ -3,6 +3,7 @@ const destinationWelcomeMessages: Record<string, string> = {
   "cape town": "Welcome to Cape Town",
   nairobi: "Welcome to Nairobi",
   london: "Welcome to London",
+  amsterdam: "Welcome to Amsterdam",
   "new york": "Welcome to New York",
   dubai: "Welcome to Dubai",
 };

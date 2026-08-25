@@ -94,6 +94,13 @@ destinations_data = [
         'featured': True
     },
     {
+        'name': 'Welcome to Amsterdam',
+        'country': 'Netherlands',
+        'city': 'Amsterdam',
+        'description': 'A connected canal city where culture, mobility, hospitality, and local experiences come together in one seamless journey.',
+        'featured': True
+    },
+    {
         'name': 'Welcome to New York',
         'country': 'United States',
         'city': 'New York',
@@ -163,6 +170,7 @@ for cat_data in categories_data:
 nairobi = Destination.objects.get(city='Nairobi')
 mombasa = Destination.objects.get(city='Mombasa')
 bangkok = Destination.objects.filter(city='Bangkok').first()
+amsterdam = Destination.objects.filter(city='Amsterdam').first()
 sydney = Destination.objects.filter(city='Sydney').first()
 rome = Destination.objects.filter(city='Rome').first()
 
@@ -326,6 +334,59 @@ if sydney:
             'currency': 'USD',
             'verified': True,
             'rating': 4.8,
+            'available': True
+        },
+    ])
+
+# Amsterdam Services
+if amsterdam:
+    services_data.extend([
+        {
+            'name': 'Schiphol Arrival Lounge',
+            'category': activity_cat,
+            'destination': amsterdam,
+            'provider': partner,
+            'description': 'Arrival support, concierge assistance, and premium lounge services immediately after landing at Schiphol.',
+            'price': 45.00,
+            'currency': 'USD',
+            'verified': True,
+            'rating': 4.8,
+            'available': True
+        },
+        {
+            'name': 'Canal View Stays',
+            'category': hotel_cat,
+            'destination': amsterdam,
+            'provider': partner,
+            'description': 'Boutique canal-side accommodation with easy access to museums, dining, and city transfers.',
+            'price': 210.00,
+            'currency': 'USD',
+            'verified': True,
+            'rating': 4.7,
+            'available': True
+        },
+        {
+            'name': 'Schiphol City Transfers',
+            'category': taxi_cat,
+            'destination': amsterdam,
+            'provider': partner,
+            'description': 'Reliable airport-to-city transfer service connecting Schiphol with hotels, meetings, and local attractions.',
+            'price': 40.00,
+            'currency': 'USD',
+            'verified': True,
+            'rating': 4.8,
+            'available': True
+        },
+        {
+            'name': 'Dutch Culture Walks',
+            'category': tour_cat,
+            'destination': amsterdam,
+            'provider': partner,
+            'description': 'Curated city walks featuring museums, canal districts, local food, and authentic neighborhood experiences.',
+            'price': 60.00,
+            'currency': 'USD',
+            'verified': True,
+            'rating': 4.9,
             'available': True
         },
     ])

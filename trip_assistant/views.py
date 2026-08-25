@@ -154,7 +154,7 @@ class DestinationPassportView(APIView):
         destination = get_active_destination(request.user)
         if not destination:
             return Response(
-                {'error': 'No active destination passport found for this account.'},
+                {'error': 'No active destination access found for this account.'},
                 status=status.HTTP_404_NOT_FOUND,
             )
 

@@ -56,7 +56,7 @@ class TicketDestinationPassportTests(TestCase):
         response = self.client.get('/api/trip-assistant/destinations/')
         self.assertEqual(response.status_code, 200)
         cities = {destination['city'] for destination in response.data['results']}
-        self.assertTrue({'Nairobi', 'London', 'Dubai', 'Bangkok', 'New York'}.issubset(cities))
+        self.assertTrue({'Nairobi', 'London', 'Amsterdam', 'Dubai', 'Cape Town', 'Bangkok', 'New York'}.issubset(cities))
 
 
 class TicketVerificationMessagingTests(TestCase):
