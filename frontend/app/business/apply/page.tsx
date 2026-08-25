@@ -91,6 +91,7 @@ export default function BusinessApplyPage() {
       localStorage.setItem('access_token', response.access);
       localStorage.setItem('refresh_token', response.refresh);
       localStorage.setItem('user', JSON.stringify(response.user));
+      window.dispatchEvent(new Event('auth-changed'));
 
       const params = new URLSearchParams({ portal: 'partner' });
       if (formData.community_type) {

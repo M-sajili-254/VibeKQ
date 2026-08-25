@@ -26,6 +26,7 @@ export default function PartnerLogin() {
       localStorage.setItem('access_token', data.access);
       localStorage.setItem('refresh_token', data.refresh);
       localStorage.setItem('user', JSON.stringify(data.user));
+      window.dispatchEvent(new Event('auth-changed'));
       router.push('/business?portal=partner');
     } catch (err: any) {
       setError(err.response?.data?.error || err.response?.data?.detail || 'Login failed. Please check your credentials.');

@@ -5,6 +5,16 @@ import Link from 'next/link';
 import { Menu, X, LogOut, Plane } from 'lucide-react';
 import { authService } from '@/utils/api';
 
+const syncStoredAuth = () => {
+  const token = localStorage.getItem('access_token');
+  const storedUser = localStorage.getItem('user');
+
+  return {
+    hasToken: !!token,
+    storedUser: storedUser ? JSON.parse(storedUser) : null,
+  };
+};
+
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [user, setUser] = useState<any>(null);
@@ -13,21 +23,50 @@ export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => {
-    const checkAuth = async () => {
-      const token = localStorage.getItem('access_token');
-      if (token) {
-        setIsAuthenticated(true);
-        try {
-          const userData = await authService.getCurrentUser();
-          setUser(userData);
-        } catch (error) {
-          console.error('Auth check failed:', error);
-        }
+    const applyStoredAuth = () => {
+      try {
+        const { hasToken, storedUser } = syncStoredAuth();
+        setIsAuthenticated(hasToken);
+        setUser(storedUser);
+        return hasToken;
+      } catch (error) {
+        console.error('Stored auth parsing failed:', error);
+        setIsAuthenticated(false);
+        setUser(null);
+        return false;
       }
+    };
+
+    const checkAuth = async () => {
+      const hasToken = applyStoredAuth();
+      setLoading(false);
+
+      if (!hasToken) {
+        return;
+      }
+
+      try {
+        const userData = await authService.getCurrentUser();
+        setUser(userData);
+        localStorage.setItem('user', JSON.stringify(userData));
+      } catch (error) {
+        console.error('Auth check failed:', error);
+      }
+    };
+
+    const handleAuthChanged = () => {
+      applyStoredAuth();
       setLoading(false);
     };
 
     checkAuth();
+    window.addEventListener('storage', handleAuthChanged);
+    window.addEventListener('auth-changed', handleAuthChanged);
+
+    return () => {
+      window.removeEventListener('storage', handleAuthChanged);
+      window.removeEventListener('auth-changed', handleAuthChanged);
+    };
   }, []);
 
   useEffect(() => {
@@ -45,6 +84,7 @@ export default function Navbar() {
     localStorage.removeItem('user');
     setUser(null);
     setIsAuthenticated(false);
+    window.dispatchEvent(new Event('auth-changed'));
     window.location.href = '/';
   };
 

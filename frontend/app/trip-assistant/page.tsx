@@ -51,6 +51,7 @@ function TripAssistantContent() {
   const [destinations, setDestinations] = useState<any[]>([]);
   const [passport, setPassport] = useState<any | null>(null);
   const [ecosystem, setEcosystem] = useState<any | null>(null);
+  const [storedActiveDestination, setStoredActiveDestination] = useState<any | null>(null);
   const [selectedDestinationId, setSelectedDestinationId] = useState<string | null>(searchParams.get('destination'));
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -58,7 +59,27 @@ function TripAssistantContent() {
   const [ecosystemLoading, setEcosystemLoading] = useState(false);
 
   useEffect(() => {
-    setIsAuthenticated(!!localStorage.getItem('access_token'));
+    const syncAuthState = () => {
+      const token = localStorage.getItem('access_token');
+      const storedUser = localStorage.getItem('user');
+      const parsedUser = storedUser ? JSON.parse(storedUser) : null;
+      const activeDestination = parsedUser?.active_destination || null;
+
+      setIsAuthenticated(!!token);
+      setStoredActiveDestination(activeDestination);
+      if (activeDestination?.id) {
+        setSelectedDestinationId((current) => current || activeDestination.id);
+      }
+    };
+
+    syncAuthState();
+    window.addEventListener('storage', syncAuthState);
+    window.addEventListener('auth-changed', syncAuthState);
+
+    return () => {
+      window.removeEventListener('storage', syncAuthState);
+      window.removeEventListener('auth-changed', syncAuthState);
+    };
   }, []);
 
   useEffect(() => {
@@ -95,7 +116,7 @@ function TripAssistantContent() {
       try {
         const data = await destinationService.getPassport();
         setPassport(data);
-        setSelectedDestinationId((current) => current || data.destination?.id || null);
+        setSelectedDestinationId(data.destination?.id || null);
       } catch (error) {
         console.error('Error fetching destination experience:', error);
         setPassport(null);
@@ -146,11 +167,15 @@ function TripAssistantContent() {
       return passport.destination;
     }
 
+    if (storedActiveDestination?.id === selectedDestinationId) {
+      return storedActiveDestination;
+    }
+
     return (
       destinations.find((destination: any) => destination.id === selectedDestinationId) ||
       null
     );
-  }, [destinations, ecosystem, passport, selectedDestinationId]);
+  }, [destinations, ecosystem, passport, selectedDestinationId, storedActiveDestination]);
 
   const communities = useMemo(() => {
     if (passport?.destination?.id === selectedDestinationId) {
@@ -189,6 +214,22 @@ function TripAssistantContent() {
   }, [communities, selectedCategory]);
 
   const recommendations = useMemo(() => asArray(passport?.recommendations), [passport]);
+  const activeDestinationId = passport?.destination?.id || storedActiveDestination?.id || null;
+  const hasTicketAccess = isAuthenticated && !!activeDestinationId;
+  const visibleDestinations = useMemo(() => {
+    if (!hasTicketAccess) {
+      return destinations;
+    }
+
+    const matchedDestinations = destinations.filter((destination: any) => destination.id === activeDestinationId);
+
+    if (matchedDestinations.length > 0) {
+      return matchedDestinations;
+    }
+
+    return passport?.destination ? [passport.destination] : storedActiveDestination ? [storedActiveDestination] : [];
+  }, [activeDestinationId, destinations, hasTicketAccess, passport, storedActiveDestination]);
+
   const categories = useMemo(() => {
     const sourceServices = [
       ...asArray<any>(communities?.airport?.services),
@@ -330,10 +371,14 @@ function TripAssistantContent() {
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between gap-4 flex-wrap mb-6">
             <div>
-              <p className="text-sm font-semibold uppercase tracking-wide text-red-600">Global demonstration destinations</p>
-              <h2 className="text-3xl font-bold text-gray-900">Choose a destination ecosystem</h2>
+              <p className="text-sm font-semibold uppercase tracking-wide text-red-600">
+                {hasTicketAccess ? 'Your ticket-linked destination' : 'Global demonstration destinations'}
+              </p>
+              <h2 className="text-3xl font-bold text-gray-900">
+                {hasTicketAccess ? 'Your destination ecosystem' : 'Choose a destination ecosystem'}
+              </h2>
             </div>
-            {!passport && (
+            {!isAuthenticated && (
               <button
                 onClick={() => router.push('/ticket-login')}
                 className="inline-flex items-center gap-2 text-red-600 font-semibold"
@@ -345,10 +390,14 @@ function TripAssistantContent() {
           </div>
 
           <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-6">
-            {destinations.map((destination: any) => (
+            {visibleDestinations.map((destination: any) => (
               <button
                 key={destination.id}
-                onClick={() => handleDestinationClick(destination.id)}
+                onClick={() => {
+                  if (!hasTicketAccess) {
+                    handleDestinationClick(destination.id);
+                  }
+                }}
                 className={`text-left rounded-3xl overflow-hidden bg-white shadow hover:shadow-xl transition ${
                   selectedDestination?.id === destination.id ? 'ring-2 ring-red-500' : ''
                 }`}
@@ -363,7 +412,7 @@ function TripAssistantContent() {
                   )}
                   {destination.featured && (
                     <span className="absolute top-4 right-4 px-3 py-1 rounded-full bg-yellow-400 text-slate-900 text-xs font-bold">
-                      Demo
+                      {hasTicketAccess ? 'My Destination' : 'Demo'}
                     </span>
                   )}
                 </div>
