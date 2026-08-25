@@ -290,6 +290,25 @@ function BusinessContent() {
     }
   };
 
+  const cityData = selectedCity ? businessCommunities[selectedCity] : null;
+
+  if (success) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+        <div className="max-w-md w-full text-center">
+          <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <CheckCircle className="w-12 h-12 text-green-600" />
+          </div>
+          <h1 className="text-3xl font-bold mb-4">Application Submitted!</h1>
+          <p className="text-gray-600 mb-6">
+            Thank you for your interest in partnering with LinkedSky. We'll review your application and get back to you within 3-5 business days.
+          </p>
+          <p className="text-sm text-gray-500">Redirecting to home...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       <section className="bg-gradient-to-br from-slate-950 via-slate-900 to-red-950 text-white px-4 py-20">
@@ -324,20 +343,33 @@ function BusinessContent() {
         </div>
       </section>
 
-      {searchParams.get('portal') === 'partner' && !isPartnerUser && (
-        <section className="px-4 -mt-10">
-          <div className="max-w-7xl mx-auto rounded-3xl bg-white shadow-xl border border-red-100 p-6">
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Partner portal access</h2>
-            <p className="text-gray-600 mb-4">
-              Sign in with your business partner account, or create one first if you are a new partner.
-            </p>
-            <div className="flex flex-wrap gap-3">
-              <Link href="/partner-login" className="inline-flex items-center gap-2 px-5 py-3 rounded-full bg-red-600 text-white font-semibold">
-                Sign in
-              </Link>
-              <Link href="/business/apply" className="inline-flex items-center gap-2 px-5 py-3 rounded-full bg-gray-100 text-gray-900 font-semibold">
-                Apply for a business account
-              </Link>
+      {/* Benefits Section */}
+      <section className="py-20 px-4 bg-white">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <span className="text-yellow-600 font-semibold tracking-wider uppercase text-sm">Why Partner With Us</span>
+            <h2 className="text-4xl md:text-5xl font-bold mt-2 text-gray-900">Partnership Benefits</h2>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            <div className="group bg-gradient-to-br from-gray-50 to-gray-100 rounded-3xl p-8 hover:shadow-xl transition-all duration-300 border border-gray-100">
+              <div className="w-16 h-16 bg-gradient-to-br from-red-500 to-red-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-red-500/20">
+                <Users className="w-8 h-8 text-white" />
+              </div>
+              <h3 className="text-2xl font-bold mb-3 text-gray-900">Access to Travelers</h3>
+              <p className="text-gray-600 leading-relaxed">
+                Connect with travelers looking for trusted local services at their destinations.
+              </p>
+            </div>
+
+            <div className="group bg-gradient-to-br from-gray-50 to-gray-100 rounded-3xl p-8 hover:shadow-xl transition-all duration-300 border border-gray-100">
+              <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-orange-500/20">
+                <TrendingUp className="w-8 h-8 text-white" />
+              </div>
+              <h3 className="text-2xl font-bold mb-3 text-gray-900">Grow Your Business</h3>
+              <p className="text-gray-600 leading-relaxed">
+                Increase your visibility and bookings through our verified partner network across multiple continents.
+              </p>
             </div>
           </div>
         </section>

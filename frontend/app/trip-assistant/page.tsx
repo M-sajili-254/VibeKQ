@@ -2,6 +2,10 @@
 
 import { Suspense, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { Search, MapPin, Star, DollarSign, CheckCircle, Lock } from 'lucide-react';
+import { destinationService, serviceService, getImageUrl, getItemImage } from '@/utils/api';
+import { getDestinationWelcomeMessage } from '@/utils/destination';
 import { useRouter, useSearchParams } from 'next/navigation';
 import {
   ArrowRight,
@@ -137,20 +141,13 @@ function TripAssistantContent() {
     fetchEcosystem();
   }, [selectedDestinationId, passport, isAuthenticated]);
 
-  const selectedDestination = useMemo(() => {
-    if (ecosystem?.destination?.id === selectedDestinationId) {
-      return ecosystem.destination;
-    }
-
-    if (passport?.destination?.id === selectedDestinationId) {
-      return passport.destination;
-    }
-
-    return (
-      destinations.find((destination: any) => destination.id === selectedDestinationId) ||
-      null
-    );
-  }, [destinations, ecosystem, passport, selectedDestinationId]);
+  const filteredDestinations = destinations.filter((dest: any) =>
+    dest.city?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    dest.country?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+  const selectedDestinationData = selectedDestination
+    ? (destinations.find((d: any) => d.id === selectedDestination) as any)
+    : null;
 
   const communities = useMemo(() => {
     if (passport?.destination?.id === selectedDestinationId) {
@@ -388,15 +385,29 @@ function TripAssistantContent() {
       {selectedDestination && (
         <section id="destination-passport" className="py-14 px-4">
           <div className="max-w-7xl mx-auto">
-            <div className="grid xl:grid-cols-[1.15fr,0.85fr] gap-8 mb-10">
-              <div className="bg-white rounded-3xl shadow-lg overflow-hidden">
-                <div className="h-72 bg-gray-100">
-                  {getItemImage(selectedDestination) && (
-                    <img
-                      src={getItemImage(selectedDestination) || ''}
-                      alt={selectedDestination.city}
-                      className="w-full h-full object-cover"
-                    />
+            <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-8 gap-4">
+              <div>
+                <h2 className="text-3xl font-bold mb-2">
+                  {selectedDestinationData
+                    ? getDestinationWelcomeMessage(selectedDestinationData.city)
+                    : 'Available Services'}
+                </h2>
+                {selectedDestinationData && (
+                  <p className="text-gray-600">
+                    Explore verified services curated for {selectedDestinationData.city}.
+                  </p>
+                )}
+                <div className="flex flex-wrap gap-2">
+                  {selectedCategory && (
+                    <span className="px-3 py-1 bg-primary/10 text-primary text-sm font-semibold rounded-full">
+                      {(categories.find((c: any) => c.id === selectedCategory) as any)?.name || 'Category'}
+                    </span>
+                  )}
+                  {selectedDestination && (
+                    <span className="px-3 py-1 bg-orange-100 text-orange-700 text-sm font-semibold rounded-full flex items-center">
+                      <MapPin className="w-3 h-3 mr-1" />
+                      {(destinations.find((d: any) => d.id === selectedDestination) as any)?.city || 'Destination'}
+                    </span>
                   )}
                 </div>
                 <div className="p-8">
@@ -590,6 +601,23 @@ function TripAssistantContent() {
                         {filteredCommunities[communityKey]?.partners?.length || 0} partners
                       </span>
                     </div>
+                    <h3 className="text-lg font-semibold mb-2">
+                      {getDestinationWelcomeMessage(dest.city)}
+                    </h3>
+                    <p className="text-gray-600 text-sm line-clamp-2">{dest.description}</p>
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
+
+          {!loading && filteredDestinations.length === 0 && (
+            <div className="text-center py-12">
+              <p className="text-gray-500 text-lg">No destinations found matching your search.</p>
+            </div>
+          )}
+        </div>
+      </section>
 
                     <div className="space-y-4">
                       {(filteredCommunities[communityKey]?.services || []).map((service: any) => (
