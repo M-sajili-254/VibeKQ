@@ -17,7 +17,7 @@ export default function LoginSelection() {
             <VibeLogo />
           </div>
           <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-red-600 to-red-800 bg-clip-text text-transparent">
-            Welcome to Vibe With KQ
+            Welcome to LinkedSky
           </h1>
           <p className="text-gray-600 text-lg">
             Choose how you'd like to sign in

@@ -219,7 +219,13 @@ export default function Profile() {
               <p className="text-gray-500">@{user.username}</p>
               <div className="mt-4 flex flex-wrap gap-3">
                 <span className="px-3 py-1 rounded-full bg-red-100 text-red-700 text-sm font-semibold">
-                  {user.user_type === 'passenger' ? 'Passenger' : user.user_type}
+                  {user.user_type === 'staff'
+                    ? 'Airline Staff'
+                    : user.user_type === 'business_partner'
+                      ? 'Business Partner'
+                      : user.user_type === 'admin'
+                        ? 'Administrator'
+                        : 'Passenger'}
                 </span>
                 {user.active_destination && (
                   <span className="px-3 py-1 rounded-full bg-green-100 text-green-700 text-sm font-semibold flex items-center gap-1">

@@ -15,10 +15,10 @@ export default function Footer() {
               <div className="w-10 h-10 bg-gradient-to-br from-red-500 to-red-600 rounded-xl flex items-center justify-center">
                 <Plane className="w-5 h-5 text-white" />
               </div>
-              <span className="text-2xl font-black">Vibe With KQ</span>
+              <span className="text-2xl font-black">LinkedSky</span>
             </div>
             <p className="text-gray-400 text-sm leading-relaxed mb-6">
-              Connecting travel with culture, passion, and community. Experience the pride of Africa with Kenya Airways.
+              An independent travel platform connecting journeys, local partners, and traveler communities across the globe.
             </p>
             <div className="flex space-x-3">
               <a href="#" className="w-10 h-10 bg-white/10 hover:bg-red-600 rounded-full flex items-center justify-center transition-all">
@@ -107,7 +107,7 @@ export default function Footer() {
                 <div>
                   <p className="text-white font-medium">Email Us</p>
                   <a href="mailto:vibe@kenya-airways.com" className="text-gray-400 hover:text-white transition">
-                    vibe@kenya-airways.com
+                    Partner support
                   </a>
                 </div>
               </li>
@@ -123,9 +123,9 @@ export default function Footer() {
               <li className="flex items-start gap-3">
                 <Globe className="w-5 h-5 text-red-500 mt-0.5" />
                 <div>
-                  <p className="text-white font-medium">Kenya Airways</p>
+                  <p className="text-white font-medium">Launch Partner</p>
                   <a href="https://www.kenya-airways.com" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition">
-                    www.kenya-airways.com
+                    Visit partner site
                   </a>
                 </div>
               </li>
@@ -139,7 +139,7 @@ export default function Footer() {
         <div className="max-w-7xl mx-auto px-4 py-6">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-sm text-gray-400">
-              &copy; {currentYear} Vibe With KQ. A Kenya Airways Experience.
+              &copy; {currentYear} LinkedSky. Built for airline and travel partners.
             </p>
             <div className="flex flex-wrap justify-center gap-6 text-sm">
               <Link href="/privacy" className="text-gray-400 hover:text-white transition">

@@ -49,7 +49,7 @@ export default function Register() {
       <div className="max-w-2xl w-full">
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold gradient-warm bg-clip-text text-transparent mb-2">
-            Join Vibe With KQ
+            Join LinkedSky
           </h1>
           <p className="text-gray-600">Create your account and start your journey</p>
         </div>
@@ -145,7 +145,7 @@ export default function Register() {
               >
                 <option value="passenger">Passenger</option>
                 <option value="business_partner">Business Partner</option>
-                <option value="staff">KQ Staff</option>
+                <option value="staff">Airline Staff</option>
               </select>
             </div>
 

@@ -2,6 +2,10 @@
 
 import { Suspense, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { Search, MapPin, Star, DollarSign, CheckCircle, Lock } from 'lucide-react';
+import { destinationService, serviceService, getImageUrl, getItemImage } from '@/utils/api';
+import { getDestinationWelcomeMessage } from '@/utils/destination';
 import { useRouter, useSearchParams } from 'next/navigation';
 import {
   ArrowRight,
@@ -17,6 +21,7 @@ import {
   Ticket,
 } from 'lucide-react';
 import { destinationService, getItemImage } from '@/utils/api';
+import { getDestinationWelcomeMessage } from '@/utils/destination';
 
 type CommunityKey = 'airport' | 'destination';
 
@@ -136,20 +141,13 @@ function TripAssistantContent() {
     fetchEcosystem();
   }, [selectedDestinationId, passport, isAuthenticated]);
 
-  const selectedDestination = useMemo(() => {
-    if (ecosystem?.destination?.id === selectedDestinationId) {
-      return ecosystem.destination;
-    }
-
-    if (passport?.destination?.id === selectedDestinationId) {
-      return passport.destination;
-    }
-
-    return (
-      destinations.find((destination: any) => destination.id === selectedDestinationId) ||
-      null
-    );
-  }, [destinations, ecosystem, passport, selectedDestinationId]);
+  const filteredDestinations = destinations.filter((dest: any) =>
+    dest.city?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    dest.country?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+  const selectedDestinationData = selectedDestination
+    ? (destinations.find((d: any) => d.id === selectedDestination) as any)
+    : null;
 
   const communities = useMemo(() => {
     if (passport?.destination?.id === selectedDestinationId) {
@@ -247,13 +245,13 @@ function TripAssistantContent() {
             <div>
               <h1 className="text-5xl md:text-6xl font-black leading-tight mb-6">
                 {passport?.destination
-                  ? `${passport.destination.city} destination passport unlocked`
-                  : 'Turn every ticket into a digital destination passport'}
+                  ? getDestinationWelcomeMessage(passport.destination.city)
+                  : 'Turn every ticket into a destination welcome experience'}
               </h1>
               <p className="text-lg md:text-xl text-gray-200 max-w-3xl mb-8">
                 {passport?.destination
                   ? `Your ticket now opens the full ${passport.destination.city} ecosystem — airport services, trusted destination businesses, personalized recommendations, and direct payment-ready booking.`
-                  : 'Browse global demo destinations and see how a Kenya Airways ticket becomes the passenger’s entry point to one localized ecosystem before and after arrival.'}
+                  : 'Browse global demo destinations and see how a ticket becomes the passenger entry point to one localized ecosystem before and after arrival.'}
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4">
@@ -285,7 +283,7 @@ function TripAssistantContent() {
             </div>
 
             <div className="bg-white/10 backdrop-blur border border-white/10 rounded-3xl p-6">
-              <h2 className="text-xl font-bold mb-4">What this destination passport includes</h2>
+              <h2 className="text-xl font-bold mb-4">What this destination includes</h2>
               <div className="grid gap-4 text-sm text-gray-100">
                 <div className="flex gap-3">
                   <Plane className="w-5 h-5 text-yellow-300 shrink-0 mt-0.5" />
@@ -387,15 +385,29 @@ function TripAssistantContent() {
       {selectedDestination && (
         <section id="destination-passport" className="py-14 px-4">
           <div className="max-w-7xl mx-auto">
-            <div className="grid xl:grid-cols-[1.15fr,0.85fr] gap-8 mb-10">
-              <div className="bg-white rounded-3xl shadow-lg overflow-hidden">
-                <div className="h-72 bg-gray-100">
-                  {getItemImage(selectedDestination) && (
-                    <img
-                      src={getItemImage(selectedDestination) || ''}
-                      alt={selectedDestination.city}
-                      className="w-full h-full object-cover"
-                    />
+            <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-8 gap-4">
+              <div>
+                <h2 className="text-3xl font-bold mb-2">
+                  {selectedDestinationData
+                    ? getDestinationWelcomeMessage(selectedDestinationData.city)
+                    : 'Available Services'}
+                </h2>
+                {selectedDestinationData && (
+                  <p className="text-gray-600">
+                    Explore verified services curated for {selectedDestinationData.city}.
+                  </p>
+                )}
+                <div className="flex flex-wrap gap-2">
+                  {selectedCategory && (
+                    <span className="px-3 py-1 bg-primary/10 text-primary text-sm font-semibold rounded-full">
+                      {(categories.find((c: any) => c.id === selectedCategory) as any)?.name || 'Category'}
+                    </span>
+                  )}
+                  {selectedDestination && (
+                    <span className="px-3 py-1 bg-orange-100 text-orange-700 text-sm font-semibold rounded-full flex items-center">
+                      <MapPin className="w-3 h-3 mr-1" />
+                      {(destinations.find((d: any) => d.id === selectedDestination) as any)?.city || 'Destination'}
+                    </span>
                   )}
                 </div>
                 <div className="p-8">
@@ -411,8 +423,11 @@ function TripAssistantContent() {
                     )}
                   </div>
                   <h2 className="text-4xl font-black text-gray-900 mb-3">
-                    {selectedDestination.city}, {selectedDestination.country}
+                    {getDestinationWelcomeMessage(selectedDestination.city)}
                   </h2>
+                  <p className="text-sm font-semibold uppercase tracking-wide text-gray-500 mb-2">
+                    {selectedDestination.city}, {selectedDestination.country}
+                  </p>
                   <p className="text-lg text-gray-600 mb-6">
                     {selectedDestination.description}
                   </p>
@@ -586,6 +601,23 @@ function TripAssistantContent() {
                         {filteredCommunities[communityKey]?.partners?.length || 0} partners
                       </span>
                     </div>
+                    <h3 className="text-lg font-semibold mb-2">
+                      {getDestinationWelcomeMessage(dest.city)}
+                    </h3>
+                    <p className="text-gray-600 text-sm line-clamp-2">{dest.description}</p>
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
+
+          {!loading && filteredDestinations.length === 0 && (
+            <div className="text-center py-12">
+              <p className="text-gray-500 text-lg">No destinations found matching your search.</p>
+            </div>
+          )}
+        </div>
+      </section>
 
                     <div className="space-y-4">
                       {(filteredCommunities[communityKey]?.services || []).map((service: any) => (

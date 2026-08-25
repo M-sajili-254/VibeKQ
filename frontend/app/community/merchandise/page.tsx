@@ -61,8 +61,8 @@ export default function Merchandise() {
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-4xl md:text-5xl font-bold mb-4">KQ Merchandise</h1>
-              <p className="text-xl">Show your pride with official Kenya Airways gear</p>
+              <h1 className="text-4xl md:text-5xl font-bold mb-4">LinkedSky Merchandise</h1>
+              <p className="text-xl">Show your travel pride with curated gear and collectibles</p>
             </div>
             {getCartItemCount() > 0 && (
               <div className="bg-white text-red-700 px-6 py-4 rounded-lg shadow-lg">
