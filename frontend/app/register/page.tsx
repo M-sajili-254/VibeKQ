@@ -35,6 +35,8 @@ export default function Register() {
       const data = await authService.signup(formData);
       localStorage.setItem('access_token', data.access);
       localStorage.setItem('refresh_token', data.refresh);
+      localStorage.setItem('user', JSON.stringify(data.user));
+      window.dispatchEvent(new Event('auth-changed'));
       router.push('/');
       window.location.reload();
     } catch (err: any) {

@@ -42,6 +42,7 @@ export default function TicketLogin() {
       localStorage.setItem('access_token', response.data.access);
       localStorage.setItem('refresh_token', response.data.refresh);
       localStorage.setItem('user', JSON.stringify(response.data.user));
+      window.dispatchEvent(new Event('auth-changed'));
       setDestinationName(response.data.flight_info?.destination || 'your destination');
 
       setSuccess(true);
