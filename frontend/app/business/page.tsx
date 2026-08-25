@@ -301,8 +301,8 @@ function BusinessContent() {
           <h1 className="text-5xl md:text-6xl font-black mb-6">
             One destination, two connected business communities
           </h1>
-          <p className="text-lg md:text-xl text-gray-200 max-w-3xl mb-8">
-            Every destination in Vibe with KQ demonstrates a clearly segmented ecosystem: airport business on one side and destination business on the other.
+          <p className="text-xl md:text-2xl mb-8 text-gray-300 max-w-3xl mx-auto">
+            Join our network of verified local businesses across the globe and connect with travelers through an independent, scalable platform.
           </p>
 
           <div className="flex flex-wrap gap-4">

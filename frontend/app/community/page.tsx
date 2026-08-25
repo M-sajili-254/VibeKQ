@@ -76,7 +76,7 @@ export default function Community() {
         <div className="max-w-4xl mx-auto text-center">
           <h1 className="text-5xl font-bold mb-6">Community Vibes</h1>
           <p className="text-xl mb-8">
-            Connect with KQ staff, share stories, and engage with passion projects
+            Connect with airline teams, share stories, and engage with passion projects
           </p>
         </div>
       </section>
@@ -259,7 +259,7 @@ export default function Community() {
           <div>
             <div className="mb-6 text-center">
               <p className="text-gray-600">
-                Explore beautiful moments captured by our KQ community members around the world
+                Explore beautiful moments captured by our global community around the world
               </p>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">

@@ -17,6 +17,7 @@ import {
   Ticket,
 } from 'lucide-react';
 import { destinationService, getItemImage } from '@/utils/api';
+import { getDestinationWelcomeMessage } from '@/utils/destination';
 
 type CommunityKey = 'airport' | 'destination';
 
@@ -247,13 +248,13 @@ function TripAssistantContent() {
             <div>
               <h1 className="text-5xl md:text-6xl font-black leading-tight mb-6">
                 {passport?.destination
-                  ? `${passport.destination.city} destination passport unlocked`
-                  : 'Turn every ticket into a digital destination passport'}
+                  ? getDestinationWelcomeMessage(passport.destination.city)
+                  : 'Turn every ticket into a destination welcome experience'}
               </h1>
               <p className="text-lg md:text-xl text-gray-200 max-w-3xl mb-8">
                 {passport?.destination
                   ? `Your ticket now opens the full ${passport.destination.city} ecosystem — airport services, trusted destination businesses, personalized recommendations, and direct payment-ready booking.`
-                  : 'Browse global demo destinations and see how a Kenya Airways ticket becomes the passenger’s entry point to one localized ecosystem before and after arrival.'}
+                  : 'Browse global demo destinations and see how a ticket becomes the passenger entry point to one localized ecosystem before and after arrival.'}
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4">
@@ -285,7 +286,7 @@ function TripAssistantContent() {
             </div>
 
             <div className="bg-white/10 backdrop-blur border border-white/10 rounded-3xl p-6">
-              <h2 className="text-xl font-bold mb-4">What this destination passport includes</h2>
+              <h2 className="text-xl font-bold mb-4">What this destination includes</h2>
               <div className="grid gap-4 text-sm text-gray-100">
                 <div className="flex gap-3">
                   <Plane className="w-5 h-5 text-yellow-300 shrink-0 mt-0.5" />
@@ -411,8 +412,11 @@ function TripAssistantContent() {
                     )}
                   </div>
                   <h2 className="text-4xl font-black text-gray-900 mb-3">
-                    {selectedDestination.city}, {selectedDestination.country}
+                    {getDestinationWelcomeMessage(selectedDestination.city)}
                   </h2>
+                  <p className="text-sm font-semibold uppercase tracking-wide text-gray-500 mb-2">
+                    {selectedDestination.city}, {selectedDestination.country}
+                  </p>
                   <p className="text-lg text-gray-600 mb-6">
                     {selectedDestination.description}
                   </p>

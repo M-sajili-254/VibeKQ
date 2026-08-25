@@ -62,7 +62,7 @@ export default function Navbar() {
                 <Plane className="w-5 h-5 text-white" />
               </div>
               <span className="text-xl font-black text-gray-900">
-                Vibe<span className="text-red-600">KQ</span>
+                Linked<span className="text-red-600">Sky</span>
               </span>
             </Link>
           </div>

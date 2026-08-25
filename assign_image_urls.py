@@ -20,6 +20,9 @@ destination_images = {
     'Sydney': 'https://images.unsplash.com/photo-1506973035872-a4ec16b8e8d9?w=800&q=80',
     'Zanzibar': 'https://images.unsplash.com/photo-1586861203927-800a5acdcc4d?w=800&q=80',
     'Cape Town': 'https://images.unsplash.com/photo-1580060839134-75a5edca2e99?w=800&q=80',
+    'London': 'https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=800&q=80',
+    'New York': 'https://images.unsplash.com/photo-1499092346589-b9b6be3e94b2?w=800&q=80',
+    'Dubai': 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=800&q=80',
 }
 
 for dest in Destination.objects.all():
@@ -161,4 +164,3 @@ for post in Post.objects.all():
 print("\n" + "=" * 50)
 print("All image URLs assigned successfully!")
 print("=" * 50)
-
