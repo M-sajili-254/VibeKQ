@@ -5,7 +5,6 @@ import Link from 'next/link';
 import { MapPin, Users, Calendar, Star, Globe, Sparkles, ArrowRight, Building2 } from 'lucide-react';
 import { destinationService, communityService, getItemImage } from '@/utils/api';
 import { getDestinationWelcomeMessage } from '@/utils/destination';
-import { destinationService, communityService, getItemImage } from '@/utils/api';
 
 export default function Home() {
   const [destinations, setDestinations] = useState([]);
@@ -170,7 +169,7 @@ export default function Home() {
               Business Communities
             </h2>
             <p className="text-gray-400 mt-4 max-w-2xl mx-auto">
-              Discover localized airport and city business ecosystems powered by one ticket-linked destination passport
+              Discover localized airport and city business ecosystems powered by one ticket-linked destination experience
             </p>
           </div>
 
@@ -188,8 +187,8 @@ export default function Home() {
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
                 <div className="absolute bottom-0 left-0 right-0 p-6">
-                  <span className="text-xs uppercase tracking-widest text-yellow-400 font-semibold block mb-2">Destination Passport</span>
-                  <h3 className="text-2xl font-bold">{city.city}</h3>
+                  <span className="text-xs uppercase tracking-widest text-yellow-400 font-semibold block mb-2">Destination Welcome</span>
+                  <h3 className="text-2xl font-bold">{getDestinationWelcomeMessage(city.city)}</h3>
                   <p className="text-gray-300 text-sm">{city.country}</p>
                   <div className="mt-3 flex items-center text-yellow-400 text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity">
                     Explore Partners <ArrowRight className="w-4 h-4 ml-1" />

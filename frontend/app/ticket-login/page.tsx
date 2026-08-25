@@ -67,7 +67,7 @@ export default function TicketLogin() {
           </div>
           <h1 className="text-3xl font-bold mb-4">Ticket Verified!</h1>
           <p className="text-gray-600 mb-6">
-            Your {destinationName} destination passport is ready. Redirecting you to your marketplace...
+            {destinationName ? `Welcome to ${destinationName}.` : 'Welcome to your destination.'} Redirecting you to your marketplace...
           </p>
         </div>
       </div>
@@ -84,7 +84,7 @@ export default function TicketLogin() {
           </div>
           <h1 className="text-3xl font-bold mb-2">Ticket Verification</h1>
           <p className="text-gray-600">
-            Login with your airline ticket to unlock one destination passport with airport services, local businesses, recommendations, and payments
+            Login with your airline ticket to unlock one destination experience with airport services, local businesses, recommendations, and payments
           </p>
         </div>
 

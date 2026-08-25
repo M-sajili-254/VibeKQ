@@ -12,7 +12,9 @@ import {
   MapPin,
   Plane,
   Store,
+  TrendingUp,
   Upload,
+  Users,
 } from 'lucide-react';
 import { authService, businessService, destinationService, getItemImage } from '@/utils/api';
 
@@ -290,25 +292,6 @@ function BusinessContent() {
     }
   };
 
-  const cityData = selectedCity ? businessCommunities[selectedCity] : null;
-
-  if (success) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-        <div className="max-w-md w-full text-center">
-          <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-            <CheckCircle className="w-12 h-12 text-green-600" />
-          </div>
-          <h1 className="text-3xl font-bold mb-4">Application Submitted!</h1>
-          <p className="text-gray-600 mb-6">
-            Thank you for your interest in partnering with LinkedSky. We'll review your application and get back to you within 3-5 business days.
-          </p>
-          <p className="text-sm text-gray-500">Redirecting to home...</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-gray-50">
       <section className="bg-gradient-to-br from-slate-950 via-slate-900 to-red-950 text-white px-4 py-20">
@@ -372,8 +355,8 @@ function BusinessContent() {
               </p>
             </div>
           </div>
-        </section>
-      )}
+        </div>
+      </section>
 
       {isPartnerUser && (
         <section className="py-12 px-4 border-b bg-white">
@@ -817,7 +800,7 @@ function BusinessContent() {
                     <Building2 className="w-6 h-6 text-red-600" />
                     <div>
                       <h3 className="text-2xl font-bold text-gray-900">Passenger-facing services</h3>
-                      <p className="text-sm text-gray-600">Products and experiences exposed to the traveler through the destination passport.</p>
+                      <p className="text-sm text-gray-600">Products and experiences exposed to the traveler through the destination experience.</p>
                     </div>
                   </div>
 

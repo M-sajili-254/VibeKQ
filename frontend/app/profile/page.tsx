@@ -412,7 +412,7 @@ export default function Profile() {
           <div className="bg-white rounded-3xl shadow p-6">
             <h3 className="text-xl font-bold flex items-center gap-2 mb-4">
               <Briefcase className="w-5 h-5 text-red-600" />
-              Active destination passport
+              Active destination access
             </h3>
             <div className="grid md:grid-cols-3 gap-4">
               <div className="rounded-2xl bg-gray-50 p-5">
