@@ -127,7 +127,7 @@ function BusinessContent() {
           </div>
           <h1 className="text-3xl font-bold mb-4">Application Submitted!</h1>
           <p className="text-gray-600 mb-6">
-            Thank you for your interest in partnering with Vibe With KQ. We'll review your application and get back to you within 3-5 business days.
+            Thank you for your interest in partnering with LinkedSky. We'll review your application and get back to you within 3-5 business days.
           </p>
           <p className="text-sm text-gray-500">Redirecting to home...</p>
         </div>
@@ -154,7 +154,7 @@ function BusinessContent() {
             Business Communities
           </h1>
           <p className="text-xl md:text-2xl mb-8 text-gray-300 max-w-3xl mx-auto">
-            Join our network of verified local businesses across the globe and connect with thousands of Kenya Airways travelers.
+            Join our network of verified local businesses across the globe and connect with travelers through an independent, scalable platform.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -190,7 +190,7 @@ function BusinessContent() {
               </div>
               <h3 className="text-2xl font-bold mb-3 text-gray-900">Access to Travelers</h3>
               <p className="text-gray-600 leading-relaxed">
-                Connect with thousands of Kenya Airways passengers looking for trusted local services at their destinations.
+                Connect with travelers looking for trusted local services at their destinations.
               </p>
             </div>
 
@@ -550,4 +550,3 @@ export default function Business() {
     </Suspense>
   );
 }
-

@@ -149,7 +149,7 @@ export default function Profile() {
               <p className="text-gray-600">@{user.username}</p>
               <div className="mt-2 inline-block px-3 py-1 bg-red-100 text-red-700 rounded-full text-sm font-semibold">
                 {user.user_type === 'business_partner' ? 'Business Partner' :
-                 user.user_type === 'staff' ? 'KQ Staff' :
+                 user.user_type === 'staff' ? 'Airline Staff' :
                  user.user_type === 'admin' ? 'Administrator' : 'Passenger'}
               </div>
             </div>

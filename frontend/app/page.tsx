@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { MapPin, Users, Calendar, Star, Globe, Sparkles, ArrowRight, Building2 } from 'lucide-react';
 import { destinationService, communityService, getImageUrl, getItemImage } from '@/utils/api';
+import { getDestinationWelcomeMessage } from '@/utils/destination';
 
 export default function Home() {
   const [destinations, setDestinations] = useState([]);
@@ -60,7 +61,7 @@ export default function Home() {
 
           <h1 className="text-6xl md:text-8xl font-black mb-6 tracking-tight">
             <span className="bg-gradient-to-r from-white via-red-100 to-white bg-clip-text text-transparent">
-              Vibe With KQ
+              LinkedSky
             </span>
           </h1>
 
@@ -144,7 +145,7 @@ export default function Home() {
               </div>
               <h3 className="text-2xl font-bold mb-3 text-gray-900">Community Vibes</h3>
               <p className="text-gray-600 mb-6 leading-relaxed">
-                Connect with KQ staff, share stories, and engage with passion projects and CSR initiatives.
+                Connect with airline teams, share stories, and engage with passion projects and community initiatives.
               </p>
               <Link href="/community" className="inline-flex items-center text-orange-600 font-semibold hover:gap-3 gap-2 transition-all">
                 Join Community <ArrowRight className="w-4 h-4" />
@@ -270,7 +271,9 @@ export default function Home() {
                         <MapPin className="w-4 h-4" />
                         <span>{dest.country}</span>
                       </div>
-                      <h3 className="text-xl font-bold text-gray-900 mb-2">{dest.city}</h3>
+                      <h3 className="text-xl font-bold text-gray-900 mb-2">
+                        {getDestinationWelcomeMessage(dest.city)}
+                      </h3>
                       <p className="text-gray-600 text-sm line-clamp-2">{dest.description}</p>
                     </div>
                   </div>
@@ -331,10 +334,10 @@ export default function Home() {
 
         <div className="max-w-4xl mx-auto text-center relative z-10">
           <h2 className="text-4xl md:text-5xl font-bold mb-6 text-white">
-            Ready to Experience Modern African Luxury?
+            Ready to Travel Smarter?
           </h2>
           <p className="text-xl mb-10 text-white/90">
-            Join thousands of travelers who trust Vibe With KQ for authentic, curated experiences.
+            Join travelers who trust LinkedSky for authentic, curated experiences.
           </p>
           <Link
             href="/register"

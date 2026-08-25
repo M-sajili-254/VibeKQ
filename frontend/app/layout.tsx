@@ -7,8 +7,8 @@ import Footer from "@/components/Footer";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Vibe With KQ - Connect Travel with Culture",
-  description: "Transform your journey with Kenya Airways. Book verified local services, engage with our community, and experience Modern African luxury.",
+  title: "LinkedSky - Connect Travel with Culture",
+  description: "Transform your journey with a flexible travel platform for destinations, local services, and traveler communities.",
 };
 
 export default function RootLayout({

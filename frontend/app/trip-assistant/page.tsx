@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Search, MapPin, Star, DollarSign, CheckCircle, Lock } from 'lucide-react';
 import { destinationService, serviceService, getImageUrl, getItemImage } from '@/utils/api';
+import { getDestinationWelcomeMessage } from '@/utils/destination';
 
 export default function TripAssistant() {
   const router = useRouter();
@@ -71,6 +72,9 @@ export default function TripAssistant() {
     dest.city?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     dest.country?.toLowerCase().includes(searchTerm.toLowerCase())
   );
+  const selectedDestinationData = selectedDestination
+    ? (destinations.find((d: any) => d.id === selectedDestination) as any)
+    : null;
 
   const handleCategoryClick = (categoryId: number) => {
     setSelectedCategory(categoryId);
@@ -154,7 +158,16 @@ export default function TripAssistant() {
           <div className="max-w-7xl mx-auto">
             <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-8 gap-4">
               <div>
-                <h2 className="text-3xl font-bold mb-2">Available Services</h2>
+                <h2 className="text-3xl font-bold mb-2">
+                  {selectedDestinationData
+                    ? getDestinationWelcomeMessage(selectedDestinationData.city)
+                    : 'Available Services'}
+                </h2>
+                {selectedDestinationData && (
+                  <p className="text-gray-600">
+                    Explore verified services curated for {selectedDestinationData.city}.
+                  </p>
+                )}
                 <div className="flex flex-wrap gap-2">
                   {selectedCategory && (
                     <span className="px-3 py-1 bg-primary/10 text-primary text-sm font-semibold rounded-full">
@@ -354,7 +367,9 @@ export default function TripAssistant() {
                       <MapPin className="w-4 h-4 mr-1" />
                       <span>{dest.country}</span>
                     </div>
-                    <h3 className="text-lg font-semibold mb-2">{dest.city}</h3>
+                    <h3 className="text-lg font-semibold mb-2">
+                      {getDestinationWelcomeMessage(dest.city)}
+                    </h3>
                     <p className="text-gray-600 text-sm line-clamp-2">{dest.description}</p>
                   </div>
                 </button>

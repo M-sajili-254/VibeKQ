@@ -51,7 +51,7 @@ if created:
 # Create destinations
 destinations_data = [
     {
-        'name': 'Nairobi',
+        'name': 'Welcome to Nairobi',
         'country': 'Kenya',
         'city': 'Nairobi',
         'description': 'The vibrant capital city of Kenya, known for its national park, museums, and bustling markets. Gateway to African safaris.',
@@ -72,18 +72,39 @@ destinations_data = [
         'featured': True
     },
     {
-        'name': 'Cape Town',
+        'name': 'Welcome to Cape Town',
         'country': 'South Africa',
         'city': 'Cape Town',
         'description': 'Stunning coastal city with Table Mountain, wine estates, and diverse culture.',
-        'featured': False
+        'featured': True
     },
     # Business Communities - International Cities
     {
-        'name': 'Bangkok',
+        'name': 'Welcome to Bangkok',
         'country': 'Thailand',
         'city': 'Bangkok',
         'description': 'Thailand\'s vibrant capital, known for ornate shrines, bustling street life, and incredible cuisine. Discover authentic Thai hospitality.',
+        'featured': True
+    },
+    {
+        'name': 'Welcome to London',
+        'country': 'United Kingdom',
+        'city': 'London',
+        'description': 'A dynamic global capital where iconic landmarks, world-class culture, and distinctive neighborhoods create unforgettable journeys.',
+        'featured': True
+    },
+    {
+        'name': 'Welcome to New York',
+        'country': 'United States',
+        'city': 'New York',
+        'description': 'An iconic city packed with skyline views, celebrated neighborhoods, and nonstop energy for every kind of traveler.',
+        'featured': True
+    },
+    {
+        'name': 'Welcome to Dubai',
+        'country': 'United Arab Emirates',
+        'city': 'Dubai',
+        'description': 'A modern gateway blending innovation, luxury, heritage, and desert adventure in one remarkable destination.',
         'featured': True
     },
     {
@@ -108,8 +129,17 @@ for dest_data in destinations_data:
         country=dest_data['country'],
         defaults=dest_data
     )
+    updated_fields = []
+    for field in ('name', 'description', 'featured'):
+        if getattr(dest, field) != dest_data[field]:
+            setattr(dest, field, dest_data[field])
+            updated_fields.append(field)
+    if updated_fields:
+        dest.save(update_fields=updated_fields)
     if created:
         print(f"✓ Created destination: {dest.city}, {dest.country}")
+    elif updated_fields:
+        print(f"✓ Updated destination: {dest.city}, {dest.country}")
 
 # Create service categories
 categories_data = [
