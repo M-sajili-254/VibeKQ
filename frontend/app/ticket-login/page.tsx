@@ -5,6 +5,19 @@ import { useRouter } from 'next/navigation';
 import { Plane, Ticket, Lock, CheckCircle, AlertCircle } from 'lucide-react';
 import api from '@/utils/api';
 
+const formatTicketError = (errorMessage?: string) => {
+  if (!errorMessage) {
+    return 'Verification failed. Please check your ticket number.';
+  }
+
+  const normalized = errorMessage.toLowerCase();
+  if (normalized.includes('passport') && normalized.includes('match')) {
+    return 'We could not verify your ticket with the provided details. Please re-check your ticket number and try again.';
+  }
+
+  return errorMessage;
+};
+
 export default function TicketLogin() {
   const router = useRouter();
   const [ticketNumber, setTicketNumber] = useState('');
@@ -12,6 +25,7 @@ export default function TicketLogin() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+  const [destinationName, setDestinationName] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,15 +42,17 @@ export default function TicketLogin() {
       localStorage.setItem('access_token', response.data.access);
       localStorage.setItem('refresh_token', response.data.refresh);
       localStorage.setItem('user', JSON.stringify(response.data.user));
+      setDestinationName(response.data.flight_info?.destination || 'your destination');
 
       setSuccess(true);
 
       // Redirect after short delay
       setTimeout(() => {
-        router.push('/trip-assistant');
+        const destinationId = response.data.flight_info?.destination_id;
+        router.push(destinationId ? `/trip-assistant?destination=${destinationId}` : '/trip-assistant');
       }, 2000);
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Verification failed. Please check your ticket number.');
+      setError(formatTicketError(err.response?.data?.error));
     } finally {
       setLoading(false);
     }
@@ -51,7 +67,7 @@ export default function TicketLogin() {
           </div>
           <h1 className="text-3xl font-bold mb-4">Ticket Verified!</h1>
           <p className="text-gray-600 mb-6">
-            Welcome aboard! Redirecting you to services...
+            Your {destinationName} destination passport is ready. Redirecting you to your marketplace...
           </p>
         </div>
       </div>
@@ -68,7 +84,7 @@ export default function TicketLogin() {
           </div>
           <h1 className="text-3xl font-bold mb-2">Ticket Verification</h1>
           <p className="text-gray-600">
-            Login with your airline ticket to access exclusive services
+            Login with your airline ticket to unlock one destination passport with airport services, local businesses, recommendations, and payments
           </p>
         </div>
 
@@ -144,11 +160,11 @@ export default function TicketLogin() {
               </li>
               <li className="flex items-start space-x-2">
                 <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
-                <span>Seamless booking experience</span>
+                <span>Airport and city business communities in one destination gateway</span>
               </li>
               <li className="flex items-start space-x-2">
                 <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
-                <span>Your account is remembered for future trips</span>
+                <span>Bookings and payments activated directly from your ticket</span>
               </li>
             </ul>
           </div>
@@ -169,6 +185,9 @@ export default function TicketLogin() {
           <p className="text-xs text-blue-800">
             <strong>Demo Mode:</strong> Use any ticket number with 10+ characters to test the system.
             Example: <code className="bg-blue-100 px-2 py-1 rounded">1234567890</code>
+            {', '}
+            optional passport:{' '}
+            <code className="bg-blue-100 px-2 py-1 rounded">PA998877</code>
           </p>
         </div>
       </div>

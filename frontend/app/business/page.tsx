@@ -1,118 +1,292 @@
 'use client';
 
-import React, { useState, useEffect, Suspense } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { Building2, CheckCircle, TrendingUp, Users, Globe, Star, ArrowRight } from 'lucide-react';
-import { businessService } from '@/utils/api';
+import { Suspense, useEffect, useMemo, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
+import Link from 'next/link';
+import {
+  ArrowRight,
+  Building2,
+  CheckCircle,
+  Globe,
+  Lock,
+  MapPin,
+  Plane,
+  Store,
+  Upload,
+} from 'lucide-react';
+import { authService, businessService, destinationService, getItemImage } from '@/utils/api';
 
-// Business Communities data for featured cities
-const businessCommunities = {
-  bangkok: {
-    name: 'Bangkok',
-    country: 'Thailand',
-    flag: '🇹🇭',
-    image: 'https://images.unsplash.com/photo-1508009603885-50cf7c579365?w=1200',
-    description: 'Discover authentic Thai hospitality with our verified partners in the Land of Smiles.',
-    highlights: ['Street Food Tours', 'Temple Visits', 'Luxury Spas', 'River Cruises'],
-    partners: [
-      { name: 'Thai Comfort Tours', category: 'Adventure', rating: 4.9, image: 'https://images.unsplash.com/photo-1528181304800-259b08848526?w=400' },
-      { name: 'Bangkok River Hotels', category: 'Accommodation', rating: 4.8, image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=400' },
-      { name: 'Siam Transport Co.', category: 'Transport', rating: 4.7, image: 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=400' },
-      { name: 'Thai Culinary Academy', category: 'Activities', rating: 4.9, image: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400' },
-    ]
+type CommunityKey = 'airport' | 'destination';
+
+const communityContent: Record<CommunityKey, { title: string; icon: any; blurb: string }> = {
+  airport: {
+    title: 'Airport Business',
+    icon: Plane,
+    blurb: 'Businesses and services inside the airport environment: lounges, dining, retail, transfers, car hire, and airport hotels.',
   },
-  sydney: {
-    name: 'Sydney',
-    country: 'Australia',
-    flag: '🇦🇺',
-    image: 'https://images.unsplash.com/photo-1506973035872-a4ec16b8e8d9?w=1200',
-    description: 'Experience the best of Down Under with trusted Australian business partners.',
-    highlights: ['Harbor Tours', 'Wildlife Experiences', 'Beach Activities', 'City Tours'],
-    partners: [
-      { name: 'Sydney Harbor Cruises', category: 'Adventure', rating: 4.8, image: 'https://images.unsplash.com/photo-1523482580672-f109ba8cb9be?w=400' },
-      { name: 'Aussie Outback Tours', category: 'Adventure', rating: 4.9, image: 'https://images.unsplash.com/photo-1529108190281-9a4f620bc2d8?w=400' },
-      { name: 'Bondi Beach Hotels', category: 'Accommodation', rating: 4.7, image: 'https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=400' },
-      { name: 'Sydney Executive Cars', category: 'Transport', rating: 4.8, image: 'https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?w=400' },
-    ]
+  destination: {
+    title: 'Destination Business',
+    icon: Store,
+    blurb: 'Hotels, restaurants, tours, hospitals, pharmacies, shopping, attractions, city transport, and destination merchants.',
   },
-  rome: {
-    name: 'Rome',
-    country: 'Italy',
-    flag: '🇮🇹',
-    image: 'https://images.unsplash.com/photo-1552832230-c0197dd311b5?w=1200',
-    description: 'Immerse yourself in Italian culture with our curated Roman experiences.',
-    highlights: ['Vatican Tours', 'Cooking Classes', 'Wine Tasting', 'Historic Sites'],
-    partners: [
-      { name: 'Roma Antica Tours', category: 'Adventure', rating: 4.9, image: 'https://images.unsplash.com/photo-1515542622106-78bda8ba0e5b?w=400' },
-      { name: 'Tuscan Wine Experiences', category: 'Activities', rating: 4.8, image: 'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=400' },
-      { name: 'Roman Holiday Hotels', category: 'Accommodation', rating: 4.7, image: 'https://images.unsplash.com/photo-1445019980597-93fa8acb246c?w=400' },
-      { name: 'Italia Express Transport', category: 'Transport', rating: 4.6, image: 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=400' },
-    ]
-  },
-  nairobi: {
-    name: 'Nairobi',
-    country: 'Kenya',
-    flag: '🇰🇪',
-    image: 'https://images.unsplash.com/photo-1611348524140-53c9a25263d6?w=1200',
-    description: 'Your gateway to African adventures with authentic Kenyan partners.',
-    highlights: ['Safari Tours', 'Cultural Experiences', 'Local Cuisine', 'Nature Walks'],
-    partners: [
-      { name: 'Maasai Mara Safaris', category: 'Adventure', rating: 4.9, image: 'https://images.unsplash.com/photo-1516426122078-c23e76319801?w=400' },
-      { name: 'Nairobi City Lodge', category: 'Accommodation', rating: 4.8, image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=400' },
-      { name: 'Kenya Premier Cars', category: 'Transport', rating: 4.7, image: 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=400' },
-      { name: 'African Kitchen Tours', category: 'Activities', rating: 4.8, image: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=400' },
-    ]
+};
+
+const partnerUserTypes = new Set(['business_partner', 'staff', 'admin']);
+
+const asArray = <T,>(value: unknown): T[] => (Array.isArray(value) ? value : []);
+
+const asStringArray = (value: unknown): string[] =>
+  asArray<unknown>(value).filter((item): item is string => typeof item === 'string' && item.trim().length > 0);
+
+const formatPrice = (value: unknown) => {
+  const amount = Number(value);
+  return Number.isFinite(amount) ? amount.toFixed(0) : '—';
+};
+
+const getErrorMessage = (error: any, fallback: string) => {
+  const payload = error?.response?.data;
+
+  if (typeof payload?.error === 'string') {
+    return payload.error;
+  }
+
+  if (typeof payload?.detail === 'string') {
+    return payload.detail;
+  }
+
+  if (payload && typeof payload === 'object') {
+    const [firstValue] = Object.values(payload);
+    if (Array.isArray(firstValue) && typeof firstValue[0] === 'string') {
+      return firstValue[0];
+    }
+    if (typeof firstValue === 'string') {
+      return firstValue;
+    }
+  }
+
+  return fallback;
+};
+
+const readStoredUser = () => {
+  try {
+    const storedUser = localStorage.getItem('user');
+    return storedUser ? JSON.parse(storedUser) : null;
+  } catch {
+    return null;
   }
 };
 
-type CityKey = keyof typeof businessCommunities;
-const allCities = Object.keys(businessCommunities) as CityKey[];
-
-// Component that uses useSearchParams - must be wrapped in Suspense
 function BusinessContent() {
-  const router = useRouter();
   const searchParams = useSearchParams();
-  const [selectedCity, setSelectedCity] = useState<CityKey | null>(null);
-  const [showApplicationForm, setShowApplicationForm] = useState(false);
-  const [formData, setFormData] = useState({
+  const [destinations, setDestinations] = useState<any[]>([]);
+  const [selectedDestinationId, setSelectedDestinationId] = useState<string | null>(null);
+  const [ecosystem, setEcosystem] = useState<any | null>(null);
+  const [community, setCommunity] = useState<CommunityKey>('airport');
+  const [loading, setLoading] = useState(true);
+  const [currentUser, setCurrentUser] = useState<any | null>(null);
+  const [applications, setApplications] = useState<any[]>([]);
+  const [applicationLoading, setApplicationLoading] = useState(false);
+  const [applicationError, setApplicationError] = useState('');
+  const [applicationSuccess, setApplicationSuccess] = useState('');
+  const [applicationForm, setApplicationForm] = useState({
     business_name: '',
     business_category: '',
+    destination: '',
+    community_type: 'airport',
+    service_tags: '',
     business_registration_number: '',
     business_address: '',
     business_phone: '',
     business_email: '',
     business_website: '',
     business_description: '',
-    city: '',
   });
-  const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
-  const [error, setError] = useState('');
+  const [applicationFiles, setApplicationFiles] = useState<{
+    business_logo: File | null;
+    business_documents: File | null;
+  }>({
+    business_logo: null,
+    business_documents: null,
+  });
 
   useEffect(() => {
-    const cityParam = searchParams.get('city')?.toLowerCase() as CityKey | null;
-    if (cityParam && allCities.includes(cityParam)) {
-      setSelectedCity(cityParam);
+    const initialCommunity = searchParams.get('community');
+    if (initialCommunity === 'airport' || initialCommunity === 'destination') {
+      setCommunity(initialCommunity);
     }
   }, [searchParams]);
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  useEffect(() => {
+    const fetchCurrentUser = async () => {
+      const storedUser = readStoredUser();
+      if (storedUser) {
+        setCurrentUser(storedUser);
+      }
+
+      if (!localStorage.getItem('access_token')) {
+        return;
+      }
+
+      try {
+        const freshUser = await authService.getCurrentUser();
+        setCurrentUser(freshUser);
+        localStorage.setItem('user', JSON.stringify(freshUser));
+      } catch (error) {
+        console.error('Error fetching current user:', error);
+      }
+    };
+
+    fetchCurrentUser();
+  }, []);
+
+  useEffect(() => {
+    const fetchDestinations = async () => {
+      try {
+        const data = await destinationService.getAll();
+        const list = data.results || data || [];
+        setDestinations(list);
+
+        const byQuery =
+          list.find((destination: any) => destination.id === searchParams.get('destination')) ||
+          list.find(
+            (destination: any) =>
+              destination.id === searchParams.get('city') ||
+              destination.city?.toLowerCase() === searchParams.get('city')?.toLowerCase()
+          );
+
+        setSelectedDestinationId(byQuery?.id || list[0]?.id || null);
+      } catch (error) {
+        console.error('Error fetching destinations:', error);
+      }
+    };
+
+    fetchDestinations();
+  }, [searchParams]);
+
+  useEffect(() => {
+    const fetchEcosystem = async () => {
+      if (!selectedDestinationId) {
+        return;
+      }
+
+      setLoading(true);
+      try {
+        const data = await destinationService.getEcosystem(selectedDestinationId);
+        setEcosystem(data);
+      } catch (error) {
+        console.error('Error fetching business ecosystem:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchEcosystem();
+  }, [selectedDestinationId]);
+
+  useEffect(() => {
+    if (!currentUser || !partnerUserTypes.has(currentUser.user_type)) {
+      setApplications([]);
+      return;
+    }
+
+    const fetchApplications = async () => {
+      setApplicationLoading(true);
+      try {
+        const data = await businessService.getApplications();
+        setApplications(data.results || data || []);
+      } catch (error) {
+        setApplicationError(getErrorMessage(error, 'Unable to load your business applications right now.'));
+      } finally {
+        setApplicationLoading(false);
+      }
+    };
+
+    fetchApplications();
+  }, [currentUser]);
+
+  useEffect(() => {
+    setApplicationForm((current) => ({
+      ...current,
+      business_name: current.business_name || currentUser?.business_name || '',
+      business_category: current.business_category || currentUser?.business_category || '',
+      business_phone: current.business_phone || currentUser?.phone_number || '',
+      business_email: current.business_email || currentUser?.email || '',
+      destination: current.destination || selectedDestinationId || '',
+      community_type: searchParams.get('community') === 'destination' ? 'destination' : current.community_type,
+    }));
+  }, [currentUser, searchParams, selectedDestinationId]);
+
+  const selectedDestination = useMemo(
+    () => ecosystem?.destination || destinations.find((destination: any) => destination.id === selectedDestinationId),
+    [destinations, ecosystem, selectedDestinationId]
+  );
+
+  const activeCommunity = useMemo(
+    () => ecosystem?.communities?.[community] || { partners: [], services: [] },
+    [community, ecosystem]
+  );
+
+  const featuredHighlights = useMemo(
+    () => asStringArray(selectedDestination?.highlights),
+    [selectedDestination]
+  );
+
+  const latestApplication = applications[0] || null;
+  const isPartnerUser = !!currentUser && partnerUserTypes.has(currentUser.user_type);
+  const CommunityIcon = communityContent[community].icon;
+
+  const handleApplicationSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-    setError('');
+    setApplicationError('');
+    setApplicationSuccess('');
+
+    if (!applicationFiles.business_logo || !applicationFiles.business_documents) {
+      setApplicationError('Please upload both your business logo and supporting documents.');
+      return;
+    }
+
+    setApplicationLoading(true);
 
     try {
-      await businessService.applyForPartnership(formData);
-      setSuccess(true);
-      setTimeout(() => {
-        setShowApplicationForm(false);
-        setSuccess(false);
-        router.push('/');
-      }, 3000);
-    } catch (err: any) {
-      setError(err.response?.data?.detail || 'Application failed. Please try again.');
+      const payload = new FormData();
+      payload.append('business_name', applicationForm.business_name);
+      payload.append('business_category', applicationForm.business_category);
+      payload.append('destination', applicationForm.destination);
+      payload.append('community_type', applicationForm.community_type);
+      payload.append('business_registration_number', applicationForm.business_registration_number);
+      payload.append('business_address', applicationForm.business_address);
+      payload.append('business_phone', applicationForm.business_phone);
+      payload.append('business_email', applicationForm.business_email);
+      payload.append('business_description', applicationForm.business_description);
+      payload.append('business_logo', applicationFiles.business_logo);
+      payload.append('business_documents', applicationFiles.business_documents);
+
+      if (applicationForm.business_website.trim()) {
+        payload.append('business_website', applicationForm.business_website.trim());
+      }
+
+      payload.append(
+        'service_tags',
+        JSON.stringify(
+          asStringArray(
+            applicationForm.service_tags
+              .split(',')
+              .map((tag) => tag.trim())
+          )
+        )
+      );
+
+      const createdApplication = await businessService.applyForPartnership(payload);
+      setApplications((current) => [createdApplication, ...current]);
+      setApplicationSuccess('Business details submitted successfully. Your application is now pending review.');
+      setApplicationFiles({
+        business_logo: null,
+        business_documents: null,
+      });
+    } catch (error) {
+      setApplicationError(getErrorMessage(error, 'Unable to submit your business details. Please review the form and try again.'));
     } finally {
-      setLoading(false);
+      setApplicationLoading(false);
     }
   };
 
@@ -137,40 +311,34 @@ function BusinessContent() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Hero Section */}
-      <section className="relative min-h-[60vh] flex items-center justify-center overflow-hidden bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute -top-40 -right-40 w-96 h-96 bg-yellow-500/10 rounded-full blur-3xl"></div>
-          <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-red-500/10 rounded-full blur-3xl"></div>
-        </div>
-
-        <div className="relative z-10 text-center text-white px-4 max-w-5xl mx-auto">
-          <div className="flex items-center justify-center gap-2 mb-4">
-            <Globe className="w-6 h-6 text-yellow-400" />
-            <span className="text-yellow-400 font-medium tracking-wider uppercase text-sm">Global Network</span>
+      <section className="bg-gradient-to-br from-slate-950 via-slate-900 to-red-950 text-white px-4 py-20">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex items-center gap-2 text-yellow-300 text-sm font-semibold uppercase tracking-wide mb-4">
+            <Globe className="w-4 h-4" />
+            Business ecosystem segmentation
           </div>
-
-          <h1 className="text-5xl md:text-7xl font-black mb-6">
-            Business Communities
+          <h1 className="text-5xl md:text-6xl font-black mb-6">
+            One destination, two connected business communities
           </h1>
           <p className="text-xl md:text-2xl mb-8 text-gray-300 max-w-3xl mx-auto">
             Join our network of verified local businesses across the globe and connect with travelers through an independent, scalable platform.
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button
-              onClick={() => setShowApplicationForm(true)}
-              className="group px-8 py-4 bg-gradient-to-r from-yellow-500 to-yellow-400 text-slate-900 font-bold rounded-full hover:from-yellow-400 hover:to-yellow-300 transition-all flex items-center justify-center gap-2"
+          <div className="flex flex-wrap gap-4">
+            <Link
+              href="/partner-login"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-yellow-400 text-slate-950 font-bold hover:bg-yellow-300 transition"
             >
-              Become a Partner
-              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-            </button>
-            <a
-              href="#cities"
-              className="px-8 py-4 bg-white/10 backdrop-blur-sm border border-white/20 text-white font-semibold rounded-full hover:bg-white/20 transition-all"
+              Existing partner sign in
+              <Lock className="w-4 h-4" />
+            </Link>
+            <Link
+              href="/business/apply"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-white/10 border border-white/20 font-semibold hover:bg-white/20 transition"
             >
-              Explore Cities
-            </a>
+              Apply for a business account
+              <ArrowRight className="w-4 h-4" />
+            </Link>
           </div>
         </div>
       </section>
@@ -203,349 +371,516 @@ function BusinessContent() {
                 Increase your visibility and bookings through our verified partner network across multiple continents.
               </p>
             </div>
+          </div>
+        </section>
+      )}
 
-            <div className="group bg-gradient-to-br from-gray-50 to-gray-100 rounded-3xl p-8 hover:shadow-xl transition-all duration-300 border border-gray-100">
-              <div className="w-16 h-16 bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-yellow-500/20">
-                <CheckCircle className="w-8 h-8 text-white" />
+      {isPartnerUser && (
+        <section className="py-12 px-4 border-b bg-white">
+          <div className="max-w-7xl mx-auto">
+            <div className="flex items-end justify-between gap-4 flex-wrap mb-8">
+              <div>
+                <p className="text-sm font-semibold uppercase tracking-wide text-red-600">Partner workspace</p>
+                <h2 className="text-3xl font-bold text-gray-900">Upload business data and partnership information</h2>
               </div>
-              <h3 className="text-2xl font-bold mb-3 text-gray-900">Verified Badge</h3>
-              <p className="text-gray-600 leading-relaxed">
-                Get a verified badge that builds trust with travelers and boosts your credibility in the market.
-              </p>
+              <span className="px-4 py-2 rounded-full bg-slate-950 text-white text-sm font-semibold">
+                Signed in as {currentUser?.business_name || currentUser?.username}
+              </span>
             </div>
-          </div>
-        </div>
-      </section>
 
-      {/* Business Communities Grid */}
-      <section id="cities" className="py-20 px-4 bg-gray-50">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <span className="text-red-600 font-semibold tracking-wider uppercase text-sm">Our Presence</span>
-            <h2 className="text-4xl md:text-5xl font-bold mt-2 text-gray-900">Partner Cities</h2>
-            <p className="text-gray-600 mt-4 max-w-2xl mx-auto">
-              Explore our verified business partners in cities around the world
-            </p>
-          </div>
+            <div className="grid xl:grid-cols-[0.85fr,1.15fr] gap-8">
+              <div className="bg-gray-50 rounded-3xl p-6 border border-gray-200">
+                <h3 className="text-xl font-bold text-gray-900 mb-4">Latest application</h3>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-            {allCities.map((cityKey) => {
-              const city = businessCommunities[cityKey];
-              return (
-                <button
-                  key={cityKey}
-                  onClick={() => setSelectedCity(cityKey)}
-                  className={`group relative h-72 rounded-2xl overflow-hidden text-left ${
-                    selectedCity === cityKey ? 'ring-4 ring-yellow-400' : ''
-                  }`}
-                >
-                  <img
-                    src={city.image}
-                    alt={city.name}
-                    className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
-                  <div className="absolute bottom-0 left-0 right-0 p-6">
-                    <span className="text-3xl mb-2 block">{city.flag}</span>
-                    <h3 className="text-2xl font-bold text-white">{city.name}</h3>
-                    <p className="text-gray-300 text-sm">{city.country}</p>
-                    <div className="mt-3 flex items-center text-yellow-400 text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity">
-                      View Partners <ArrowRight className="w-4 h-4 ml-1" />
-                    </div>
-                  </div>
-                  {selectedCity === cityKey && (
-                    <div className="absolute top-4 right-4 bg-yellow-400 text-slate-900 px-3 py-1 rounded-full text-xs font-bold">
-                      Selected
-                    </div>
-                  )}
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Selected City Details */}
-          {cityData && (
-            <div className="bg-white rounded-3xl shadow-xl overflow-hidden">
-              <div className="relative h-64 md:h-80">
-                <img
-                  src={cityData.image}
-                  alt={cityData.name}
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                <div className="absolute bottom-0 left-0 right-0 p-8">
-                  <span className="text-4xl mb-2 block">{cityData.flag}</span>
-                  <h3 className="text-4xl font-bold text-white mb-2">{cityData.name}, {cityData.country}</h3>
-                  <p className="text-white/90 text-lg max-w-2xl">{cityData.description}</p>
-                </div>
-              </div>
-
-              <div className="p-8">
-                {/* Highlights */}
-                <div className="mb-8">
-                  <h4 className="text-lg font-bold text-gray-900 mb-4">Popular Experiences</h4>
-                  <div className="flex flex-wrap gap-3">
-                    {cityData.highlights.map((highlight) => (
-                      <span
-                        key={highlight}
-                        className="px-4 py-2 bg-gray-100 text-gray-700 rounded-full text-sm font-medium"
-                      >
-                        {highlight}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Partners Grid */}
-                <h4 className="text-lg font-bold text-gray-900 mb-6">Verified Partners</h4>
-                <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-                  {cityData.partners.map((partner) => (
-                    <div
-                      key={partner.name}
-                      className="group bg-gray-50 rounded-2xl overflow-hidden hover:shadow-lg transition-all duration-300"
-                    >
-                      <div className="h-32 overflow-hidden">
-                        <img
-                          src={partner.image}
-                          alt={partner.name}
-                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                        />
-                      </div>
-                      <div className="p-4">
-                        <span className="text-xs font-medium text-red-600 uppercase tracking-wide">
-                          {partner.category}
-                        </span>
-                        <h5 className="font-bold text-gray-900 mt-1 mb-2">{partner.name}</h5>
-                        <div className="flex items-center text-sm">
-                          <Star className="w-4 h-4 text-yellow-500 fill-yellow-500 mr-1" />
-                          <span className="font-medium">{partner.rating}</span>
-                          <span className="text-green-600 ml-2 text-xs flex items-center">
-                            <CheckCircle className="w-3 h-3 mr-1" /> Verified
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="mt-8 text-center">
-                  <button
-                    onClick={() => {
-                      setFormData({ ...formData, city: cityData.name });
-                      setShowApplicationForm(true);
-                    }}
-                    className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-red-600 to-red-500 text-white font-bold rounded-full hover:from-red-500 hover:to-red-400 transition-all"
-                  >
-                    Become a Partner in {cityData.name}
-                    <ArrowRight className="w-5 h-5" />
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-      </section>
-
-      {/* Application Form Modal */}
-      {showApplicationForm && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-8">
-              <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center space-x-3">
-                  <Building2 className="w-8 h-8 text-red-600" />
-                  <h2 className="text-2xl font-bold">Partnership Application</h2>
-                </div>
-                <button
-                  onClick={() => setShowApplicationForm(false)}
-                  className="text-gray-500 hover:text-gray-700 text-2xl"
-                >
-                  ×
-                </button>
-              </div>
-
-              <form onSubmit={handleSubmit} className="space-y-6">
-                {error && (
-                  <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-xl">
-                    {error}
+                {applicationError && (
+                  <div className="mb-4 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                    {applicationError}
                   </div>
                 )}
 
-                <div className="grid md:grid-cols-2 gap-6">
+                {applicationSuccess && (
+                  <div className="mb-4 rounded-2xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
+                    {applicationSuccess}
+                  </div>
+                )}
+
+                {applicationLoading && !latestApplication ? (
+                  <p className="text-sm text-gray-500">Loading your application status...</p>
+                ) : latestApplication ? (
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between gap-3">
+                      <div>
+                        <p className="text-sm text-gray-500">Business</p>
+                        <p className="text-lg font-bold text-gray-900">{latestApplication.business_name}</p>
+                      </div>
+                      <span className="px-3 py-1 rounded-full bg-yellow-100 text-yellow-800 text-xs font-bold uppercase">
+                        {latestApplication.status}
+                      </span>
+                    </div>
+                    <div className="grid md:grid-cols-2 gap-4 text-sm">
+                      <div className="rounded-2xl bg-white p-4">
+                        <p className="text-gray-500 mb-1">Business type</p>
+                        <p className="font-semibold text-gray-900">{latestApplication.community_label}</p>
+                      </div>
+                      <div className="rounded-2xl bg-white p-4">
+                        <p className="text-gray-500 mb-1">Destination</p>
+                        <p className="font-semibold text-gray-900">{latestApplication.destination_name || 'Not selected'}</p>
+                      </div>
+                    </div>
+                    <p className="text-sm text-gray-600">
+                      Submitted details stay attached to your partner account while the application is reviewed.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="rounded-2xl bg-white p-5 text-sm text-gray-600">
+                    No partnership application submitted yet. Complete the form to upload your business details.
+                  </div>
+                )}
+              </div>
+
+              <form onSubmit={handleApplicationSubmit} className="bg-white rounded-3xl shadow p-6 space-y-5">
+                <div className="flex items-center gap-3">
+                  <Upload className="w-5 h-5 text-red-600" />
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Business Name *
-                    </label>
+                    <h3 className="text-2xl font-bold text-gray-900">Business profile submission</h3>
+                    <p className="text-sm text-gray-600">Provide the information, business type, and uploads required for review.</p>
+                  </div>
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Business name</label>
                     <input
-                      type="text"
                       required
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none"
-                      value={formData.business_name}
-                      onChange={(e) => setFormData({ ...formData, business_name: e.target.value })}
+                      value={applicationForm.business_name}
+                      onChange={(e) => setApplicationForm({ ...applicationForm, business_name: e.target.value })}
+                      className="w-full rounded-2xl border border-gray-300 px-4 py-3 outline-none focus:border-red-500 focus:ring-2 focus:ring-red-100"
                     />
                   </div>
-
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      City *
-                    </label>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Business category</label>
+                    <input
+                      required
+                      value={applicationForm.business_category}
+                      onChange={(e) => setApplicationForm({ ...applicationForm, business_category: e.target.value })}
+                      className="w-full rounded-2xl border border-gray-300 px-4 py-3 outline-none focus:border-red-500 focus:ring-2 focus:ring-red-100"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Destination</label>
                     <select
                       required
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none"
-                      value={formData.city}
-                      onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                      value={applicationForm.destination}
+                      onChange={(e) => {
+                        setApplicationForm({ ...applicationForm, destination: e.target.value });
+                        setSelectedDestinationId(e.target.value);
+                      }}
+                      className="w-full rounded-2xl border border-gray-300 px-4 py-3 outline-none focus:border-red-500 focus:ring-2 focus:ring-red-100"
                     >
-                      <option value="">Select city</option>
-                      <option value="Bangkok">Bangkok, Thailand</option>
-                      <option value="Sydney">Sydney, Australia</option>
-                      <option value="Rome">Rome, Italy</option>
-                      <option value="Nairobi">Nairobi, Kenya</option>
-                      <option value="Other">Other</option>
+                      <option value="">Choose a destination</option>
+                      {destinations.map((destination: any) => (
+                        <option key={destination.id} value={destination.id}>
+                          {destination.city}, {destination.country}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Business type</label>
+                    <select
+                      value={applicationForm.community_type}
+                      onChange={(e) => {
+                        const nextCommunity = e.target.value as CommunityKey;
+                        setApplicationForm({ ...applicationForm, community_type: nextCommunity });
+                        setCommunity(nextCommunity);
+                      }}
+                      className="w-full rounded-2xl border border-gray-300 px-4 py-3 outline-none focus:border-red-500 focus:ring-2 focus:ring-red-100"
+                    >
+                      <option value="airport">Airport Business</option>
+                      <option value="destination">Destination Business</option>
                     </select>
                   </div>
                 </div>
 
-                <div className="grid md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Business Category *
-                    </label>
-                    <select
-                      required
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none"
-                      value={formData.business_category}
-                      onChange={(e) => setFormData({ ...formData, business_category: e.target.value })}
-                    >
-                      <option value="">Select category</option>
-                      <option value="activities">Activities & Experiences</option>
-                      <option value="adventure">Adventure & Tours</option>
-                      <option value="hotel">Hotel, Motel & Lodging</option>
-                      <option value="transport">Transport & Transfers</option>
-                      <option value="merchandise">Merchandise & Shopping</option>
-                      <option value="restaurant">Restaurant & Dining</option>
-                      <option value="wellness">Wellness & Spa</option>
-                      <option value="other">Other</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Registration Number *
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none"
-                      value={formData.business_registration_number}
-                      onChange={(e) => setFormData({ ...formData, business_registration_number: e.target.value })}
-                    />
-                  </div>
-                </div>
-
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Business Address *
-                  </label>
-                  <textarea
-                    required
-                    rows={2}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none"
-                    value={formData.business_address}
-                    onChange={(e) => setFormData({ ...formData, business_address: e.target.value })}
-                  />
-                </div>
-
-                <div className="grid md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Business Phone *
-                    </label>
-                    <input
-                      type="tel"
-                      required
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none"
-                      value={formData.business_phone}
-                      onChange={(e) => setFormData({ ...formData, business_phone: e.target.value })}
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Business Email *
-                    </label>
-                    <input
-                      type="email"
-                      required
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none"
-                      value={formData.business_email}
-                      onChange={(e) => setFormData({ ...formData, business_email: e.target.value })}
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Business Website
-                  </label>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Service tags</label>
                   <input
-                    type="url"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none"
-                    value={formData.business_website}
-                    onChange={(e) => setFormData({ ...formData, business_website: e.target.value })}
-                    placeholder="https://"
+                    value={applicationForm.service_tags}
+                    onChange={(e) => setApplicationForm({ ...applicationForm, service_tags: e.target.value })}
+                    placeholder="lounges, transfers, safari, pharmacy"
+                    className="w-full rounded-2xl border border-gray-300 px-4 py-3 outline-none focus:border-red-500 focus:ring-2 focus:ring-red-100"
                   />
+                  <p className="text-xs text-gray-500 mt-2">Separate tags with commas.</p>
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Registration number</label>
+                    <input
+                      required
+                      value={applicationForm.business_registration_number}
+                      onChange={(e) => setApplicationForm({ ...applicationForm, business_registration_number: e.target.value })}
+                      className="w-full rounded-2xl border border-gray-300 px-4 py-3 outline-none focus:border-red-500 focus:ring-2 focus:ring-red-100"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Business phone</label>
+                    <input
+                      required
+                      value={applicationForm.business_phone}
+                      onChange={(e) => setApplicationForm({ ...applicationForm, business_phone: e.target.value })}
+                      className="w-full rounded-2xl border border-gray-300 px-4 py-3 outline-none focus:border-red-500 focus:ring-2 focus:ring-red-100"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Business email</label>
+                    <input
+                      required
+                      type="email"
+                      value={applicationForm.business_email}
+                      onChange={(e) => setApplicationForm({ ...applicationForm, business_email: e.target.value })}
+                      className="w-full rounded-2xl border border-gray-300 px-4 py-3 outline-none focus:border-red-500 focus:ring-2 focus:ring-red-100"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Business website</label>
+                    <input
+                      type="url"
+                      value={applicationForm.business_website}
+                      onChange={(e) => setApplicationForm({ ...applicationForm, business_website: e.target.value })}
+                      className="w-full rounded-2xl border border-gray-300 px-4 py-3 outline-none focus:border-red-500 focus:ring-2 focus:ring-red-100"
+                    />
+                  </div>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Business Description *
-                  </label>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Business address</label>
                   <textarea
                     required
                     rows={3}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none"
-                    value={formData.business_description}
-                    onChange={(e) => setFormData({ ...formData, business_description: e.target.value })}
-                    placeholder="Tell us about your business and services..."
+                    value={applicationForm.business_address}
+                    onChange={(e) => setApplicationForm({ ...applicationForm, business_address: e.target.value })}
+                    className="w-full rounded-2xl border border-gray-300 px-4 py-3 outline-none focus:border-red-500 focus:ring-2 focus:ring-red-100"
                   />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Business description</label>
+                  <textarea
+                    required
+                    rows={4}
+                    value={applicationForm.business_description}
+                    onChange={(e) => setApplicationForm({ ...applicationForm, business_description: e.target.value })}
+                    className="w-full rounded-2xl border border-gray-300 px-4 py-3 outline-none focus:border-red-500 focus:ring-2 focus:ring-red-100"
+                  />
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Business logo</label>
+                    <input
+                      required
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => setApplicationFiles({ ...applicationFiles, business_logo: e.target.files?.[0] || null })}
+                      className="w-full rounded-2xl border border-gray-300 px-4 py-3 text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Supporting documents</label>
+                    <input
+                      required
+                      type="file"
+                      onChange={(e) => setApplicationFiles({ ...applicationFiles, business_documents: e.target.files?.[0] || null })}
+                      className="w-full rounded-2xl border border-gray-300 px-4 py-3 text-sm"
+                    />
+                  </div>
                 </div>
 
                 <button
                   type="submit"
-                  disabled={loading}
-                  className="w-full py-4 bg-gradient-to-r from-red-600 to-red-500 text-white font-bold rounded-xl hover:from-red-500 hover:to-red-400 transition-all disabled:opacity-50"
+                  disabled={applicationLoading}
+                  className="inline-flex items-center justify-center gap-2 rounded-2xl bg-red-600 px-6 py-4 text-white font-bold hover:bg-red-700 transition disabled:opacity-60"
                 >
-                  {loading ? 'Submitting Application...' : 'Submit Application'}
+                  {applicationLoading ? 'Submitting business details...' : 'Submit business details'}
+                  <ArrowRight className="w-4 h-4" />
                 </button>
-
-                <p className="text-sm text-gray-500 text-center">
-                  By submitting this application, you agree to our partner terms and conditions.
-                </p>
               </form>
             </div>
           </div>
+        </section>
+      )}
+
+      <section className="py-12 px-4 bg-white border-b">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex items-end justify-between gap-4 flex-wrap mb-6">
+            <div>
+              <p className="text-sm font-semibold uppercase tracking-wide text-red-600">Demonstration network</p>
+              <h2 className="text-3xl font-bold text-gray-900">Localized ecosystems across the globe</h2>
+            </div>
+            <Link href="/ticket-login" className="inline-flex items-center gap-2 text-red-600 font-semibold">
+              Unlock as a passenger
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-3 mb-6">
+            <span className="text-sm font-semibold text-gray-600">Business type:</span>
+            {(['airport', 'destination'] as CommunityKey[]).map((key) => (
+              <button
+                key={key}
+                onClick={() => setCommunity(key)}
+                className={`px-5 py-3 rounded-full font-semibold transition ${
+                  community === key ? 'bg-red-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-red-50'
+                }`}
+              >
+                {communityContent[key].title}
+              </button>
+            ))}
+          </div>
+
+          <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-6">
+            {destinations.map((destination: any) => (
+              <button
+                key={destination.id}
+                onClick={() => setSelectedDestinationId(destination.id)}
+                className={`text-left bg-white rounded-3xl overflow-hidden shadow hover:shadow-xl transition ${
+                  selectedDestination?.id === destination.id ? 'ring-2 ring-red-500' : ''
+                }`}
+              >
+                <div className="h-44 bg-gray-100">
+                  {getItemImage(destination) && (
+                    <img
+                      src={getItemImage(destination) || ''}
+                      alt={destination.city}
+                      className="w-full h-full object-cover"
+                    />
+                  )}
+                </div>
+                <div className="p-5">
+                  <div className="flex items-center gap-2 text-sm text-gray-500 mb-2">
+                    <MapPin className="w-4 h-4" />
+                    <span>{destination.country}</span>
+                  </div>
+                  <h3 className="text-2xl font-bold text-gray-900">{destination.city}</h3>
+                  <p className="text-sm text-gray-600 mt-2 line-clamp-3">{destination.description}</p>
+                  <div className="mt-4 flex gap-2 flex-wrap text-xs font-semibold">
+                    <span className="px-3 py-1 rounded-full bg-slate-950 text-white">
+                      {destination.airport_services_count || 0} airport services
+                    </span>
+                    <span className="px-3 py-1 rounded-full bg-orange-50 text-orange-700">
+                      {destination.destination_services_count || 0} destination services
+                    </span>
+                  </div>
+                </div>
+              </button>
+            ))}
+          </div>
         </div>
+      </section>
+
+      {selectedDestination && (
+        <section className="py-14 px-4">
+          <div className="max-w-7xl mx-auto">
+            <div className="grid lg:grid-cols-[1fr,0.9fr] gap-8 mb-8">
+              <div className="bg-white rounded-3xl shadow-lg overflow-hidden">
+                <div className="h-72 bg-gray-100">
+                  {getItemImage(selectedDestination) && (
+                    <img
+                      src={getItemImage(selectedDestination) || ''}
+                      alt={selectedDestination.city}
+                      className="w-full h-full object-cover"
+                    />
+                  )}
+                </div>
+                <div className="p-8">
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    <span className="px-3 py-1 rounded-full bg-red-100 text-red-700 text-sm font-semibold">
+                      {selectedDestination.airport_code}
+                    </span>
+                    <span className="px-3 py-1 rounded-full bg-orange-100 text-orange-700 text-sm font-semibold">
+                      {selectedDestination.currency_code}
+                    </span>
+                    <span className="px-3 py-1 rounded-full bg-slate-950 text-white text-sm font-semibold">
+                      Viewing {communityContent[community].title}
+                    </span>
+                  </div>
+                  <h2 className="text-4xl font-black text-gray-900 mb-3">
+                    {selectedDestination.city}, {selectedDestination.country}
+                  </h2>
+                  <p className="text-lg text-gray-600 mb-6">{selectedDestination.hero_tagline || selectedDestination.description}</p>
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div className="rounded-2xl bg-slate-950 text-white p-5">
+                      <p className="text-sm text-yellow-300 mb-2">Airport gateway</p>
+                      <h3 className="text-xl font-bold">{selectedDestination.airport_name}</h3>
+                    </div>
+                    <div className="rounded-2xl bg-gray-50 p-5">
+                      <p className="text-sm text-red-600 mb-2">Passenger promise</p>
+                      <p className="text-gray-700">
+                        The ticket is the entry point to one destination-specific business ecosystem before and after arrival.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white rounded-3xl shadow p-8">
+                <p className="text-sm font-semibold uppercase tracking-wide text-red-600 mb-2">Destination highlights</p>
+                <h3 className="text-2xl font-bold text-gray-900 mb-4">What the ecosystem showcases</h3>
+                <div className="flex flex-wrap gap-3 mb-6">
+                  {featuredHighlights.map((highlight) => (
+                    <span key={highlight} className="px-4 py-2 rounded-full bg-red-50 text-red-700 text-sm font-medium">
+                      {highlight}
+                    </span>
+                  ))}
+                </div>
+                <div className="space-y-4 text-sm text-gray-600">
+                  <div className="flex gap-3">
+                    <CheckCircle className="w-5 h-5 text-green-600 shrink-0 mt-0.5" />
+                    <p>Airport operators, merchants, lounges, dining, car hire, and airport hotels are separated from city businesses.</p>
+                  </div>
+                  <div className="flex gap-3">
+                    <CheckCircle className="w-5 h-5 text-green-600 shrink-0 mt-0.5" />
+                    <p>Destination businesses cover accommodation, restaurants, experiences, shopping, healthcare, mobility, and entertainment.</p>
+                  </div>
+                  <div className="flex gap-3">
+                    <CheckCircle className="w-5 h-5 text-green-600 shrink-0 mt-0.5" />
+                    <p>Customers can switch between airport and destination business views to compare the two communities for the same city.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {loading ? (
+              <div className="rounded-3xl bg-white shadow p-8 text-center text-gray-500">Loading ecosystem...</div>
+            ) : (
+              <div className="grid xl:grid-cols-[0.9fr,1.1fr] gap-8">
+                <div className="bg-white rounded-3xl shadow p-6">
+                  <div className="flex items-center gap-3 mb-4">
+                    <CommunityIcon className="w-6 h-6 text-red-600" />
+                    <div>
+                      <h3 className="text-2xl font-bold text-gray-900">{communityContent[community].title}</h3>
+                      <p className="text-sm text-gray-600">{communityContent[community].blurb}</p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-4">
+                    {asArray<any>(activeCommunity.partners).map((partner) => (
+                      <div key={partner.id} className="rounded-2xl border border-gray-100 p-5">
+                        <div className="flex items-start justify-between gap-4">
+                          <div>
+                            <p className="text-xs font-semibold uppercase tracking-wide text-red-600 mb-1">
+                              {partner.business_category}
+                            </p>
+                            <h4 className="text-xl font-bold text-gray-900">{partner.business_name}</h4>
+                          </div>
+                          <div className="flex gap-2 flex-wrap justify-end">
+                            {partner.featured && (
+                              <span className="px-3 py-1 rounded-full bg-yellow-100 text-yellow-800 text-xs font-bold">
+                                Featured
+                              </span>
+                            )}
+                            {partner.community_label && (
+                              <span className="px-3 py-1 rounded-full bg-slate-100 text-slate-700 text-xs font-bold">
+                                {partner.community_label}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                        <p className="text-sm text-gray-600 mt-3">{partner.community_summary}</p>
+                        <div className="mt-4 flex flex-wrap gap-2">
+                          {asStringArray(partner.service_tags).map((tag) => (
+                            <span key={tag} className="px-3 py-1 rounded-full bg-gray-100 text-gray-700 text-xs font-medium">
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+
+                    {asArray(activeCommunity.partners).length === 0 && (
+                      <div className="rounded-2xl bg-gray-50 p-5 text-sm text-gray-600">
+                        No partners are currently listed for this business type in the selected destination.
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="bg-white rounded-3xl shadow p-6">
+                  <div className="flex items-center gap-3 mb-4">
+                    <Building2 className="w-6 h-6 text-red-600" />
+                    <div>
+                      <h3 className="text-2xl font-bold text-gray-900">Passenger-facing services</h3>
+                      <p className="text-sm text-gray-600">Products and experiences exposed to the traveler through the destination passport.</p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-4">
+                    {asArray<any>(activeCommunity.services).map((service) => (
+                      <div key={service.id} className="rounded-2xl border border-gray-100 p-5">
+                        <div className="flex items-start justify-between gap-4">
+                          <div>
+                            <p className="text-xs font-semibold uppercase tracking-wide text-red-600 mb-1">
+                              {service.category_name}
+                            </p>
+                            <h4 className="text-xl font-bold text-gray-900">{service.name}</h4>
+                            <p className="text-sm text-gray-600 mt-2">{service.description}</p>
+                          </div>
+                          <div className="text-right shrink-0">
+                            <p className="text-sm text-gray-500">From</p>
+                            <p className="text-2xl font-black text-red-700">{formatPrice(service.price)}</p>
+                            <p className="text-sm text-gray-500">{service.currency}</p>
+                          </div>
+                        </div>
+                        <div className="mt-4 flex items-center justify-between gap-4 flex-wrap">
+                          <div className="flex flex-wrap gap-2">
+                            <span className="px-3 py-1 rounded-full bg-gray-100 text-gray-700 text-xs font-medium">
+                              {service.journey_stage_label}
+                            </span>
+                            {service.location_label && (
+                              <span className="px-3 py-1 rounded-full bg-orange-50 text-orange-700 text-xs font-medium">
+                                {service.location_label}
+                              </span>
+                            )}
+                            {service.community_label && (
+                              <span className="px-3 py-1 rounded-full bg-slate-100 text-slate-700 text-xs font-medium">
+                                {service.community_label}
+                              </span>
+                            )}
+                          </div>
+                          <Link href={`/trip-assistant/services/${service.id}`} className="inline-flex items-center gap-2 text-red-600 font-semibold">
+                            View booking flow
+                            <ArrowRight className="w-4 h-4" />
+                          </Link>
+                        </div>
+                      </div>
+                    ))}
+
+                    {asArray(activeCommunity.services).length === 0 && (
+                      <div className="rounded-2xl bg-gray-50 p-5 text-sm text-gray-600">
+                        No services are currently listed for this business type in the selected destination.
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </section>
       )}
     </div>
   );
 }
 
-// Loading fallback component
-function BusinessLoading() {
+export default function BusinessPage() {
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-      <div className="text-center">
-        <div className="w-16 h-16 border-4 border-red-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-        <p className="text-gray-600">Loading...</p>
-      </div>
-    </div>
-  );
-}
-
-// Main export with Suspense boundary
-export default function Business() {
-  return (
-    <Suspense fallback={<BusinessLoading />}>
+    <Suspense fallback={<div className="min-h-screen bg-gray-50" />}>
       <BusinessContent />
     </Suspense>
   );

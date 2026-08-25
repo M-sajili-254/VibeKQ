@@ -91,8 +91,8 @@ export default api;
 // API Services
 export const authService = {
   // New signin endpoint
-  signin: async (username: string, password: string) => {
-    const response = await api.post('/accounts/signin/', { username, password });
+  signin: async (username: string, password: string, portal?: 'partner') => {
+    const response = await api.post('/accounts/signin/', { username, password, portal });
     return response.data;
   },
   // New signup endpoint
@@ -114,6 +114,10 @@ export const authService = {
     const response = await api.get('/accounts/users/me/');
     return response.data;
   },
+  updateProfile: async (userData: any) => {
+    const response = await api.patch('/accounts/users/me/', userData);
+    return response.data;
+  },
 };
 
 export const destinationService = {
@@ -123,6 +127,14 @@ export const destinationService = {
   },
   getById: async (id: number) => {
     const response = await api.get(`/trip-assistant/destinations/${id}/`);
+    return response.data;
+  },
+  getPassport: async () => {
+    const response = await api.get('/trip-assistant/passport/');
+    return response.data;
+  },
+  getEcosystem: async (id: number | string) => {
+    const response = await api.get(`/trip-assistant/destinations/${id}/ecosystem/`);
     return response.data;
   },
 };
@@ -186,15 +198,23 @@ export const communityService = {
 
 export const businessService = {
   applyForPartnership: async (applicationData: any) => {
-    const response = await api.post('/business/applications/', applicationData);
+    const response = await api.post('/business/applications/', applicationData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
     return response.data;
   },
-  getPartnerships: async () => {
-    const response = await api.get('/business/partnerships/');
+  getApplications: async () => {
+    const response = await api.get('/business/applications/');
     return response.data;
   },
-  getSponsoredContent: async () => {
-    const response = await api.get('/business/sponsored/');
+  getPartnerships: async (params?: any) => {
+    const response = await api.get('/business/partnerships/', { params });
+    return response.data;
+  },
+  getSponsoredContent: async (params?: any) => {
+    const response = await api.get('/business/sponsored/', { params });
     return response.data;
   },
 };

@@ -2,14 +2,34 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { User, Mail, Phone, Calendar, MapPin, Briefcase, Edit, Save, X } from 'lucide-react';
+import {
+  Briefcase,
+  Calendar,
+  Edit,
+  Mail,
+  MapPin,
+  Save,
+  Sparkles,
+  Ticket,
+  User,
+  X,
+} from 'lucide-react';
 import { authService, getImageUrl } from '@/utils/api';
+
+const stringifyList = (value: string[] | null | undefined) => (value || []).join(', ');
+const parseList = (value: string) =>
+  value
+    .split(',')
+    .map((item) => item.trim())
+    .filter(Boolean);
 
 export default function Profile() {
   const router = useRouter();
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
   const [formData, setFormData] = useState({
     first_name: '',
     last_name: '',
@@ -18,12 +38,48 @@ export default function Profile() {
     bio: '',
     date_of_birth: '',
     nationality: '',
+    preferred_categories: '',
+    interests: '',
+    travel_styles: '',
+    preferred_airport_services: '',
+    preferred_local_experiences: '',
+    preferred_transport_modes: '',
+    favorite_destinations: '',
+    preferred_budget: 'mid_range',
+    travel_frequency: 'occasional',
+    dietary_preferences: '',
+    accessibility_needs: '',
+    recommendation_notes: '',
   });
+
+  const hydrateForm = (userData: any) => {
+    const profile = userData.passenger_profile || {};
+    setFormData({
+      first_name: userData.first_name || '',
+      last_name: userData.last_name || '',
+      email: userData.email || '',
+      phone_number: userData.phone_number || '',
+      bio: userData.bio || '',
+      date_of_birth: userData.date_of_birth || '',
+      nationality: userData.nationality || '',
+      preferred_categories: stringifyList(profile.preferred_categories),
+      interests: stringifyList(profile.interests),
+      travel_styles: stringifyList(profile.travel_styles),
+      preferred_airport_services: stringifyList(profile.preferred_airport_services),
+      preferred_local_experiences: stringifyList(profile.preferred_local_experiences),
+      preferred_transport_modes: stringifyList(profile.preferred_transport_modes),
+      favorite_destinations: stringifyList(profile.favorite_destinations),
+      preferred_budget: profile.preferred_budget || 'mid_range',
+      travel_frequency: profile.travel_frequency || 'occasional',
+      dietary_preferences: profile.dietary_preferences || '',
+      accessibility_needs: profile.accessibility_needs || '',
+      recommendation_notes: profile.recommendation_notes || '',
+    });
+  };
 
   useEffect(() => {
     const fetchUser = async () => {
-      const token = localStorage.getItem('access_token');
-      if (!token) {
+      if (!localStorage.getItem('access_token')) {
         router.push('/login');
         return;
       }
@@ -31,15 +87,7 @@ export default function Profile() {
       try {
         const userData = await authService.getCurrentUser();
         setUser(userData);
-        setFormData({
-          first_name: userData.first_name || '',
-          last_name: userData.last_name || '',
-          email: userData.email || '',
-          phone_number: userData.phone_number || '',
-          bio: userData.bio || '',
-          date_of_birth: userData.date_of_birth || '',
-          nationality: userData.nationality || '',
-        });
+        hydrateForm(userData);
       } catch (error) {
         console.error('Error fetching user:', error);
         router.push('/login');
@@ -52,14 +100,40 @@ export default function Profile() {
   }, [router]);
 
   const handleSave = async () => {
+    setSaving(true);
+    setError('');
     try {
-      // TODO: Implement update user API call
+      const updatedUser = await authService.updateProfile({
+        first_name: formData.first_name,
+        last_name: formData.last_name,
+        email: formData.email,
+        phone_number: formData.phone_number,
+        bio: formData.bio,
+        date_of_birth: formData.date_of_birth || null,
+        nationality: formData.nationality,
+        passenger_profile: {
+          preferred_categories: parseList(formData.preferred_categories),
+          interests: parseList(formData.interests),
+          travel_styles: parseList(formData.travel_styles),
+          preferred_airport_services: parseList(formData.preferred_airport_services),
+          preferred_local_experiences: parseList(formData.preferred_local_experiences),
+          preferred_transport_modes: parseList(formData.preferred_transport_modes),
+          favorite_destinations: parseList(formData.favorite_destinations),
+          preferred_budget: formData.preferred_budget,
+          travel_frequency: formData.travel_frequency,
+          dietary_preferences: formData.dietary_preferences,
+          accessibility_needs: formData.accessibility_needs,
+          recommendation_notes: formData.recommendation_notes,
+        },
+      });
+
+      setUser(updatedUser);
+      hydrateForm(updatedUser);
       setEditing(false);
-      // Refresh user data
-      const userData = await authService.getCurrentUser();
-      setUser(userData);
-    } catch (error) {
-      console.error('Error updating profile:', error);
+    } catch (err: any) {
+      setError(err.response?.data?.detail || 'Could not update your profile.');
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -78,70 +152,68 @@ export default function Profile() {
     return null;
   }
 
+  const profile = user.passenger_profile || {};
+
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-red-700 to-red-600 text-white py-12 px-4">
-        <div className="max-w-5xl mx-auto">
-          <h1 className="text-4xl font-bold mb-2">My Profile</h1>
-          <p className="text-red-100">Manage your account information</p>
+      <div className="bg-gradient-to-r from-red-700 to-red-600 text-white py-14 px-4">
+        <div className="max-w-6xl mx-auto">
+          <p className="text-sm font-semibold uppercase tracking-wide text-red-100 mb-2">Passenger profile</p>
+          <h1 className="text-4xl font-black mb-2">Your destination preferences</h1>
+          <p className="text-red-100">Shape the recommendations and marketplace access you receive after every landing.</p>
         </div>
       </div>
 
-      <div className="max-w-5xl mx-auto px-4 py-8">
-        {/* Profile Card */}
-        <div className="bg-white rounded-lg shadow-lg overflow-hidden mb-6">
-          {/* Cover Image */}
-          <div className="h-32 bg-gradient-to-r from-red-600 to-red-700"></div>
-          
-          {/* Profile Info */}
+      <div className="max-w-6xl mx-auto px-4 py-8 space-y-6">
+        <div className="bg-white rounded-3xl shadow-lg overflow-hidden">
+          <div className="h-32 bg-gradient-to-r from-red-600 to-orange-500"></div>
           <div className="relative px-6 pb-6">
-            {/* Profile Picture */}
-            <div className="absolute -top-16 left-6">
-              <div className="w-32 h-32 bg-white rounded-full border-4 border-white shadow-lg flex items-center justify-center overflow-hidden">
-                {user.profile_picture ? (
-                  <img
-                    src={getImageUrl(user.profile_picture) || ''}
-                    alt={user.username}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <User className="w-16 h-16 text-gray-400" />
-                )}
-              </div>
+            <div className="absolute -top-14 left-6 w-28 h-28 bg-white rounded-full border-4 border-white shadow-lg overflow-hidden flex items-center justify-center">
+              {user.profile_picture ? (
+                <img
+                  src={getImageUrl(user.profile_picture) || ''}
+                  alt={user.username}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <User className="w-12 h-12 text-gray-400" />
+              )}
             </div>
 
-            {/* Edit Button */}
-            <div className="pt-4 flex justify-end">
+            <div className="pt-4 flex justify-end gap-2">
               {editing ? (
-                <div className="flex space-x-2">
+                <>
                   <button
                     onClick={handleSave}
-                    className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition flex items-center space-x-2"
+                    disabled={saving}
+                    className="px-4 py-2 bg-red-600 text-white rounded-xl hover:bg-red-700 transition flex items-center gap-2 disabled:opacity-60"
                   >
                     <Save className="w-4 h-4" />
-                    <span>Save</span>
+                    {saving ? 'Saving...' : 'Save'}
                   </button>
                   <button
-                    onClick={() => setEditing(false)}
-                    className="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition flex items-center space-x-2"
+                    onClick={() => {
+                      hydrateForm(user);
+                      setEditing(false);
+                      setError('');
+                    }}
+                    className="px-4 py-2 bg-gray-200 text-gray-700 rounded-xl hover:bg-gray-300 transition flex items-center gap-2"
                   >
                     <X className="w-4 h-4" />
-                    <span>Cancel</span>
+                    Cancel
                   </button>
-                </div>
+                </>
               ) : (
                 <button
                   onClick={() => setEditing(true)}
-                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition flex items-center space-x-2"
+                  className="px-4 py-2 bg-red-600 text-white rounded-xl hover:bg-red-700 transition flex items-center gap-2"
                 >
                   <Edit className="w-4 h-4" />
-                  <span>Edit Profile</span>
+                  Edit profile
                 </button>
               )}
             </div>
 
-            {/* User Info */}
             <div className="mt-4">
               <h2 className="text-3xl font-bold text-gray-900">
                 {user.first_name} {user.last_name}
@@ -156,224 +228,195 @@ export default function Profile() {
           </div>
         </div>
 
-        {/* Details Section */}
-        <div className="grid md:grid-cols-2 gap-6">
-          {/* Personal Information */}
-          <div className="bg-white rounded-lg shadow p-6">
-            <h3 className="text-xl font-semibold mb-4 flex items-center space-x-2">
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-2xl">
+            {error}
+          </div>
+        )}
+
+        <div className="grid lg:grid-cols-2 gap-6">
+          <div className="bg-white rounded-3xl shadow p-6 space-y-5">
+            <h3 className="text-xl font-bold flex items-center gap-2">
               <User className="w-5 h-5 text-red-600" />
-              <span>Personal Information</span>
+              Personal details
             </h3>
 
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">First Name</label>
+            {[
+              { label: 'First name', key: 'first_name' },
+              { label: 'Last name', key: 'last_name' },
+              { label: 'Email', key: 'email', type: 'email', icon: Mail },
+              { label: 'Phone number', key: 'phone_number' },
+              { label: 'Date of birth', key: 'date_of_birth', type: 'date', icon: Calendar },
+              { label: 'Nationality', key: 'nationality', icon: MapPin },
+            ].map((field: any) => (
+              <div key={field.key}>
+                <label className="block text-sm font-medium text-gray-700 mb-1">{field.label}</label>
                 {editing ? (
                   <input
-                    type="text"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-600 focus:border-transparent outline-none"
-                    value={formData.first_name}
-                    onChange={(e) => setFormData({ ...formData, first_name: e.target.value })}
+                    type={field.type || 'text'}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-transparent outline-none"
+                    value={(formData as any)[field.key]}
+                    onChange={(event) => setFormData({ ...formData, [field.key]: event.target.value })}
                   />
                 ) : (
-                  <p className="text-gray-900">{user.first_name || 'Not provided'}</p>
+                  <p className="text-gray-900">{(user as any)[field.key] || 'Not provided'}</p>
                 )}
               </div>
+            ))}
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
-                {editing ? (
-                  <input
-                    type="text"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-600 focus:border-transparent outline-none"
-                    value={formData.last_name}
-                    onChange={(e) => setFormData({ ...formData, last_name: e.target.value })}
-                  />
-                ) : (
-                  <p className="text-gray-900">{user.last_name || 'Not provided'}</p>
-                )}
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center space-x-2">
-                  <Calendar className="w-4 h-4" />
-                  <span>Date of Birth</span>
-                </label>
-                {editing ? (
-                  <input
-                    type="date"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-600 focus:border-transparent outline-none"
-                    value={formData.date_of_birth}
-                    onChange={(e) => setFormData({ ...formData, date_of_birth: e.target.value })}
-                  />
-                ) : (
-                  <p className="text-gray-900">{user.date_of_birth || 'Not provided'}</p>
-                )}
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center space-x-2">
-                  <MapPin className="w-4 h-4" />
-                  <span>Nationality</span>
-                </label>
-                {editing ? (
-                  <input
-                    type="text"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-600 focus:border-transparent outline-none"
-                    value={formData.nationality}
-                    onChange={(e) => setFormData({ ...formData, nationality: e.target.value })}
-                  />
-                ) : (
-                  <p className="text-gray-900">{user.nationality || 'Not provided'}</p>
-                )}
-              </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Bio</label>
+              {editing ? (
+                <textarea
+                  rows={4}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-transparent outline-none"
+                  value={formData.bio}
+                  onChange={(event) => setFormData({ ...formData, bio: event.target.value })}
+                />
+              ) : (
+                <p className="text-gray-900">{user.bio || 'No bio yet'}</p>
+              )}
             </div>
           </div>
 
-          {/* Contact Information */}
-          <div className="bg-white rounded-lg shadow p-6">
-            <h3 className="text-xl font-semibold mb-4 flex items-center space-x-2">
-              <Mail className="w-5 h-5 text-red-600" />
-              <span>Contact Information</span>
+          <div className="bg-white rounded-3xl shadow p-6 space-y-5">
+            <h3 className="text-xl font-bold flex items-center gap-2">
+              <Sparkles className="w-5 h-5 text-red-600" />
+              Personalization engine
             </h3>
 
-            <div className="space-y-4">
+            <div className="grid md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center space-x-2">
-                  <Mail className="w-4 h-4" />
-                  <span>Email</span>
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Budget</label>
+                {editing ? (
+                  <select
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-transparent outline-none"
+                    value={formData.preferred_budget}
+                    onChange={(event) => setFormData({ ...formData, preferred_budget: event.target.value })}
+                  >
+                    <option value="budget">Budget</option>
+                    <option value="mid_range">Mid-range</option>
+                    <option value="premium">Premium</option>
+                    <option value="luxury">Luxury</option>
+                  </select>
+                ) : (
+                  <p className="text-gray-900">{profile.preferred_budget?.replace('_', ' ') || 'Mid-range'}</p>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Travel frequency</label>
+                {editing ? (
+                  <select
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-transparent outline-none"
+                    value={formData.travel_frequency}
+                    onChange={(event) => setFormData({ ...formData, travel_frequency: event.target.value })}
+                  >
+                    <option value="first_time">First-time traveler</option>
+                    <option value="occasional">Occasional traveler</option>
+                    <option value="frequent">Frequent traveler</option>
+                    <option value="road_warrior">Road warrior</option>
+                  </select>
+                ) : (
+                  <p className="text-gray-900">{profile.travel_frequency?.replace('_', ' ') || 'Occasional'}</p>
+                )}
+              </div>
+            </div>
+
+            {[
+              ['Preferred categories', 'preferred_categories'],
+              ['Interests', 'interests'],
+              ['Travel styles', 'travel_styles'],
+              ['Airport services you care about', 'preferred_airport_services'],
+              ['Local experiences you want', 'preferred_local_experiences'],
+              ['Preferred transport modes', 'preferred_transport_modes'],
+              ['Favorite destinations', 'favorite_destinations'],
+            ].map(([label, key]) => (
+              <div key={key}>
+                <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
                 {editing ? (
                   <input
-                    type="email"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-600 focus:border-transparent outline-none"
-                    value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    type="text"
+                    placeholder="Use commas to separate values"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-transparent outline-none"
+                    value={(formData as any)[key]}
+                    onChange={(event) => setFormData({ ...formData, [key]: event.target.value })}
                   />
                 ) : (
-                  <p className="text-gray-900">{user.email}</p>
+                  <p className="text-gray-900">{stringifyList((profile as any)[key]) || 'Not set'}</p>
                 )}
               </div>
+            ))}
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center space-x-2">
-                  <Phone className="w-4 h-4" />
-                  <span>Phone Number</span>
-                </label>
-                {editing ? (
-                  <input
-                    type="tel"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-600 focus:border-transparent outline-none"
-                    value={formData.phone_number}
-                    onChange={(e) => setFormData({ ...formData, phone_number: e.target.value })}
-                  />
-                ) : (
-                  <p className="text-gray-900">{user.phone_number || 'Not provided'}</p>
-                )}
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Bio</label>
-                {editing ? (
-                  <textarea
-                    rows={4}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-600 focus:border-transparent outline-none"
-                    value={formData.bio}
-                    onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
-                    placeholder="Tell us about yourself..."
-                  />
-                ) : (
-                  <p className="text-gray-900">{user.bio || 'No bio provided'}</p>
-                )}
-              </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Dietary preferences</label>
+              {editing ? (
+                <input
+                  type="text"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-transparent outline-none"
+                  value={formData.dietary_preferences}
+                  onChange={(event) => setFormData({ ...formData, dietary_preferences: event.target.value })}
+                />
+              ) : (
+                <p className="text-gray-900">{profile.dietary_preferences || 'Not set'}</p>
+              )}
             </div>
-          </div>
 
-          {/* Business Partner Info */}
-          {user.user_type === 'business_partner' && (
-            <div className="bg-white rounded-lg shadow p-6">
-              <h3 className="text-xl font-semibold mb-4 flex items-center space-x-2">
-                <Briefcase className="w-5 h-5 text-red-600" />
-                <span>Business Information</span>
-              </h3>
-
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Business Name</label>
-                  <p className="text-gray-900">{user.business_name || 'Not provided'}</p>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
-                  <p className="text-gray-900">{user.business_category || 'Not provided'}</p>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Verification Status</label>
-                  <span className={`inline-block px-3 py-1 rounded-full text-sm font-semibold ${
-                    user.business_verified 
-                      ? 'bg-green-100 text-green-700' 
-                      : 'bg-yellow-100 text-yellow-700'
-                  }`}>
-                    {user.business_verified ? 'Verified' : 'Pending Verification'}
-                  </span>
-                </div>
-              </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Accessibility needs</label>
+              {editing ? (
+                <textarea
+                  rows={3}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-transparent outline-none"
+                  value={formData.accessibility_needs}
+                  onChange={(event) => setFormData({ ...formData, accessibility_needs: event.target.value })}
+                />
+              ) : (
+                <p className="text-gray-900">{profile.accessibility_needs || 'None shared'}</p>
+              )}
             </div>
-          )}
 
-          {/* Staff Info */}
-          {user.user_type === 'staff' && (
-            <div className="bg-white rounded-lg shadow p-6">
-              <h3 className="text-xl font-semibold mb-4 flex items-center space-x-2">
-                <Briefcase className="w-5 h-5 text-red-600" />
-                <span>Staff Information</span>
-              </h3>
-
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Employee ID</label>
-                  <p className="text-gray-900">{user.employee_id || 'Not provided'}</p>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Department</label>
-                  <p className="text-gray-900">{user.department || 'Not provided'}</p>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Account Info */}
-          <div className="bg-white rounded-lg shadow p-6">
-            <h3 className="text-xl font-semibold mb-4">Account Information</h3>
-
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Username</label>
-                <p className="text-gray-900">@{user.username}</p>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Member Since</label>
-                <p className="text-gray-900">
-                  {new Date(user.created_at).toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric'
-                  })}
-                </p>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Account Status</label>
-                <span className="inline-block px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-semibold">
-                  Active
-                </span>
-              </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Recommendation notes</label>
+              {editing ? (
+                <textarea
+                  rows={3}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-transparent outline-none"
+                  value={formData.recommendation_notes}
+                  onChange={(event) => setFormData({ ...formData, recommendation_notes: event.target.value })}
+                />
+              ) : (
+                <p className="text-gray-900">{profile.recommendation_notes || 'No notes yet'}</p>
+              )}
             </div>
           </div>
         </div>
+
+        {user.active_destination && (
+          <div className="bg-white rounded-3xl shadow p-6">
+            <h3 className="text-xl font-bold flex items-center gap-2 mb-4">
+              <Briefcase className="w-5 h-5 text-red-600" />
+              Active destination passport
+            </h3>
+            <div className="grid md:grid-cols-3 gap-4">
+              <div className="rounded-2xl bg-gray-50 p-5">
+                <p className="text-sm text-gray-500">Destination</p>
+                <p className="text-xl font-bold text-gray-900">{user.active_destination.city}</p>
+                <p className="text-sm text-gray-600">{user.active_destination.country}</p>
+              </div>
+              <div className="rounded-2xl bg-gray-50 p-5">
+                <p className="text-sm text-gray-500">Airport</p>
+                <p className="text-xl font-bold text-gray-900">{user.active_destination.airport_code}</p>
+                <p className="text-sm text-gray-600">{user.active_destination.airport_name}</p>
+              </div>
+              <div className="rounded-2xl bg-gray-50 p-5">
+                <p className="text-sm text-gray-500">Ticket access</p>
+                <p className="text-xl font-bold text-gray-900">{user.last_ticket_number || 'No active ticket'}</p>
+                <p className="text-sm text-gray-600">Used as your digital marketplace gateway</p>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

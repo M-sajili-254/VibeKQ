@@ -7,6 +7,7 @@ from django.contrib.auth import get_user_model
 from django.utils import timezone
 from .serializers import UserSerializer, UserRegistrationSerializer, UserProfileSerializer
 from .models import TicketVerification
+from .profile_utils import get_or_create_passenger_profile
 from .ticket_verification_service import ticket_verification_service
 
 User = get_user_model()
@@ -25,10 +26,21 @@ class UserViewSet(viewsets.ModelViewSet):
             return UserProfileSerializer
         return UserSerializer
     
-    @action(detail=False, methods=['get'], permission_classes=[permissions.IsAuthenticated])
+    @action(detail=False, methods=['get', 'patch'], permission_classes=[permissions.IsAuthenticated])
     def me(self, request):
-        """Get current user profile"""
-        serializer = UserProfileSerializer(request.user)
+        """Get or update the current user profile."""
+        if request.method.lower() == 'get':
+            serializer = UserProfileSerializer(request.user)
+            return Response(serializer.data)
+
+        serializer = UserProfileSerializer(
+            request.user,
+            data=request.data,
+            partial=True,
+            context={'request': request},
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
         return Response(serializer.data)
     
     @action(detail=False, methods=['post'], permission_classes=[permissions.AllowAny])
@@ -52,6 +64,33 @@ class TicketVerificationView(APIView):
     Verifies airline ticket and creates/authenticates passenger account
     """
     permission_classes = [permissions.AllowAny]
+
+    def _resolve_destination(self, passenger_data):
+        from trip_assistant.models import Destination
+
+        destination_code = passenger_data.get('destination_code')
+        destination_name = passenger_data.get('destination')
+
+        if destination_code:
+            destination = Destination.objects.filter(code=destination_code).first()
+            if destination:
+                return destination
+
+        if destination_name:
+            destination = (
+                Destination.objects.filter(city__iexact=destination_name).first()
+                or Destination.objects.filter(name__iexact=destination_name).first()
+            )
+            if destination:
+                return destination
+
+        return None
+
+    def _format_verification_error(self, message):
+        normalized_message = (message or '').lower()
+        if 'passport' in normalized_message and 'match' in normalized_message:
+            return 'We could not verify your ticket with the provided details. Please re-check your ticket number and try again.'
+        return message
     
     def post(self, request):
         """
@@ -79,13 +118,25 @@ class TicketVerificationView(APIView):
         if existing_verification and existing_verification.verification_status == 'verified':
             # Ticket already used, authenticate existing user
             if existing_verification.user:
+                if existing_verification.user.user_type == 'passenger':
+                    profile = get_or_create_passenger_profile(existing_verification.user)
+                    if profile and existing_verification.linked_destination:
+                        profile.current_destination = existing_verification.linked_destination
+                        profile.last_landed_at = timezone.now()
+                        profile.save(update_fields=['current_destination', 'last_landed_at', 'updated_at'])
                 refresh = RefreshToken.for_user(existing_verification.user)
                 return Response({
                     'message': 'Welcome back! Authenticated with existing account',
                     'user': UserSerializer(existing_verification.user).data,
                     'refresh': str(refresh),
                     'access': str(refresh.access_token),
-                    'is_new_user': False
+                    'is_new_user': False,
+                    'flight_info': {
+                        'flight_number': existing_verification.flight_number,
+                        'destination': existing_verification.destination,
+                        'departure_date': existing_verification.departure_date,
+                        'destination_id': existing_verification.linked_destination_id,
+                    }
                 })
         
         # Verify ticket with third-party API
@@ -98,11 +149,12 @@ class TicketVerificationView(APIView):
         
         if not verification_result['success']:
             return Response({
-                'error': verification_result['message']
+                'error': self._format_verification_error(verification_result['message'])
             }, status=status.HTTP_400_BAD_REQUEST)
         
         passenger_data = verification_result['data']
         passport_num = passenger_data['passport_number']
+        linked_destination = self._resolve_destination(passenger_data)
         
         # Check if user exists with this passport number
         user = User.objects.filter(passport_number=passport_num).first()
@@ -133,19 +185,28 @@ class TicketVerificationView(APIView):
             user.set_unusable_password()  # No password for ticket-based auth
             user.save()
             is_new_user = True
-        
+
+        profile = get_or_create_passenger_profile(user)
+        if profile:
+            profile.current_destination = linked_destination
+            profile.last_landed_at = timezone.now()
+            profile.save(update_fields=['current_destination', 'last_landed_at', 'updated_at'])
+
         # Create verification record
-        ticket_verification = TicketVerification.objects.create(
-            user=user,
+        TicketVerification.objects.update_or_create(
             ticket_number=ticket_number,
-            passport_number=passport_num,
-            passenger_name=passenger_data['passenger_name'],
-            flight_number=passenger_data.get('flight_number'),
-            departure_date=passenger_data.get('departure_date'),
-            destination=passenger_data.get('destination'),
-            verification_status='verified',
-            verification_response=passenger_data,
-            verified_at=timezone.now()
+            defaults={
+                'user': user,
+                'passport_number': passport_num,
+                'passenger_name': passenger_data['passenger_name'],
+                'flight_number': passenger_data.get('flight_number'),
+                'departure_date': passenger_data.get('departure_date'),
+                'destination': passenger_data.get('destination'),
+                'linked_destination': linked_destination,
+                'verification_status': 'verified',
+                'verification_response': passenger_data,
+                'verified_at': timezone.now(),
+            }
         )
         
         # Generate JWT tokens
@@ -161,5 +222,6 @@ class TicketVerificationView(APIView):
                 'flight_number': passenger_data.get('flight_number'),
                 'destination': passenger_data.get('destination'),
                 'departure_date': passenger_data.get('departure_date'),
+                'destination_id': linked_destination.id if linked_destination else None,
             }
         }, status=status.HTTP_200_OK)

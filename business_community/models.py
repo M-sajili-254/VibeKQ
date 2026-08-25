@@ -10,10 +10,17 @@ class PartnerApplication(TimeStampedModel, IDModel):
         ('approved', 'Approved'),
         ('rejected', 'Rejected'),
     )
+    COMMUNITY_TYPE_CHOICES = (
+        ('airport', 'Airport Business'),
+        ('destination', 'Destination Business'),
+    )
     
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='partner_applications')
     business_name = models.CharField(max_length=255)
     business_category = models.CharField(max_length=100)
+    destination = models.ForeignKey('trip_assistant.Destination', on_delete=models.SET_NULL, related_name='partner_applications', blank=True, null=True)
+    community_type = models.CharField(max_length=20, choices=COMMUNITY_TYPE_CHOICES, default='destination')
+    service_tags = models.JSONField(default=list, blank=True)
     business_registration_number = models.CharField(max_length=100)
     business_address = models.TextField()
     business_phone = models.CharField(max_length=20)
@@ -35,9 +42,19 @@ class PartnerApplication(TimeStampedModel, IDModel):
 
 class Partnership(TimeStampedModel, IDModel):
     """Active partnerships with verified businesses"""
+    COMMUNITY_TYPE_CHOICES = (
+        ('airport', 'Airport Business'),
+        ('destination', 'Destination Business'),
+    )
+
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='partnership')
     business_name = models.CharField(max_length=255)
     business_category = models.CharField(max_length=100)
+    destination = models.ForeignKey('trip_assistant.Destination', on_delete=models.SET_NULL, related_name='partnerships', blank=True, null=True)
+    community_type = models.CharField(max_length=20, choices=COMMUNITY_TYPE_CHOICES, default='destination')
+    service_tags = models.JSONField(default=list, blank=True)
+    community_summary = models.TextField(blank=True, null=True)
+    featured = models.BooleanField(default=False)
     commission_rate = models.DecimalField(max_digits=5, decimal_places=2, default=10.0)  # Percentage
     total_revenue = models.DecimalField(max_digits=12, decimal_places=2, default=0.0)
     total_bookings = models.IntegerField(default=0)
@@ -62,6 +79,8 @@ class SponsoredContent(TimeStampedModel, IDModel):
     )
     
     partner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='sponsored_content')
+    destination = models.ForeignKey('trip_assistant.Destination', on_delete=models.SET_NULL, related_name='sponsored_content', blank=True, null=True)
+    community_type = models.CharField(max_length=20, choices=Partnership.COMMUNITY_TYPE_CHOICES, default='destination')
     title = models.CharField(max_length=255)
     description = models.TextField()
     image = models.ImageField(upload_to='sponsored/')

@@ -22,12 +22,11 @@ export default function PartnerLogin() {
     setLoading(true);
 
     try {
-      const data = await authService.signin(formData.username, formData.password);
+      const data = await authService.signin(formData.username, formData.password, 'partner');
       localStorage.setItem('access_token', data.access);
       localStorage.setItem('refresh_token', data.refresh);
       localStorage.setItem('user', JSON.stringify(data.user));
-      router.push('/');
-      window.location.reload();
+      router.push('/business?portal=partner');
     } catch (err: any) {
       setError(err.response?.data?.error || err.response?.data?.detail || 'Login failed. Please check your credentials.');
     } finally {
@@ -114,7 +113,7 @@ export default function PartnerLogin() {
             <div className="text-center pt-4 border-t border-gray-200">
               <p className="text-sm text-gray-600">
                 Want to become a partner?{' '}
-                <Link href="/business" className="text-red-600 hover:text-red-700 font-semibold hover:underline">
+                <Link href="/business/apply" className="text-red-600 hover:text-red-700 font-semibold hover:underline">
                   Apply here
                 </Link>
               </p>
