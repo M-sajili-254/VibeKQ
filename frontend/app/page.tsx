@@ -1,340 +1,48 @@
-'use client';
-
-import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { MapPin, Users, Calendar, Star, Globe, Sparkles, ArrowRight, Building2 } from 'lucide-react';
-import { destinationService, communityService, getItemImage } from '@/utils/api';
-import { getDestinationWelcomeMessage } from '@/utils/destination';
+import { ArrowRight, Plane, Store, Camera, Globe } from 'lucide-react';
+import DestinationMarketplace from '@/components/DestinationMarketplace';
 
 export default function Home() {
-  const [destinations, setDestinations] = useState([]);
-  const [events, setEvents] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [destData, eventData] = await Promise.all([
-          destinationService.getAll(),
-          communityService.getEvents(),
-        ]);
-        setDestinations(destData.results || destData || []);
-        setEvents(eventData.results?.slice(0, 3) || []);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, []);
-
   return (
-    <div className="flex flex-col">
-      {/* Hero Section - Unique Animated Gradient Design */}
-      <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden bg-gradient-to-br from-slate-900 via-red-950 to-slate-900">
-        {/* Animated Background Elements */}
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute -top-40 -right-40 w-96 h-96 bg-red-500/20 rounded-full blur-3xl animate-pulse"></div>
-          <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-orange-500/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-red-600/10 rounded-full blur-3xl"></div>
-        </div>
-
-        {/* Grid Pattern Overlay */}
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSA2MCAwIEwgMCAwIDAgNjAiIGZpbGw9Im5vbmUiIHN0cm9rZT0icmdiYSgyNTUsMjU1LDI1NSwwLjAzKSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIi8+PC9zdmc+')] opacity-40"></div>
-
-        <div className="relative z-20 text-center text-white px-4 max-w-5xl mx-auto">
-          <div className="flex items-center justify-center gap-2 mb-6">
-            <Sparkles className="w-6 h-6 text-yellow-400" />
-            <span className="text-yellow-400 font-medium tracking-wider uppercase text-sm">Experience Africa's Pride</span>
-            <Sparkles className="w-6 h-6 text-yellow-400" />
-          </div>
-
-          <h1 className="text-6xl md:text-8xl font-black mb-6 tracking-tight">
-            <span className="bg-gradient-to-r from-white via-red-100 to-white bg-clip-text text-transparent">
-              LinkedSky
-            </span>
-          </h1>
-
-          <p className="text-xl md:text-2xl mb-4 text-gray-300 max-w-2xl mx-auto">
-            More than just a flight. Your gateway to
-          </p>
-          <p className="text-2xl md:text-3xl font-semibold mb-10 text-white">
-            Culture • Connection • Community
-          </p>
-
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link
-              href="/ticket-login"
-              className="group px-8 py-4 bg-gradient-to-r from-red-600 to-red-500 text-white font-bold rounded-full hover:from-red-500 hover:to-red-400 transition-all shadow-lg shadow-red-500/30 flex items-center justify-center gap-2"
-            >
-              Plan Your Trip
-              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-            </Link>
-            <Link
-              href="/business/apply"
-              className="px-8 py-4 bg-white/10 backdrop-blur-sm border border-white/20 text-white font-semibold rounded-full hover:bg-white/20 transition-all"
-            >
-              Become a Business Partner
-            </Link>
-          </div>
-
-          {/* Stats */}
-          <div className="mt-16 grid grid-cols-3 gap-8 max-w-lg mx-auto">
-            <div className="text-center">
-              <p className="text-3xl md:text-4xl font-bold text-white">{destinations.length || 7}</p>
-              <p className="text-sm text-gray-400">Demo Destinations</p>
+    <div>
+      <section className="relative overflow-hidden bg-brand-950 px-4 py-20 text-white sm:px-6 lg:py-28">
+        <div className="absolute -right-40 -top-40 h-[600px] w-[600px] rounded-full border border-white/10" />
+        <div className="absolute -right-20 -top-20 h-[440px] w-[440px] rounded-full border border-white/10" />
+        <div className="relative mx-auto grid max-w-7xl items-center gap-12 lg:grid-cols-[1.2fr,0.8fr]">
+          <div>
+            <span className="inline-flex items-center gap-2 rounded-full border border-brand-300/30 bg-brand-300/10 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-brand-200"><Plane className="h-4 w-4" /> Kigali first. Connected beyond.</span>
+            <h1 className="mt-7 text-5xl font-black leading-[1.08] tracking-tight sm:text-6xl lg:text-7xl">Your flight is just<br />the <span className="text-amber-300">beginning.</span></h1>
+            <p className="mt-6 max-w-xl text-lg leading-relaxed text-brand-50/75">Meet the people, places and businesses that make a destination worth discovering. From airport arrivals to local dining, shops and unforgettable experiences.</p>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <Link href="#marketplace" className="inline-flex items-center gap-2 rounded-full bg-amber-300 px-7 py-4 font-bold text-slate-950 hover:bg-amber-200">Explore destinations <ArrowRight className="h-5 w-5" /></Link>
+              <Link href="/business/apply" className="rounded-full border border-white/25 px-7 py-4 font-semibold hover:bg-white/10">Bring your business on board</Link>
             </div>
-            <div className="text-center">
-              <p className="text-3xl md:text-4xl font-bold text-white">2</p>
-              <p className="text-sm text-gray-400">Business Communities</p>
-            </div>
-            <div className="text-center">
-              <p className="text-3xl md:text-4xl font-bold text-white">1</p>
-              <p className="text-sm text-gray-400">Ticket Gateway</p>
-            </div>
+            <p className="mt-8 text-xs text-brand-100/60">Kigali · Nairobi · New York · Bangkok · and more pilot destinations</p>
           </div>
-        </div>
-
-        {/* Scroll Indicator */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
-          <div className="w-6 h-10 border-2 border-white/30 rounded-full flex justify-center pt-2">
-            <div className="w-1 h-3 bg-white/50 rounded-full"></div>
+          <div className="rounded-3xl border border-white/15 bg-white/5 p-7 backdrop-blur-sm sm:p-9">
+            <p className="text-xs font-bold uppercase tracking-[0.25em] text-amber-300">Kigali launch focus</p>
+            <h2 className="mt-4 text-3xl font-bold">A local welcome.<br />An airline-sized opportunity.</h2>
+            <p className="mt-4 text-sm leading-relaxed text-brand-50/70">A partnership proposal for RwandAir and Kigali's business communities: connect the passenger journey to the local economy, before and after arrival.</p>
+            <div className="mt-7 space-y-5">
+              {[
+                { icon: Plane, title: 'Airport to city', description: 'Connect arrival essentials with destination discovery.' },
+                { icon: Camera, title: 'Real businesses, real visibility', description: 'Merchant-submitted photos, reviewed before publication.' },
+                { icon: Globe, title: 'One platform, many destinations', description: 'Local communities with a consistent traveler experience.' },
+              ].map(({ icon: FeatureIcon, title, description }) => {
+                return <div key={title} className="flex gap-3"><FeatureIcon className="mt-1 h-5 w-5 shrink-0 text-amber-300" /><div><p className="font-semibold">{title}</p><p className="mt-1 text-xs leading-relaxed text-brand-100/60">{description}</p></div></div>;
+              })}
+            </div>
+            <p className="mt-7 border-t border-white/10 pt-4 text-xs text-brand-100/50">Independent platform proposal. No airline endorsement or partnership is claimed. Kigali merchant onboarding is open.</p>
           </div>
         </div>
       </section>
 
-      {/* Features Section - Card-based Design */}
-      <section className="py-24 px-4 bg-white relative overflow-hidden">
-        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-red-600 via-orange-500 to-red-600"></div>
+      <DestinationMarketplace compact />
 
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <span className="text-red-600 font-semibold tracking-wider uppercase text-sm">What We Offer</span>
-            <h2 className="text-4xl md:text-5xl font-bold mt-2 text-gray-900">
-              Experience the Vibe
-            </h2>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            <div className="group bg-gradient-to-br from-gray-50 to-gray-100 rounded-3xl p-8 hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-red-100">
-              <div className="w-16 h-16 bg-gradient-to-br from-red-500 to-red-600 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform shadow-lg shadow-red-500/20">
-                <MapPin className="w-8 h-8 text-white" />
-              </div>
-              <h3 className="text-2xl font-bold mb-3 text-gray-900">Trip Assistant</h3>
-              <p className="text-gray-600 mb-6 leading-relaxed">
-                Book verified local services - hotels, transport, adventure tours - seamlessly tied to your destination.
-              </p>
-              <Link href="/trip-assistant" className="inline-flex items-center text-red-600 font-semibold hover:gap-3 gap-2 transition-all">
-                Explore Services <ArrowRight className="w-4 h-4" />
-              </Link>
-            </div>
-
-            <div className="group bg-gradient-to-br from-gray-50 to-gray-100 rounded-3xl p-8 hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-orange-100">
-              <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform shadow-lg shadow-orange-500/20">
-                <Users className="w-8 h-8 text-white" />
-              </div>
-              <h3 className="text-2xl font-bold mb-3 text-gray-900">Community Vibes</h3>
-              <p className="text-gray-600 mb-6 leading-relaxed">
-                Connect with airline teams, share stories, and engage with passion projects and community initiatives.
-              </p>
-              <Link href="/community" className="inline-flex items-center text-orange-600 font-semibold hover:gap-3 gap-2 transition-all">
-                Join Community <ArrowRight className="w-4 h-4" />
-              </Link>
-            </div>
-
-            <div className="group bg-gradient-to-br from-gray-50 to-gray-100 rounded-3xl p-8 hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-yellow-100">
-              <div className="w-16 h-16 bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform shadow-lg shadow-yellow-500/20">
-                <Building2 className="w-8 h-8 text-white" />
-              </div>
-              <h3 className="text-2xl font-bold mb-3 text-gray-900">Business Partners</h3>
-              <p className="text-gray-600 mb-6 leading-relaxed">
-                Verified local businesses offering trusted services to enhance your travel experience.
-              </p>
-              <Link href="/business" className="inline-flex items-center text-yellow-600 font-semibold hover:gap-3 gap-2 transition-all">
-                Become a Partner <ArrowRight className="w-4 h-4" />
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Business Communities Section - New */}
-      <section className="py-24 px-4 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <span className="text-yellow-400 font-semibold tracking-wider uppercase text-sm">Global Network</span>
-            <h2 className="text-4xl md:text-5xl font-bold mt-2">
-              Business Communities
-            </h2>
-            <p className="text-gray-400 mt-4 max-w-2xl mx-auto">
-              Discover localized airport and city business ecosystems powered by one ticket-linked destination experience
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {destinations.slice(0, 7).map((city: any) => (
-              <Link
-                key={city.id}
-                href={`/business?city=${city.city.toLowerCase()}`}
-                className="group relative h-72 rounded-2xl overflow-hidden"
-              >
-                <img
-                  src={getItemImage(city) || ''}
-                  alt={city.city}
-                  className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
-                <div className="absolute bottom-0 left-0 right-0 p-6">
-                  <span className="text-xs uppercase tracking-widest text-yellow-400 font-semibold block mb-2">Destination Welcome</span>
-                  <h3 className="text-2xl font-bold">{getDestinationWelcomeMessage(city.city)}</h3>
-                  <p className="text-gray-300 text-sm">{city.country}</p>
-                  <div className="mt-3 flex items-center text-yellow-400 text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity">
-                    Explore Partners <ArrowRight className="w-4 h-4 ml-1" />
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </div>
-
-          <div className="text-center mt-12">
-            <Link href="/business" className="inline-flex items-center gap-2 px-8 py-4 bg-yellow-500 text-slate-900 font-bold rounded-full hover:bg-yellow-400 transition-all">
-              View All Ecosystems
-              <Globe className="w-5 h-5" />
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* Featured Destinations */}
-      <section className="py-24 px-4 bg-gray-50">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-4">
-            <div>
-              <span className="text-red-600 font-semibold tracking-wider uppercase text-sm">Where To Go</span>
-              <h2 className="text-4xl md:text-5xl font-bold mt-2 text-gray-900">Featured Destinations</h2>
-            </div>
-            <Link href="/trip-assistant" className="inline-flex items-center gap-2 text-red-600 font-semibold hover:gap-3 transition-all">
-              View All <ArrowRight className="w-5 h-5" />
-            </Link>
-          </div>
-
-          {loading ? (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {[1, 2, 3].map((i) => (
-                <div key={i} className="bg-white rounded-3xl overflow-hidden shadow-lg animate-pulse">
-                  <div className="h-56 bg-gray-200"></div>
-                  <div className="p-6">
-                    <div className="h-6 bg-gray-200 rounded mb-2"></div>
-                    <div className="h-4 bg-gray-200 rounded w-2/3"></div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {destinations.slice(0, 6).map((dest: any) => (
-                <Link key={dest.id} href={`/trip-assistant?destination=${dest.id}`}>
-                  <div className="group bg-white rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300">
-                    <div className="h-56 bg-gradient-to-br from-red-100 to-orange-100 relative overflow-hidden">
-                      {getItemImage(dest) ? (
-                        <img
-                          src={getItemImage(dest) || ''}
-                          alt={dest.name}
-                          className="w-full h-full object-cover group-hover:scale-110 transition duration-500"
-                        />
-                      ) : (
-                        <div className="flex items-center justify-center h-full">
-                          <MapPin className="w-16 h-16 text-red-300" />
-                        </div>
-                      )}
-                      {dest.featured && (
-                        <span className="absolute top-4 right-4 bg-yellow-400 text-slate-900 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1">
-                          <Star className="w-3 h-3" /> Featured
-                        </span>
-                      )}
-                    </div>
-                    <div className="p-6">
-                      <div className="flex items-center gap-2 text-gray-500 text-sm mb-2">
-                        <MapPin className="w-4 h-4" />
-                        <span>{dest.country}</span>
-                      </div>
-                      <h3 className="text-xl font-bold text-gray-900 mb-2">
-                        {getDestinationWelcomeMessage(dest.city)}
-                      </h3>
-                      <p className="text-gray-600 text-sm line-clamp-2">{dest.description}</p>
-                    </div>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          )}
-        </div>
-      </section>
-
-      {/* Upcoming Events */}
-      <section className="py-24 px-4 bg-white">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-4">
-            <div>
-              <span className="text-orange-600 font-semibold tracking-wider uppercase text-sm">Join Us</span>
-              <h2 className="text-4xl md:text-5xl font-bold mt-2 text-gray-900">Upcoming Events</h2>
-            </div>
-            <Link href="/community" className="inline-flex items-center gap-2 text-orange-600 font-semibold hover:gap-3 transition-all">
-              View All Events <ArrowRight className="w-5 h-5" />
-            </Link>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            {events.length === 0 ? (
-              <div className="col-span-3 text-center py-12">
-                <Calendar className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-                <p className="text-gray-500">No upcoming events at the moment. Check back soon!</p>
-              </div>
-            ) : (
-              events.map((event: any) => (
-                <div key={event.id} className="group bg-gradient-to-br from-orange-50 to-yellow-50 rounded-3xl p-6 hover:shadow-xl transition-all duration-300 border border-orange-100">
-                  <div className="flex items-start gap-4">
-                    <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-red-500 rounded-2xl flex flex-col items-center justify-center flex-shrink-0 text-white shadow-lg">
-                      <span className="text-xl font-bold leading-none">
-                        {new Date(event.start_date).getDate()}
-                      </span>
-                      <span className="text-xs uppercase">
-                        {new Date(event.start_date).toLocaleString('default', { month: 'short' })}
-                      </span>
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="font-bold text-gray-900 mb-2 text-lg">{event.title}</h3>
-                      <p className="text-sm text-gray-600 mb-3 line-clamp-2">{event.description}</p>
-                      <span className="text-xs text-orange-600 font-medium">{event.event_type}</span>
-                    </div>
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-24 px-4 bg-gradient-to-r from-red-600 via-red-500 to-orange-500 relative overflow-hidden">
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSA2MCAwIEwgMCAwIDAgNjAiIGZpbGw9Im5vbmUiIHN0cm9rZT0icmdiYSgyNTUsMjU1LDI1NSwwLjEpIiBzdHJva2Utd2lkdGg9IjEiLz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JpZCkiLz48L3N2Zz4=')] opacity-30"></div>
-
-        <div className="max-w-4xl mx-auto text-center relative z-10">
-          <h2 className="text-4xl md:text-5xl font-bold mb-6 text-white">
-            Ready to Travel Smarter?
-          </h2>
-          <p className="text-xl mb-10 text-white/90">
-            Join travelers who trust LinkedSky for authentic, curated experiences.
-          </p>
-          <Link
-            href="/register"
-            className="inline-flex items-center gap-2 px-10 py-5 bg-white text-red-600 font-bold rounded-full hover:bg-gray-100 transition-all shadow-lg shadow-black/20 text-lg"
-          >
-            Get Started Today
-            <ArrowRight className="w-5 h-5" />
-          </Link>
+      <section className="bg-white px-4 py-16">
+        <div className="mx-auto grid max-w-7xl items-center gap-8 rounded-3xl bg-brand-50 p-8 md:grid-cols-[1.5fr,1fr] md:p-12">
+          <div><Store className="mb-4 h-8 w-8 text-primary" /><h2 className="text-3xl font-black text-slate-950">Your business belongs in the journey.</h2><p className="mt-4 max-w-xl text-slate-600">Restaurants, shops, hotels, tour guides and transfer operators: create a profile, upload your real photos and submit your business for review. Airport and city communities are both welcome.</p></div>
+          <div className="flex flex-col items-start gap-4"><Link href="/business/apply" className="inline-flex items-center gap-2 rounded-full bg-primary px-7 py-4 font-bold text-white hover:bg-brand-900">Start merchant onboarding <ArrowRight className="h-5 w-5" /></Link><Link href="/partner-login" className="text-sm font-semibold text-primary underline">Already a partner? Sign in</Link><p className="text-xs text-slate-500">Profiles and photos become visible after approval.</p></div>
         </div>
       </section>
     </div>

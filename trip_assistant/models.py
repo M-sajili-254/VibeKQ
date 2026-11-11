@@ -76,6 +76,7 @@ class Service(TimeStampedModel, IDModel):
     rating = models.DecimalField(max_digits=3, decimal_places=2, default=0.0)
     total_bookings = models.IntegerField(default=0)
     available = models.BooleanField(default=True)
+    is_demo = models.BooleanField(default=False)
     
     def __str__(self):
         return f"{self.name} - {self.destination.city}"

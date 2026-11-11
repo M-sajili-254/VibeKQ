@@ -73,13 +73,15 @@ class ServiceSerializer(serializers.ModelSerializer):
             'community_label', 'journey_stage', 'journey_stage_label',
             'location_label', 'tags', 'priority_score', 'price',
             'currency', 'image', 'image_url', 'display_image',
-            'verified', 'rating', 'total_bookings', 'available',
+            'verified', 'rating', 'total_bookings', 'available', 'is_demo',
             'recommendation_score', 'recommendation_reasons',
             'created_at', 'updated_at',
         )
-        read_only_fields = ('rating', 'total_bookings', 'verified')
+        read_only_fields = ('rating', 'total_bookings', 'verified', 'is_demo')
 
     def get_display_image(self, obj):
+        if obj.image:
+            return obj.image.url
         if obj.image_url:
             return obj.image_url
         if obj.image and hasattr(obj.image, 'url'):

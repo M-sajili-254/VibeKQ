@@ -5,6 +5,7 @@ import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { MapPin, Star, DollarSign, CheckCircle, ArrowLeft } from 'lucide-react';
 import { serviceService, getImageUrl, getItemImage } from '@/utils/api';
+import PhotoGallery from '@/components/PhotoGallery';
 
 function ServicesContent() {
   const searchParams = useSearchParams();
@@ -42,7 +43,7 @@ function ServicesContent() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <section className="bg-gradient-to-r from-red-700 to-red-600 text-white py-12 px-4">
+      <section className="bg-gradient-to-r from-brand-700 to-brand-600 text-white py-12 px-4">
         <div className="max-w-7xl mx-auto">
           <Link 
             href="/trip-assistant" 
@@ -54,7 +55,7 @@ function ServicesContent() {
           <h1 className="text-4xl md:text-5xl font-bold mb-4">
             {categoryName || 'Services'}
           </h1>
-          <p className="text-xl text-red-100">
+          <p className="text-xl text-brand-100">
             Browse and book amazing services for your journey
           </p>
         </div>
@@ -87,7 +88,7 @@ function ServicesContent() {
               </p>
               <Link
                 href="/trip-assistant"
-                className="inline-block px-6 py-3 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition"
+                className="inline-block px-6 py-3 bg-primary text-white font-semibold rounded-lg hover:bg-brand-900 transition"
               >
                 Browse All Categories
               </Link>
@@ -100,21 +101,11 @@ function ServicesContent() {
                   className="bg-white rounded-lg shadow hover:shadow-xl transition group overflow-hidden"
                 >
                   {/* Service Image */}
-                  <div className="relative h-48 bg-gradient-to-br from-red-100 to-red-50 overflow-hidden">
-                    {getItemImage(service) ? (
-                      <img
-                        src={getItemImage(service) || ''}
-                        alt={service.name}
-                        className="w-full h-full object-cover group-hover:scale-110 transition duration-300"
-                      />
-                    ) : (
-                      <div className="flex items-center justify-center h-full">
-                        <MapPin className="w-16 h-16 text-red-300" />
-                      </div>
-                    )}
+                  <div className="relative h-48 bg-gradient-to-br from-brand-100 to-brand-50 overflow-hidden">
+                    <PhotoGallery images={getItemImage(service) ? [getItemImage(service)!] : []} name={service.name} label={service.is_demo ? 'Demo · illustrative destination photo' : 'Service photo'} className="h-full" />
                     
                     {/* Verified Badge */}
-                    {service.verified && (
+                    {!service.is_demo && service.verified && (
                       <div className="absolute top-2 right-2 bg-green-500 text-white px-3 py-1 rounded-full text-xs font-semibold flex items-center space-x-1">
                         <CheckCircle className="w-3 h-3" />
                         <span>Verified</span>
@@ -122,9 +113,9 @@ function ServicesContent() {
                     )}
 
                     {/* Rating */}
-                    {service.rating > 0 && (
+                    {!service.is_demo && service.rating > 0 && (
                       <div className="absolute bottom-2 left-2 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full flex items-center space-x-1">
-                        <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
+                        <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
                         <span className="font-semibold text-sm">{service.rating}</span>
                       </div>
                     )}
@@ -154,7 +145,7 @@ function ServicesContent() {
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="text-sm text-gray-500">Starting from</p>
-                        <p className="text-2xl font-bold text-red-700 flex items-center">
+                        <p className="text-2xl font-bold text-primary flex items-center">
                           <DollarSign className="w-5 h-5" />
                           {parseFloat(service.price).toFixed(0)}
                           <span className="text-sm text-gray-500 ml-1">{service.currency}</span>
@@ -162,7 +153,7 @@ function ServicesContent() {
                       </div>
                       <Link
                         href={`/trip-assistant/services/${service.id}`}
-                        className="px-4 py-2 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition"
+                        className="px-4 py-2 bg-primary text-white font-semibold rounded-lg hover:bg-brand-900 transition"
                       >
                         View Details
                       </Link>
@@ -189,7 +180,7 @@ export default function Services() {
   return (
     <Suspense fallback={
       <div className="min-h-screen bg-gray-50">
-        <section className="bg-gradient-to-r from-red-700 to-red-600 text-white py-12 px-4">
+        <section className="bg-gradient-to-r from-brand-700 to-brand-600 text-white py-12 px-4">
           <div className="max-w-7xl mx-auto">
             <h1 className="text-4xl md:text-5xl font-bold mb-4">Loading Services...</h1>
           </div>

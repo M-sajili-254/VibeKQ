@@ -1,4 +1,5 @@
 import axios from 'axios';
+import type { Destination, Merchant } from './marketplace';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
 const MEDIA_BASE_URL = process.env.NEXT_PUBLIC_MEDIA_URL || 'http://localhost:8000';
@@ -88,6 +89,18 @@ api.interceptors.response.use(
 
 export default api;
 
+async function getCollection<T>(path: string, params?: Record<string, string>): Promise<T[]> {
+  const items: T[] = [];
+  let query = params;
+  do {
+    const response = await api.get<T[] | { results: T[]; next: string | null }>(path, { params: query });
+    if (Array.isArray(response.data)) return response.data;
+    items.push(...response.data.results);
+    if (!response.data.next) return items;
+    query = Object.fromEntries(new URL(response.data.next, `${API_BASE_URL}/`).searchParams);
+  } while (true);
+}
+
 // API Services
 export const authService = {
   // New signin endpoint
@@ -122,8 +135,7 @@ export const authService = {
 
 export const destinationService = {
   getAll: async () => {
-    const response = await api.get('/trip-assistant/destinations/');
-    return response.data;
+    return getCollection<Destination>('/trip-assistant/destinations/');
   },
   getById: async (id: number) => {
     const response = await api.get(`/trip-assistant/destinations/${id}/`);
@@ -210,8 +222,7 @@ export const businessService = {
     return response.data;
   },
   getPartnerships: async (params?: any) => {
-    const response = await api.get('/business/partnerships/', { params });
-    return response.data;
+    return getCollection<Merchant>('/business/partnerships/', params);
   },
   getSponsoredContent: async (params?: any) => {
     const response = await api.get('/business/sponsored/', { params });

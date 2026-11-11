@@ -61,7 +61,7 @@ export default function TicketLogin() {
 
   if (success) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-red-50 to-orange-50 px-4">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-brand-50 to-brand-50 px-4">
         <div className="max-w-md w-full text-center">
           <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
             <CheckCircle className="w-12 h-12 text-green-600" />
@@ -76,11 +76,11 @@ export default function TicketLogin() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-red-50 to-orange-50 flex items-center justify-center px-4 py-12">
+    <div className="min-h-screen bg-gradient-to-br from-brand-50 to-brand-50 flex items-center justify-center px-4 py-12">
       <div className="max-w-md w-full">
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-gradient-to-r from-red-600 to-orange-600 rounded-full flex items-center justify-center mx-auto mb-4">
+          <div className="w-16 h-16 bg-gradient-to-r from-brand-600 to-brand-600 rounded-full flex items-center justify-center mx-auto mb-4">
             <Plane className="w-8 h-8 text-white" />
           </div>
           <h1 className="text-3xl font-bold mb-2">Ticket Verification</h1>
@@ -108,7 +108,7 @@ export default function TicketLogin() {
                 <input
                   type="text"
                   required
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none"
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent outline-none"
                   placeholder="Enter your ticket number"
                   value={ticketNumber}
                   onChange={(e) => setTicketNumber(e.target.value)}
@@ -127,7 +127,7 @@ export default function TicketLogin() {
                 <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <input
                   type="text"
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none"
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent outline-none"
                   placeholder="For additional verification"
                   value={passportNumber}
                   onChange={(e) => setPassportNumber(e.target.value)}
@@ -141,7 +141,7 @@ export default function TicketLogin() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-4 bg-gradient-to-r from-red-600 to-orange-600 text-white font-semibold rounded-lg hover:from-red-700 hover:to-orange-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full py-4 text-white font-semibold rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed bg-primary hover:bg-brand-900"
             >
               {loading ? 'Verifying...' : 'Verify Ticket & Login'}
             </button>
@@ -174,7 +174,7 @@ export default function TicketLogin() {
           <div className="mt-6 text-center">
             <p className="text-sm text-gray-600">
               Business partner or staff?{' '}
-              <a href="/login" className="text-red-600 hover:text-red-700 font-semibold">
+              <a href="/login" className="text-primary hover:text-primary font-semibold">
                 Login here
               </a>
             </p>
@@ -182,13 +182,13 @@ export default function TicketLogin() {
         </div>
 
         {/* Demo Info */}
-        <div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <p className="text-xs text-blue-800">
+        <div className="mt-6 bg-brand-50 border border-brand-200 rounded-lg p-4">
+          <p className="text-xs text-primary">
             <strong>Demo Mode:</strong> Use any ticket number with 10+ characters to test the system.
-            Example: <code className="bg-blue-100 px-2 py-1 rounded">1234567890</code>
+            Example: <code className="bg-brand-100 px-2 py-1 rounded">1234567890</code>
             {', '}
             optional passport:{' '}
-            <code className="bg-blue-100 px-2 py-1 rounded">PA998877</code>
+            <code className="bg-brand-100 px-2 py-1 rounded">PA998877</code>
           </p>
         </div>
       </div>

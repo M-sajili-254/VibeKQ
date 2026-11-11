@@ -20,10 +20,21 @@ A comprehensive digital platform that transforms Kenya Airways from an airline i
 
 ### Business Community
 - Partner application portal for local businesses
+- Photo-first destination marketplace at `/destinations`, with Kigali, Nairobi, New York and Bangkok prioritized and every other catalogue destination retained
+- Public destination pages at `/destinations/{id}`, with merchant search, airport/city filters, experience categories and photo galleries
+- Merchant photo onboarding: up to 8 JPEG, PNG or WebP photos (8 MB each), with explicit permission to publish
 - Verified partnership management
 - Sponsored content platform
 - Commission-based revenue model
 - Business analytics dashboard
+
+### Kigali pilot and merchant photography
+
+The homepage presents LinkedSky as an independent partnership proposal for RwandAir and Kigali, not an endorsed airline product or route map. Kigali starts as an onboarding-open pilot with no fabricated merchants. Seeded demo businesses and services are explicitly labeled and excluded from approved merchant/photo counts; stock destination imagery is never presented as an actual merchant photograph.
+
+Run `python manage.py migrate` to add Kigali, demo labels and merchant photo storage. Partners create an account at `/business/apply`, then submit their business details and photos in `/business`. The first photo is the cover. In Django admin, review the application, destination, airport/city placement and photo permission, then use **Approve selected applications**. Approval publishes the profile and its gallery to the chosen destination community; a new reviewed submission replaces the previous public gallery. Pending and rejected application photos are not in the public merchant catalogue. Existing applications without photos remain supported.
+
+Upload only photos owned by the merchant or licensed for publication. Actual merchant growth still requires businesses to submit profiles and staff to review them; demo data is not proof of live marketplace activity.
 
 ## 🏗️ Tech Stack
 
@@ -43,6 +54,7 @@ A comprehensive digital platform that transforms Kenya Airways from an airline i
 - **HTTP Client**: Axios
 - **State Management**: Zustand
 - **Forms**: React Hook Form
+- **Theme**: Shared emerald-green, white and slate palette. Use `primary` for main actions and `brand` shades for gradients, accents and tinted surfaces. Keep red for errors, amber for warnings, and green for success states.
 
 ## 📁 Project Structure
 

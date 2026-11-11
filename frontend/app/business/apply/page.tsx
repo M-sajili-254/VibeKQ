@@ -54,7 +54,7 @@ export default function BusinessApplyPage() {
     const fetchDestinations = async () => {
       try {
         const data = await destinationService.getAll();
-        setDestinations(data.results || data || []);
+        setDestinations(data);
       } catch (fetchError) {
         console.error('Error fetching destinations:', fetchError);
       }
@@ -110,33 +110,33 @@ export default function BusinessApplyPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-red-950 text-white py-12 px-4">
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-brand-950 text-white py-12 px-4">
       <div className="max-w-6xl mx-auto grid lg:grid-cols-[0.9fr,1.1fr] gap-10 items-start">
         <div>
           <div className="mb-8">
             <VibeLogo />
           </div>
-          <p className="text-sm font-semibold uppercase tracking-[0.3em] text-yellow-300 mb-4">
+          <p className="text-sm font-semibold uppercase tracking-[0.3em] text-amber-300 mb-4">
             Partner onboarding
           </p>
           <h1 className="text-5xl font-black leading-tight mb-6">
             Become a Business Partner
           </h1>
           <p className="text-lg text-gray-200 mb-8">
-            Create your business account first. After sign-in, you will land in the business portal to upload company details, documents, and destination data.
+            Create your business account first, then upload real business photos, company details and documents for review. Show travelers what makes your shop, restaurant, stay, experience or transfer service special.
           </p>
 
           <div className="bg-white/10 border border-white/10 rounded-3xl p-6 space-y-4">
             <div className="flex gap-3">
-              <CheckCircle className="w-5 h-5 text-yellow-300 shrink-0 mt-0.5" />
+              <CheckCircle className="w-5 h-5 text-amber-300 shrink-0 mt-0.5" />
               <p>Choose whether you operate as an <strong>Airport Business</strong> or <strong>Destination Business</strong>.</p>
             </div>
             <div className="flex gap-3">
-              <MapPin className="w-5 h-5 text-yellow-300 shrink-0 mt-0.5" />
+              <MapPin className="w-5 h-5 text-amber-300 shrink-0 mt-0.5" />
               <p>Select the destination you want to serve so the portal can prefill your workspace.</p>
             </div>
             <div className="flex gap-3">
-              <Briefcase className="w-5 h-5 text-yellow-300 shrink-0 mt-0.5" />
+              <Briefcase className="w-5 h-5 text-amber-300 shrink-0 mt-0.5" />
               <p>Already registered? Use partner sign-in instead of creating a new account.</p>
             </div>
           </div>
@@ -144,7 +144,7 @@ export default function BusinessApplyPage() {
           <div className="mt-8 flex flex-wrap gap-4">
             <Link
               href="/partner-login"
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-yellow-400 text-slate-950 font-bold hover:bg-yellow-300 transition"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-amber-400 text-slate-950 font-bold hover:bg-amber-300 transition"
             >
               Existing partner sign in
               <Lock className="w-4 h-4" />
@@ -179,7 +179,7 @@ export default function BusinessApplyPage() {
                   required
                   value={formData.first_name}
                   onChange={(e) => setFormData({ ...formData, first_name: e.target.value })}
-                  className="w-full rounded-2xl border border-gray-300 px-4 py-3 outline-none focus:border-red-500 focus:ring-2 focus:ring-red-100"
+                  className="w-full rounded-2xl border border-gray-300 px-4 py-3 outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
                 />
               </div>
               <div>
@@ -188,7 +188,7 @@ export default function BusinessApplyPage() {
                   required
                   value={formData.last_name}
                   onChange={(e) => setFormData({ ...formData, last_name: e.target.value })}
-                  className="w-full rounded-2xl border border-gray-300 px-4 py-3 outline-none focus:border-red-500 focus:ring-2 focus:ring-red-100"
+                  className="w-full rounded-2xl border border-gray-300 px-4 py-3 outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
                 />
               </div>
             </div>
@@ -202,7 +202,7 @@ export default function BusinessApplyPage() {
                     required
                     value={formData.username}
                     onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-                    className="w-full rounded-2xl border border-gray-300 pl-11 pr-4 py-3 outline-none focus:border-red-500 focus:ring-2 focus:ring-red-100"
+                    className="w-full rounded-2xl border border-gray-300 pl-11 pr-4 py-3 outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
                   />
                 </div>
               </div>
@@ -213,7 +213,7 @@ export default function BusinessApplyPage() {
                   type="email"
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className="w-full rounded-2xl border border-gray-300 px-4 py-3 outline-none focus:border-red-500 focus:ring-2 focus:ring-red-100"
+                  className="w-full rounded-2xl border border-gray-300 px-4 py-3 outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
                 />
               </div>
             </div>
@@ -227,7 +227,7 @@ export default function BusinessApplyPage() {
                     required
                     value={formData.business_name}
                     onChange={(e) => setFormData({ ...formData, business_name: e.target.value })}
-                    className="w-full rounded-2xl border border-gray-300 pl-11 pr-4 py-3 outline-none focus:border-red-500 focus:ring-2 focus:ring-red-100"
+                    className="w-full rounded-2xl border border-gray-300 pl-11 pr-4 py-3 outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
                   />
                 </div>
               </div>
@@ -238,7 +238,7 @@ export default function BusinessApplyPage() {
                   value={formData.business_category}
                   onChange={(e) => setFormData({ ...formData, business_category: e.target.value })}
                   placeholder="Hotel, lounge, retail, tours..."
-                  className="w-full rounded-2xl border border-gray-300 px-4 py-3 outline-none focus:border-red-500 focus:ring-2 focus:ring-red-100"
+                  className="w-full rounded-2xl border border-gray-300 px-4 py-3 outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
                 />
               </div>
             </div>
@@ -249,7 +249,7 @@ export default function BusinessApplyPage() {
                 <input
                   value={formData.phone_number}
                   onChange={(e) => setFormData({ ...formData, phone_number: e.target.value })}
-                  className="w-full rounded-2xl border border-gray-300 px-4 py-3 outline-none focus:border-red-500 focus:ring-2 focus:ring-red-100"
+                  className="w-full rounded-2xl border border-gray-300 px-4 py-3 outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
                 />
               </div>
               <div>
@@ -257,7 +257,7 @@ export default function BusinessApplyPage() {
                 <select
                   value={formData.community_type}
                   onChange={(e) => setFormData({ ...formData, community_type: e.target.value })}
-                  className="w-full rounded-2xl border border-gray-300 px-4 py-3 outline-none focus:border-red-500 focus:ring-2 focus:ring-red-100"
+                  className="w-full rounded-2xl border border-gray-300 px-4 py-3 outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
                 >
                   <option value="airport">Airport Business</option>
                   <option value="destination">Destination Business</option>
@@ -270,7 +270,7 @@ export default function BusinessApplyPage() {
               <select
                 value={formData.destination}
                 onChange={(e) => setFormData({ ...formData, destination: e.target.value })}
-                className="w-full rounded-2xl border border-gray-300 px-4 py-3 outline-none focus:border-red-500 focus:ring-2 focus:ring-red-100"
+                className="w-full rounded-2xl border border-gray-300 px-4 py-3 outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
               >
                 <option value="">Choose a destination</option>
                 {destinations.map((destination: any) => (
@@ -289,7 +289,7 @@ export default function BusinessApplyPage() {
                   type="password"
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  className="w-full rounded-2xl border border-gray-300 px-4 py-3 outline-none focus:border-red-500 focus:ring-2 focus:ring-red-100"
+                  className="w-full rounded-2xl border border-gray-300 px-4 py-3 outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
                 />
               </div>
               <div>
@@ -299,7 +299,7 @@ export default function BusinessApplyPage() {
                   type="password"
                   value={formData.password2}
                   onChange={(e) => setFormData({ ...formData, password2: e.target.value })}
-                  className="w-full rounded-2xl border border-gray-300 px-4 py-3 outline-none focus:border-red-500 focus:ring-2 focus:ring-red-100"
+                  className="w-full rounded-2xl border border-gray-300 px-4 py-3 outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
                 />
               </div>
             </div>
@@ -307,7 +307,7 @@ export default function BusinessApplyPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full inline-flex items-center justify-center gap-2 rounded-2xl bg-red-600 px-6 py-4 text-white font-bold hover:bg-red-700 transition disabled:opacity-60"
+              className="w-full inline-flex items-center justify-center gap-2 rounded-2xl bg-primary px-6 py-4 text-white font-bold hover:bg-brand-900 transition disabled:opacity-60"
             >
               {loading ? 'Creating business account...' : 'Create business account'}
               <ArrowRight className="w-4 h-4" />

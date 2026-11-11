@@ -4,8 +4,8 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
 export const metadata: Metadata = {
-  title: "LinkedSky - Connect Travel with Culture",
-  description: "Transform your journey with a flexible travel platform for destinations, local services, and traveler communities.",
+  title: "LinkedSky - Kigali & Beyond",
+  description: "Connect your journey with local businesses, dining, experiences and airport services. Explore Kigali, Nairobi, New York, Bangkok and more pilot destinations.",
 };
 
 export default function RootLayout({

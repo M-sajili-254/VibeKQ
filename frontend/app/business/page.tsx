@@ -17,6 +17,9 @@ import {
   Users,
 } from 'lucide-react';
 import { authService, businessService, destinationService, getItemImage } from '@/utils/api';
+import MerchantPhotoUpload from '@/components/MerchantPhotoUpload';
+import PhotoGallery from '@/components/PhotoGallery';
+import { sortDestinations } from '@/utils/marketplace';
 
 type CommunityKey = 'airport' | 'destination';
 
@@ -90,6 +93,9 @@ function BusinessContent() {
   const [applicationLoading, setApplicationLoading] = useState(false);
   const [applicationError, setApplicationError] = useState('');
   const [applicationSuccess, setApplicationSuccess] = useState('');
+  const [merchantPhotos, setMerchantPhotos] = useState<File[]>([]);
+  const [photoRightsConfirmed, setPhotoRightsConfirmed] = useState(false);
+  const [ecosystemError, setEcosystemError] = useState('');
   const [applicationForm, setApplicationForm] = useState({
     business_name: '',
     business_category: '',
@@ -145,7 +151,7 @@ function BusinessContent() {
     const fetchDestinations = async () => {
       try {
         const data = await destinationService.getAll();
-        const list = data.results || data || [];
+        const list = sortDestinations(data);
         setDestinations(list);
 
         const byQuery =
@@ -159,6 +165,8 @@ function BusinessContent() {
         setSelectedDestinationId(byQuery?.id || list[0]?.id || null);
       } catch (error) {
         console.error('Error fetching destinations:', error);
+        setEcosystemError('Unable to load destinations. Please refresh to try again.');
+        setLoading(false);
       }
     };
 
@@ -166,23 +174,28 @@ function BusinessContent() {
   }, [searchParams]);
 
   useEffect(() => {
+    let cancelled = false;
     const fetchEcosystem = async () => {
       if (!selectedDestinationId) {
         return;
       }
 
       setLoading(true);
+      setEcosystem(null);
+      setEcosystemError('');
       try {
         const data = await destinationService.getEcosystem(selectedDestinationId);
-        setEcosystem(data);
+        if (!cancelled) setEcosystem(data);
       } catch (error) {
         console.error('Error fetching business ecosystem:', error);
+        if (!cancelled) setEcosystemError('Unable to load this destination. Please refresh to try again.');
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     };
 
     fetchEcosystem();
+    return () => { cancelled = true; };
   }, [selectedDestinationId]);
 
   useEffect(() => {
@@ -246,6 +259,10 @@ function BusinessContent() {
       setApplicationError('Please upload both your business logo and supporting documents.');
       return;
     }
+    if (merchantPhotos.length && !photoRightsConfirmed) {
+      setApplicationError('Please confirm permission to publish your business photos.');
+      return;
+    }
 
     setApplicationLoading(true);
 
@@ -262,6 +279,8 @@ function BusinessContent() {
       payload.append('business_description', applicationForm.business_description);
       payload.append('business_logo', applicationFiles.business_logo);
       payload.append('business_documents', applicationFiles.business_documents);
+      payload.append('photo_rights_confirmed', String(photoRightsConfirmed));
+      merchantPhotos.forEach((photo) => payload.append('uploaded_photos', photo));
 
       if (applicationForm.business_website.trim()) {
         payload.append('business_website', applicationForm.business_website.trim());
@@ -285,6 +304,8 @@ function BusinessContent() {
         business_logo: null,
         business_documents: null,
       });
+      setMerchantPhotos([]);
+      setPhotoRightsConfirmed(false);
     } catch (error) {
       setApplicationError(getErrorMessage(error, 'Unable to submit your business details. Please review the form and try again.'));
     } finally {
@@ -294,9 +315,9 @@ function BusinessContent() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <section className="bg-gradient-to-br from-slate-950 via-slate-900 to-red-950 text-white px-4 py-20">
+      <section className="bg-gradient-to-br from-slate-950 via-slate-900 to-brand-950 text-white px-4 py-20">
         <div className="max-w-7xl mx-auto">
-          <div className="flex items-center gap-2 text-yellow-300 text-sm font-semibold uppercase tracking-wide mb-4">
+          <div className="flex items-center gap-2 text-amber-300 text-sm font-semibold uppercase tracking-wide mb-4">
             <Globe className="w-4 h-4" />
             Business ecosystem segmentation
           </div>
@@ -310,7 +331,7 @@ function BusinessContent() {
           <div className="flex flex-wrap gap-4">
             <Link
               href="/partner-login"
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-yellow-400 text-slate-950 font-bold hover:bg-yellow-300 transition"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-amber-400 text-slate-950 font-bold hover:bg-amber-300 transition"
             >
               Existing partner sign in
               <Lock className="w-4 h-4" />
@@ -330,13 +351,13 @@ function BusinessContent() {
       <section className="py-20 px-4 bg-white">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <span className="text-yellow-600 font-semibold tracking-wider uppercase text-sm">Why Partner With Us</span>
+            <span className="text-amber-600 font-semibold tracking-wider uppercase text-sm">Why Partner With Us</span>
             <h2 className="text-4xl md:text-5xl font-bold mt-2 text-gray-900">Partnership Benefits</h2>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8">
             <div className="group bg-gradient-to-br from-gray-50 to-gray-100 rounded-3xl p-8 hover:shadow-xl transition-all duration-300 border border-gray-100">
-              <div className="w-16 h-16 bg-gradient-to-br from-red-500 to-red-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-red-500/20">
+              <div className="w-16 h-16 bg-gradient-to-br from-brand-500 to-brand-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-brand-500/20">
                 <Users className="w-8 h-8 text-white" />
               </div>
               <h3 className="text-2xl font-bold mb-3 text-gray-900">Access to Travelers</h3>
@@ -346,7 +367,7 @@ function BusinessContent() {
             </div>
 
             <div className="group bg-gradient-to-br from-gray-50 to-gray-100 rounded-3xl p-8 hover:shadow-xl transition-all duration-300 border border-gray-100">
-              <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-orange-500/20">
+              <div className="w-16 h-16 bg-gradient-to-br from-brand-500 to-brand-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-brand-500/20">
                 <TrendingUp className="w-8 h-8 text-white" />
               </div>
               <h3 className="text-2xl font-bold mb-3 text-gray-900">Grow Your Business</h3>
@@ -363,7 +384,7 @@ function BusinessContent() {
           <div className="max-w-7xl mx-auto">
             <div className="flex items-end justify-between gap-4 flex-wrap mb-8">
               <div>
-                <p className="text-sm font-semibold uppercase tracking-wide text-red-600">Partner workspace</p>
+                <p className="text-sm font-semibold uppercase tracking-wide text-primary">Partner workspace</p>
                 <h2 className="text-3xl font-bold text-gray-900">Upload business data and partnership information</h2>
               </div>
               <span className="px-4 py-2 rounded-full bg-slate-950 text-white text-sm font-semibold">
@@ -396,7 +417,7 @@ function BusinessContent() {
                         <p className="text-sm text-gray-500">Business</p>
                         <p className="text-lg font-bold text-gray-900">{latestApplication.business_name}</p>
                       </div>
-                      <span className="px-3 py-1 rounded-full bg-yellow-100 text-yellow-800 text-xs font-bold uppercase">
+                      <span className="px-3 py-1 rounded-full bg-amber-100 text-amber-800 text-xs font-bold uppercase">
                         {latestApplication.status}
                       </span>
                     </div>
@@ -423,7 +444,7 @@ function BusinessContent() {
 
               <form onSubmit={handleApplicationSubmit} className="bg-white rounded-3xl shadow p-6 space-y-5">
                 <div className="flex items-center gap-3">
-                  <Upload className="w-5 h-5 text-red-600" />
+                  <Upload className="w-5 h-5 text-primary" />
                   <div>
                     <h3 className="text-2xl font-bold text-gray-900">Business profile submission</h3>
                     <p className="text-sm text-gray-600">Provide the information, business type, and uploads required for review.</p>
@@ -437,7 +458,7 @@ function BusinessContent() {
                       required
                       value={applicationForm.business_name}
                       onChange={(e) => setApplicationForm({ ...applicationForm, business_name: e.target.value })}
-                      className="w-full rounded-2xl border border-gray-300 px-4 py-3 outline-none focus:border-red-500 focus:ring-2 focus:ring-red-100"
+                      className="w-full rounded-2xl border border-gray-300 px-4 py-3 outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
                     />
                   </div>
                   <div>
@@ -446,7 +467,7 @@ function BusinessContent() {
                       required
                       value={applicationForm.business_category}
                       onChange={(e) => setApplicationForm({ ...applicationForm, business_category: e.target.value })}
-                      className="w-full rounded-2xl border border-gray-300 px-4 py-3 outline-none focus:border-red-500 focus:ring-2 focus:ring-red-100"
+                      className="w-full rounded-2xl border border-gray-300 px-4 py-3 outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
                     />
                   </div>
                 </div>
@@ -461,7 +482,7 @@ function BusinessContent() {
                         setApplicationForm({ ...applicationForm, destination: e.target.value });
                         setSelectedDestinationId(e.target.value);
                       }}
-                      className="w-full rounded-2xl border border-gray-300 px-4 py-3 outline-none focus:border-red-500 focus:ring-2 focus:ring-red-100"
+                      className="w-full rounded-2xl border border-gray-300 px-4 py-3 outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
                     >
                       <option value="">Choose a destination</option>
                       {destinations.map((destination: any) => (
@@ -480,7 +501,7 @@ function BusinessContent() {
                         setApplicationForm({ ...applicationForm, community_type: nextCommunity });
                         setCommunity(nextCommunity);
                       }}
-                      className="w-full rounded-2xl border border-gray-300 px-4 py-3 outline-none focus:border-red-500 focus:ring-2 focus:ring-red-100"
+                      className="w-full rounded-2xl border border-gray-300 px-4 py-3 outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
                     >
                       <option value="airport">Airport Business</option>
                       <option value="destination">Destination Business</option>
@@ -494,7 +515,7 @@ function BusinessContent() {
                     value={applicationForm.service_tags}
                     onChange={(e) => setApplicationForm({ ...applicationForm, service_tags: e.target.value })}
                     placeholder="lounges, transfers, safari, pharmacy"
-                    className="w-full rounded-2xl border border-gray-300 px-4 py-3 outline-none focus:border-red-500 focus:ring-2 focus:ring-red-100"
+                    className="w-full rounded-2xl border border-gray-300 px-4 py-3 outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
                   />
                   <p className="text-xs text-gray-500 mt-2">Separate tags with commas.</p>
                 </div>
@@ -506,7 +527,7 @@ function BusinessContent() {
                       required
                       value={applicationForm.business_registration_number}
                       onChange={(e) => setApplicationForm({ ...applicationForm, business_registration_number: e.target.value })}
-                      className="w-full rounded-2xl border border-gray-300 px-4 py-3 outline-none focus:border-red-500 focus:ring-2 focus:ring-red-100"
+                      className="w-full rounded-2xl border border-gray-300 px-4 py-3 outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
                     />
                   </div>
                   <div>
@@ -515,7 +536,7 @@ function BusinessContent() {
                       required
                       value={applicationForm.business_phone}
                       onChange={(e) => setApplicationForm({ ...applicationForm, business_phone: e.target.value })}
-                      className="w-full rounded-2xl border border-gray-300 px-4 py-3 outline-none focus:border-red-500 focus:ring-2 focus:ring-red-100"
+                      className="w-full rounded-2xl border border-gray-300 px-4 py-3 outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
                     />
                   </div>
                 </div>
@@ -528,7 +549,7 @@ function BusinessContent() {
                       type="email"
                       value={applicationForm.business_email}
                       onChange={(e) => setApplicationForm({ ...applicationForm, business_email: e.target.value })}
-                      className="w-full rounded-2xl border border-gray-300 px-4 py-3 outline-none focus:border-red-500 focus:ring-2 focus:ring-red-100"
+                      className="w-full rounded-2xl border border-gray-300 px-4 py-3 outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
                     />
                   </div>
                   <div>
@@ -537,7 +558,7 @@ function BusinessContent() {
                       type="url"
                       value={applicationForm.business_website}
                       onChange={(e) => setApplicationForm({ ...applicationForm, business_website: e.target.value })}
-                      className="w-full rounded-2xl border border-gray-300 px-4 py-3 outline-none focus:border-red-500 focus:ring-2 focus:ring-red-100"
+                      className="w-full rounded-2xl border border-gray-300 px-4 py-3 outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
                     />
                   </div>
                 </div>
@@ -549,7 +570,7 @@ function BusinessContent() {
                     rows={3}
                     value={applicationForm.business_address}
                     onChange={(e) => setApplicationForm({ ...applicationForm, business_address: e.target.value })}
-                    className="w-full rounded-2xl border border-gray-300 px-4 py-3 outline-none focus:border-red-500 focus:ring-2 focus:ring-red-100"
+                    className="w-full rounded-2xl border border-gray-300 px-4 py-3 outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
                   />
                 </div>
 
@@ -560,7 +581,7 @@ function BusinessContent() {
                     rows={4}
                     value={applicationForm.business_description}
                     onChange={(e) => setApplicationForm({ ...applicationForm, business_description: e.target.value })}
-                    className="w-full rounded-2xl border border-gray-300 px-4 py-3 outline-none focus:border-red-500 focus:ring-2 focus:ring-red-100"
+                    className="w-full rounded-2xl border border-gray-300 px-4 py-3 outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
                   />
                 </div>
 
@@ -586,10 +607,12 @@ function BusinessContent() {
                   </div>
                 </div>
 
+                <MerchantPhotoUpload files={merchantPhotos} confirmed={photoRightsConfirmed} onFilesChange={setMerchantPhotos} onConfirmedChange={setPhotoRightsConfirmed} />
+
                 <button
                   type="submit"
                   disabled={applicationLoading}
-                  className="inline-flex items-center justify-center gap-2 rounded-2xl bg-red-600 px-6 py-4 text-white font-bold hover:bg-red-700 transition disabled:opacity-60"
+                  className="inline-flex items-center justify-center gap-2 rounded-2xl bg-primary px-6 py-4 text-white font-bold hover:bg-brand-900 transition disabled:opacity-60"
                 >
                   {applicationLoading ? 'Submitting business details...' : 'Submit business details'}
                   <ArrowRight className="w-4 h-4" />
@@ -602,12 +625,13 @@ function BusinessContent() {
 
       <section className="py-12 px-4 bg-white border-b">
         <div className="max-w-7xl mx-auto">
+          {ecosystemError && <p role="alert" className="mb-6 rounded-2xl bg-red-50 p-4 text-red-700">{ecosystemError}</p>}
           <div className="flex items-end justify-between gap-4 flex-wrap mb-6">
             <div>
-              <p className="text-sm font-semibold uppercase tracking-wide text-red-600">Demonstration network</p>
+              <p className="text-sm font-semibold uppercase tracking-wide text-primary">Merchant network · demos clearly labeled</p>
               <h2 className="text-3xl font-bold text-gray-900">Localized ecosystems across the globe</h2>
             </div>
-            <Link href="/ticket-login" className="inline-flex items-center gap-2 text-red-600 font-semibold">
+            <Link href="/ticket-login" className="inline-flex items-center gap-2 text-primary font-semibold">
               Unlock as a passenger
               <ArrowRight className="w-4 h-4" />
             </Link>
@@ -620,7 +644,7 @@ function BusinessContent() {
                 key={key}
                 onClick={() => setCommunity(key)}
                 className={`px-5 py-3 rounded-full font-semibold transition ${
-                  community === key ? 'bg-red-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-red-50'
+                  community === key ? 'bg-primary text-white' : 'bg-gray-100 text-gray-700 hover:bg-brand-50'
                 }`}
               >
                 {communityContent[key].title}
@@ -634,7 +658,7 @@ function BusinessContent() {
                 key={destination.id}
                 onClick={() => setSelectedDestinationId(destination.id)}
                 className={`text-left bg-white rounded-3xl overflow-hidden shadow hover:shadow-xl transition ${
-                  selectedDestination?.id === destination.id ? 'ring-2 ring-red-500' : ''
+                  selectedDestination?.id === destination.id ? 'ring-2 ring-brand-500' : ''
                 }`}
               >
                 <div className="h-44 bg-gray-100">
@@ -657,7 +681,7 @@ function BusinessContent() {
                     <span className="px-3 py-1 rounded-full bg-slate-950 text-white">
                       {destination.airport_services_count || 0} airport services
                     </span>
-                    <span className="px-3 py-1 rounded-full bg-orange-50 text-orange-700">
+                    <span className="px-3 py-1 rounded-full bg-brand-50 text-primary">
                       {destination.destination_services_count || 0} destination services
                     </span>
                   </div>
@@ -684,10 +708,10 @@ function BusinessContent() {
                 </div>
                 <div className="p-8">
                   <div className="flex flex-wrap gap-2 mb-4">
-                    <span className="px-3 py-1 rounded-full bg-red-100 text-red-700 text-sm font-semibold">
+                    <span className="px-3 py-1 rounded-full bg-brand-100 text-primary text-sm font-semibold">
                       {selectedDestination.airport_code}
                     </span>
-                    <span className="px-3 py-1 rounded-full bg-orange-100 text-orange-700 text-sm font-semibold">
+                    <span className="px-3 py-1 rounded-full bg-brand-100 text-primary text-sm font-semibold">
                       {selectedDestination.currency_code}
                     </span>
                     <span className="px-3 py-1 rounded-full bg-slate-950 text-white text-sm font-semibold">
@@ -700,11 +724,11 @@ function BusinessContent() {
                   <p className="text-lg text-gray-600 mb-6">{selectedDestination.hero_tagline || selectedDestination.description}</p>
                   <div className="grid md:grid-cols-2 gap-4">
                     <div className="rounded-2xl bg-slate-950 text-white p-5">
-                      <p className="text-sm text-yellow-300 mb-2">Airport gateway</p>
+                      <p className="text-sm text-amber-300 mb-2">Airport gateway</p>
                       <h3 className="text-xl font-bold">{selectedDestination.airport_name}</h3>
                     </div>
                     <div className="rounded-2xl bg-gray-50 p-5">
-                      <p className="text-sm text-red-600 mb-2">Passenger promise</p>
+                      <p className="text-sm text-primary mb-2">Passenger promise</p>
                       <p className="text-gray-700">
                         The ticket is the entry point to one destination-specific business ecosystem before and after arrival.
                       </p>
@@ -714,11 +738,11 @@ function BusinessContent() {
               </div>
 
               <div className="bg-white rounded-3xl shadow p-8">
-                <p className="text-sm font-semibold uppercase tracking-wide text-red-600 mb-2">Destination highlights</p>
+                <p className="text-sm font-semibold uppercase tracking-wide text-primary mb-2">Destination highlights</p>
                 <h3 className="text-2xl font-bold text-gray-900 mb-4">What the ecosystem showcases</h3>
                 <div className="flex flex-wrap gap-3 mb-6">
                   {featuredHighlights.map((highlight) => (
-                    <span key={highlight} className="px-4 py-2 rounded-full bg-red-50 text-red-700 text-sm font-medium">
+                    <span key={highlight} className="px-4 py-2 rounded-full bg-brand-50 text-primary text-sm font-medium">
                       {highlight}
                     </span>
                   ))}
@@ -742,11 +766,11 @@ function BusinessContent() {
 
             {loading ? (
               <div className="rounded-3xl bg-white shadow p-8 text-center text-gray-500">Loading ecosystem...</div>
-            ) : (
+            ) : ecosystemError ? null : (
               <div className="grid xl:grid-cols-[0.9fr,1.1fr] gap-8">
                 <div className="bg-white rounded-3xl shadow p-6">
                   <div className="flex items-center gap-3 mb-4">
-                    <CommunityIcon className="w-6 h-6 text-red-600" />
+                    <CommunityIcon className="w-6 h-6 text-primary" />
                     <div>
                       <h3 className="text-2xl font-bold text-gray-900">{communityContent[community].title}</h3>
                       <p className="text-sm text-gray-600">{communityContent[community].blurb}</p>
@@ -756,16 +780,18 @@ function BusinessContent() {
                   <div className="space-y-4">
                     {asArray<any>(activeCommunity.partners).map((partner) => (
                       <div key={partner.id} className="rounded-2xl border border-gray-100 p-5">
+                        <PhotoGallery images={asArray<{ image: string }>(partner.photos).map((photo) => photo.image)} name={partner.business_name} className="h-52 rounded-xl mb-4" />
+                        <p className="mb-3 text-xs font-semibold text-primary">{partner.is_demo ? 'Demo business · not proof of live activity' : 'Approved merchant'}</p>
                         <div className="flex items-start justify-between gap-4">
                           <div>
-                            <p className="text-xs font-semibold uppercase tracking-wide text-red-600 mb-1">
+                            <p className="text-xs font-semibold uppercase tracking-wide text-primary mb-1">
                               {partner.business_category}
                             </p>
                             <h4 className="text-xl font-bold text-gray-900">{partner.business_name}</h4>
                           </div>
                           <div className="flex gap-2 flex-wrap justify-end">
                             {partner.featured && (
-                              <span className="px-3 py-1 rounded-full bg-yellow-100 text-yellow-800 text-xs font-bold">
+                              <span className="px-3 py-1 rounded-full bg-amber-100 text-amber-800 text-xs font-bold">
                                 Featured
                               </span>
                             )}
@@ -797,7 +823,7 @@ function BusinessContent() {
 
                 <div className="bg-white rounded-3xl shadow p-6">
                   <div className="flex items-center gap-3 mb-4">
-                    <Building2 className="w-6 h-6 text-red-600" />
+                    <Building2 className="w-6 h-6 text-primary" />
                     <div>
                       <h3 className="text-2xl font-bold text-gray-900">Passenger-facing services</h3>
                       <p className="text-sm text-gray-600">Products and experiences exposed to the traveler through the destination experience.</p>
@@ -807,9 +833,10 @@ function BusinessContent() {
                   <div className="space-y-4">
                     {asArray<any>(activeCommunity.services).map((service) => (
                       <div key={service.id} className="rounded-2xl border border-gray-100 p-5">
+                        <PhotoGallery images={getItemImage(service) ? [getItemImage(service)!] : []} name={service.name} label={service.is_demo ? 'Demo · illustrative destination photo' : 'Service photo'} className="h-52 rounded-xl mb-4" />
                         <div className="flex items-start justify-between gap-4">
                           <div>
-                            <p className="text-xs font-semibold uppercase tracking-wide text-red-600 mb-1">
+                            <p className="text-xs font-semibold uppercase tracking-wide text-primary mb-1">
                               {service.category_name}
                             </p>
                             <h4 className="text-xl font-bold text-gray-900">{service.name}</h4>
@@ -817,7 +844,7 @@ function BusinessContent() {
                           </div>
                           <div className="text-right shrink-0">
                             <p className="text-sm text-gray-500">From</p>
-                            <p className="text-2xl font-black text-red-700">{formatPrice(service.price)}</p>
+                            <p className="text-2xl font-black text-primary">{formatPrice(service.price)}</p>
                             <p className="text-sm text-gray-500">{service.currency}</p>
                           </div>
                         </div>
@@ -827,7 +854,7 @@ function BusinessContent() {
                               {service.journey_stage_label}
                             </span>
                             {service.location_label && (
-                              <span className="px-3 py-1 rounded-full bg-orange-50 text-orange-700 text-xs font-medium">
+                              <span className="px-3 py-1 rounded-full bg-brand-50 text-primary text-xs font-medium">
                                 {service.location_label}
                               </span>
                             )}
@@ -837,7 +864,7 @@ function BusinessContent() {
                               </span>
                             )}
                           </div>
-                          <Link href={`/trip-assistant/services/${service.id}`} className="inline-flex items-center gap-2 text-red-600 font-semibold">
+                          <Link href={`/trip-assistant/services/${service.id}`} className="inline-flex items-center gap-2 text-primary font-semibold">
                             View booking flow
                             <ArrowRight className="w-4 h-4" />
                           </Link>

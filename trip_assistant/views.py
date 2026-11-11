@@ -44,7 +44,7 @@ class DestinationViewSet(viewsets.ModelViewSet):
             community_type='destination',
             available=True,
         ).select_related('category', 'destination', 'provider')
-        partners = Partnership.objects.filter(destination=destination, active=True).select_related('user', 'destination')
+        partners = Partnership.objects.filter(destination=destination, active=True).select_related('user', 'destination').prefetch_related('photos')
 
         return Response({
             'destination': DestinationSerializer(destination).data,
@@ -175,7 +175,7 @@ class DestinationPassportView(APIView):
         from business_community.serializers import PartnershipSerializer
         from accounts.serializers import PassengerProfileSerializer
 
-        partners = Partnership.objects.filter(destination=destination, active=True).select_related('user', 'destination')
+        partners = Partnership.objects.filter(destination=destination, active=True).select_related('user', 'destination').prefetch_related('photos')
         airport_services = [service for service in ranked_services if service.community_type == 'airport']
         destination_services = [service for service in ranked_services if service.community_type == 'destination']
 
