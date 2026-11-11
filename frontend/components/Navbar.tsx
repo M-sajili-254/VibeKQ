@@ -98,38 +98,41 @@ export default function Navbar() {
         <div className="flex justify-between h-16">
           <div className="flex items-center">
             <Link href="/" className="flex items-center gap-2 group">
-              <div className="w-10 h-10 bg-gradient-to-br from-red-500 to-red-600 rounded-xl flex items-center justify-center group-hover:scale-105 transition-transform">
+              <div className="w-10 h-10 bg-gradient-to-br from-brand-500 to-brand-600 rounded-xl flex items-center justify-center group-hover:scale-105 transition-transform">
                 <Plane className="w-5 h-5 text-white" />
               </div>
               <span className="text-xl font-black text-gray-900">
-                Linked<span className="text-red-600">Sky</span>
+                Linked<span className="text-primary">Sky</span>
               </span>
             </Link>
           </div>
 
           {/* Desktop Menu */}
-          <div className="hidden md:flex items-center space-x-1">
+          <div className="hidden xl:flex items-center space-x-1">
+            <Link href="/destinations" className="px-4 py-2 text-gray-700 hover:text-primary hover:bg-brand-50 rounded-lg transition font-medium">
+              Destinations
+            </Link>
             <Link
               href="/trip-assistant"
-              className="px-4 py-2 text-gray-700 hover:text-red-600 hover:bg-red-50 rounded-lg transition font-medium"
+              className="px-4 py-2 text-gray-700 hover:text-primary hover:bg-brand-50 rounded-lg transition font-medium"
             >
               Trip Assistant
             </Link>
             <Link
               href="/community"
-              className="px-4 py-2 text-gray-700 hover:text-red-600 hover:bg-red-50 rounded-lg transition font-medium"
+              className="px-4 py-2 text-gray-700 hover:text-primary hover:bg-brand-50 rounded-lg transition font-medium"
             >
               Community
             </Link>
             <Link
               href="/community/merchandise"
-              className="px-4 py-2 text-gray-700 hover:text-red-600 hover:bg-red-50 rounded-lg transition font-medium"
+              className="px-4 py-2 text-gray-700 hover:text-primary hover:bg-brand-50 rounded-lg transition font-medium"
             >
               Merchandise
             </Link>
             <Link
               href="/business"
-              className="px-4 py-2 text-gray-700 hover:text-red-600 hover:bg-red-50 rounded-lg transition font-medium"
+              className="px-4 py-2 text-gray-700 hover:text-primary hover:bg-brand-50 rounded-lg transition font-medium"
             >
               Business
             </Link>
@@ -142,16 +145,16 @@ export default function Navbar() {
               <div className="flex items-center space-x-2">
                 <Link
                   href="/profile"
-                  className="flex items-center space-x-2 px-4 py-2 text-gray-700 hover:text-red-600 hover:bg-red-50 rounded-lg transition"
+                  className="flex items-center space-x-2 px-4 py-2 text-gray-700 hover:text-primary hover:bg-brand-50 rounded-lg transition"
                 >
-                  <div className="w-8 h-8 bg-gradient-to-br from-red-400 to-red-500 rounded-full flex items-center justify-center text-white text-sm font-bold">
+                  <div className="w-8 h-8 bg-gradient-to-br from-brand-400 to-brand-500 rounded-full flex items-center justify-center text-white text-sm font-bold">
                     {user?.username?.charAt(0)?.toUpperCase() || 'U'}
                   </div>
                   <span className="font-medium">{user?.username || 'Profile'}</span>
                 </Link>
                 <button
                   onClick={handleLogout}
-                  className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition"
+                  className="p-2 text-gray-500 hover:text-primary hover:bg-brand-50 rounded-lg transition"
                   title="Logout"
                 >
                   <LogOut className="w-5 h-5" />
@@ -160,7 +163,7 @@ export default function Navbar() {
             ) : (
               <Link
                 href="/ticket-login"
-                className="px-5 py-2 bg-gradient-to-r from-red-600 to-red-500 text-white font-semibold rounded-lg hover:from-red-500 hover:to-red-400 transition-all shadow-md shadow-red-500/20"
+                className="px-5 py-2 text-white font-semibold rounded-lg transition-all shadow-md shadow-brand-500/20 bg-primary hover:bg-brand-900"
               >
                 Sign In
               </Link>
@@ -168,10 +171,12 @@ export default function Navbar() {
           </div>
 
           {/* Mobile menu button */}
-          <div className="md:hidden flex items-center">
+          <div className="xl:hidden flex items-center">
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="p-2 text-gray-700 hover:text-red-600 hover:bg-red-50 rounded-lg transition"
+              aria-label={isOpen ? 'Close navigation' : 'Open navigation'}
+              aria-expanded={isOpen}
+              className="p-2 text-gray-700 hover:text-primary hover:bg-brand-50 rounded-lg transition"
             >
               {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
@@ -181,32 +186,35 @@ export default function Navbar() {
 
       {/* Mobile Menu */}
       {isOpen && (
-        <div className="md:hidden bg-white border-t shadow-lg">
+        <div className="xl:hidden bg-white border-t shadow-lg">
           <div className="px-4 py-4 space-y-2">
+            <Link href="/destinations" onClick={() => setIsOpen(false)} className="block px-4 py-3 text-gray-700 hover:bg-brand-50 hover:text-primary rounded-lg transition font-medium">
+              Destinations
+            </Link>
             <Link
               href="/trip-assistant"
-              className="block px-4 py-3 text-gray-700 hover:bg-red-50 hover:text-red-600 rounded-lg transition font-medium"
+              className="block px-4 py-3 text-gray-700 hover:bg-brand-50 hover:text-primary rounded-lg transition font-medium"
               onClick={() => setIsOpen(false)}
             >
               Trip Assistant
             </Link>
             <Link
               href="/community"
-              className="block px-4 py-3 text-gray-700 hover:bg-red-50 hover:text-red-600 rounded-lg transition font-medium"
+              className="block px-4 py-3 text-gray-700 hover:bg-brand-50 hover:text-primary rounded-lg transition font-medium"
               onClick={() => setIsOpen(false)}
             >
               Community
             </Link>
             <Link
               href="/community/merchandise"
-              className="block px-4 py-3 text-gray-700 hover:bg-red-50 hover:text-red-600 rounded-lg transition font-medium"
+              className="block px-4 py-3 text-gray-700 hover:bg-brand-50 hover:text-primary rounded-lg transition font-medium"
               onClick={() => setIsOpen(false)}
             >
               Merchandise
             </Link>
             <Link
               href="/business"
-              className="block px-4 py-3 text-gray-700 hover:bg-red-50 hover:text-red-600 rounded-lg transition font-medium"
+              className="block px-4 py-3 text-gray-700 hover:bg-brand-50 hover:text-primary rounded-lg transition font-medium"
               onClick={() => setIsOpen(false)}
             >
               Business
@@ -217,10 +225,10 @@ export default function Navbar() {
                 <>
                   <Link
                     href="/profile"
-                    className="flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-red-50 rounded-lg transition"
+                    className="flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-brand-50 rounded-lg transition"
                     onClick={() => setIsOpen(false)}
                   >
-                    <div className="w-10 h-10 bg-gradient-to-br from-red-400 to-red-500 rounded-full flex items-center justify-center text-white font-bold">
+                    <div className="w-10 h-10 bg-gradient-to-br from-brand-400 to-brand-500 rounded-full flex items-center justify-center text-white font-bold">
                       {user?.username?.charAt(0)?.toUpperCase() || 'U'}
                     </div>
                     <div>
@@ -233,7 +241,7 @@ export default function Navbar() {
                       handleLogout();
                       setIsOpen(false);
                     }}
-                    className="w-full mt-2 px-4 py-3 text-red-600 hover:bg-red-50 rounded-lg transition font-medium text-left flex items-center space-x-2"
+                    className="w-full mt-2 px-4 py-3 text-primary hover:bg-brand-50 rounded-lg transition font-medium text-left flex items-center space-x-2"
                   >
                     <LogOut className="w-5 h-5" />
                     <span>Logout</span>
@@ -242,7 +250,7 @@ export default function Navbar() {
               ) : (
                 <Link
                   href="/ticket-login"
-                  className="block w-full px-4 py-3 bg-gradient-to-r from-red-600 to-red-500 text-white text-center font-semibold rounded-lg hover:from-red-500 hover:to-red-400 transition-all"
+                  className="block w-full px-4 py-3 text-white text-center font-semibold rounded-lg transition-all bg-primary hover:bg-brand-900"
                   onClick={() => setIsOpen(false)}
                 >
                   Sign In

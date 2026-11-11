@@ -12,7 +12,7 @@ export default function Footer() {
           {/* Brand Section */}
           <div className="lg:col-span-1">
             <div className="flex items-center gap-2 mb-4">
-              <div className="w-10 h-10 bg-gradient-to-br from-red-500 to-red-600 rounded-xl flex items-center justify-center">
+              <div className="w-10 h-10 bg-gradient-to-br from-brand-500 to-brand-600 rounded-xl flex items-center justify-center">
                 <Plane className="w-5 h-5 text-white" />
               </div>
               <span className="text-2xl font-black">LinkedSky</span>
@@ -21,16 +21,16 @@ export default function Footer() {
               An independent travel platform connecting journeys, local partners, and traveler communities across the globe.
             </p>
             <div className="flex space-x-3">
-              <a href="#" className="w-10 h-10 bg-white/10 hover:bg-red-600 rounded-full flex items-center justify-center transition-all">
+              <a href="#" className="w-10 h-10 bg-white/10 hover:bg-brand-600 rounded-full flex items-center justify-center transition-all">
                 <Facebook className="w-5 h-5" />
               </a>
-              <a href="#" className="w-10 h-10 bg-white/10 hover:bg-red-600 rounded-full flex items-center justify-center transition-all">
+              <a href="#" className="w-10 h-10 bg-white/10 hover:bg-brand-600 rounded-full flex items-center justify-center transition-all">
                 <Twitter className="w-5 h-5" />
               </a>
-              <a href="#" className="w-10 h-10 bg-white/10 hover:bg-red-600 rounded-full flex items-center justify-center transition-all">
+              <a href="#" className="w-10 h-10 bg-white/10 hover:bg-brand-600 rounded-full flex items-center justify-center transition-all">
                 <Instagram className="w-5 h-5" />
               </a>
-              <a href="#" className="w-10 h-10 bg-white/10 hover:bg-red-600 rounded-full flex items-center justify-center transition-all">
+              <a href="#" className="w-10 h-10 bg-white/10 hover:bg-brand-600 rounded-full flex items-center justify-center transition-all">
                 <Linkedin className="w-5 h-5" />
               </a>
             </div>
@@ -42,25 +42,25 @@ export default function Footer() {
             <ul className="space-y-3 text-sm">
               <li>
                 <Link href="/trip-assistant" className="text-gray-400 hover:text-white transition flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 bg-red-500 rounded-full"></span>
+                  <span className="w-1.5 h-1.5 bg-brand-500 rounded-full"></span>
                   Trip Assistant
                 </Link>
               </li>
               <li>
                 <Link href="/community" className="text-gray-400 hover:text-white transition flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 bg-red-500 rounded-full"></span>
+                  <span className="w-1.5 h-1.5 bg-brand-500 rounded-full"></span>
                   Community Vibes
                 </Link>
               </li>
               <li>
                 <Link href="/community/merchandise" className="text-gray-400 hover:text-white transition flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 bg-red-500 rounded-full"></span>
+                  <span className="w-1.5 h-1.5 bg-brand-500 rounded-full"></span>
                   Merchandise
                 </Link>
               </li>
               <li>
                 <Link href="/business" className="text-gray-400 hover:text-white transition flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 bg-red-500 rounded-full"></span>
+                  <span className="w-1.5 h-1.5 bg-brand-500 rounded-full"></span>
                   Business Partners
                 </Link>
               </li>
@@ -103,7 +103,7 @@ export default function Footer() {
             <h4 className="font-bold text-lg mb-6">Contact</h4>
             <ul className="space-y-4 text-sm">
               <li className="flex items-start gap-3">
-                <Mail className="w-5 h-5 text-red-500 mt-0.5" />
+                <Mail className="w-5 h-5 text-brand-500 mt-0.5" />
                 <div>
                   <p className="text-white font-medium">Email Us</p>
                   <a href="mailto:vibe@kenya-airways.com" className="text-gray-400 hover:text-white transition">
@@ -112,7 +112,7 @@ export default function Footer() {
                 </div>
               </li>
               <li className="flex items-start gap-3">
-                <Phone className="w-5 h-5 text-red-500 mt-0.5" />
+                <Phone className="w-5 h-5 text-brand-500 mt-0.5" />
                 <div>
                   <p className="text-white font-medium">Call Us</p>
                   <a href="tel:+254711024747" className="text-gray-400 hover:text-white transition">
@@ -121,7 +121,7 @@ export default function Footer() {
                 </div>
               </li>
               <li className="flex items-start gap-3">
-                <Globe className="w-5 h-5 text-red-500 mt-0.5" />
+                <Globe className="w-5 h-5 text-brand-500 mt-0.5" />
                 <div>
                   <p className="text-white font-medium">Launch Partner</p>
                   <a href="https://www.kenya-airways.com" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition">

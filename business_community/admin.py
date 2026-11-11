@@ -1,10 +1,23 @@
 from django.contrib import admin
 from django.utils import timezone
-from .models import PartnerApplication, Partnership, SponsoredContent
+from django.db import transaction
+from .models import PartnerApplication, Partnership, SponsoredContent, MerchantPhoto
+
+
+class MerchantPhotoInline(admin.TabularInline):
+    model = MerchantPhoto
+    extra = 0
+    fields = ('image',)
+    readonly_fields = ('image',)
+    can_delete = False
+
+    def has_add_permission(self, request, obj=None):
+        return False
 
 
 @admin.register(PartnerApplication)
 class PartnerApplicationAdmin(admin.ModelAdmin):
+    inlines = [MerchantPhotoInline]
     list_display = ('business_name', 'user', 'business_category', 'status', 'created_at', 'reviewed_at')
     list_filter = ('status', 'business_category', 'created_at')
     search_fields = ('business_name', 'user__username', 'user__email', 'business_email')
@@ -21,7 +34,10 @@ class PartnerApplicationAdmin(admin.ModelAdmin):
                       'business_address', 'business_phone', 'business_email', 'business_website')
         }),
         ('Description & Documents', {
-            'fields': ('business_description', 'business_logo', 'business_documents')
+            'fields': ('business_description', 'business_logo', 'business_documents', 'photo_rights_confirmed')
+        }),
+        ('Marketplace placement', {
+            'fields': ('destination', 'community_type', 'service_tags')
         }),
         ('Review Status', {
             'fields': ('status', 'admin_notes', 'reviewed_at')
@@ -34,22 +50,32 @@ class PartnerApplicationAdmin(admin.ModelAdmin):
     
     actions = ['approve_applications', 'reject_applications']
     
+    @transaction.atomic
     def approve_applications(self, request, queryset):
-        updated = queryset.filter(status='pending').update(
-            status='approved',
-            reviewed_at=timezone.now()
-        )
-        
-        # Create partnerships for approved applications
-        for application in queryset.filter(status='approved'):
-            Partnership.objects.get_or_create(
+        updated = 0
+        for application in queryset.select_for_update().filter(status='pending'):
+            if not application.destination_id or (application.photos.exists() and not application.photo_rights_confirmed):
+                self.message_user(request, f'{application.business_name}: select a destination and confirm photo permission before approval.', level='error')
+                continue
+            partnership, _ = Partnership.objects.update_or_create(
                 user=application.user,
                 defaults={
                     'business_name': application.business_name,
                     'business_category': application.business_category,
-                    'active': True
+                    'destination': application.destination,
+                    'community_type': application.community_type,
+                    'service_tags': application.service_tags,
+                    'community_summary': application.business_description,
+                    'is_demo': False,
+                    'active': True,
                 }
             )
+            partnership.photos.update(partnership=None)
+            application.photos.update(partnership=partnership)
+            application.status = 'approved'
+            application.reviewed_at = timezone.now()
+            application.save(update_fields=['status', 'reviewed_at', 'updated_at'])
+            updated += 1
             # Update user type
             application.user.user_type = 'business_partner'
             application.user.business_name = application.business_name
@@ -71,6 +97,7 @@ class PartnerApplicationAdmin(admin.ModelAdmin):
 
 @admin.register(Partnership)
 class PartnershipAdmin(admin.ModelAdmin):
+    inlines = [MerchantPhotoInline]
     list_display = ('business_name', 'user', 'business_category', 'commission_rate', 
                    'total_revenue', 'total_bookings', 'rating', 'active', 'created_at')
     list_filter = ('active', 'business_category', 'created_at')
@@ -82,7 +109,8 @@ class PartnershipAdmin(admin.ModelAdmin):
     
     fieldsets = (
         ('Partner Information', {
-            'fields': ('user', 'business_name', 'business_category')
+            'fields': ('user', 'business_name', 'business_category', 'destination', 'community_type',
+                       'service_tags', 'community_summary', 'featured', 'is_demo')
         }),
         ('Financial Details', {
             'fields': ('commission_rate', 'total_revenue', 'total_bookings')

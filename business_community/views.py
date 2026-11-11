@@ -32,7 +32,7 @@ class PartnershipViewSet(viewsets.ReadOnlyModelViewSet):
         if community_type:
             queryset = queryset.filter(community_type=community_type)
 
-        return queryset.select_related('user', 'destination')
+        return queryset.select_related('user', 'destination').prefetch_related('photos')
 
 
 class SponsoredContentViewSet(viewsets.ModelViewSet):

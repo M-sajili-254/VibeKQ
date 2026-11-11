@@ -3,14 +3,19 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Heart, MessageCircle, Calendar, Users, TrendingUp, Camera, MapPin, Loader2 } from 'lucide-react';
-import { communityService, getImageUrl, getItemImage } from '@/utils/api';
+import { communityService, getItemImage } from '@/utils/api';
+import RwandaDiscovery from './RwandaDiscovery';
+import PhotoGallery from '@/components/PhotoGallery';
+import CommunityExamples from './CommunityExamples';
 
 export default function Community() {
   const [posts, setPosts] = useState([]);
   const [events, setEvents] = useState([]);
   const [vibeMemories, setVibeMemories] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('posts');
+  const [activeTab, setActiveTab] = useState('discover');
+  const [dataError, setDataError] = useState('');
+  const [actionError, setActionError] = useState('');
   const [registeringEventId, setRegisteringEventId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -26,6 +31,7 @@ export default function Community() {
         setVibeMemories(memoriesData.results || memoriesData || []);
       } catch (error) {
         console.error('Error fetching data:', error);
+        setDataError('Community posts, events and memories could not be loaded. Please refresh to try again.');
       } finally {
         setLoading(false);
       }
@@ -35,6 +41,7 @@ export default function Community() {
   }, []);
 
   const handleLike = async (postId: number) => {
+    setActionError('');
     try {
       await communityService.likePost(postId);
       // Refresh posts
@@ -42,6 +49,7 @@ export default function Community() {
       setPosts(postsData.results || postsData || []);
     } catch (error) {
       console.error('Error liking post:', error);
+      setActionError('Unable to update this like. Please sign in and try again.');
     }
   };
 
@@ -72,22 +80,28 @@ export default function Community() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}
-      <section className="bg-gradient-to-r from-red-600 to-red-800 text-white py-20 px-4">
+      <section className="bg-gradient-to-r from-brand-600 to-brand-800 text-white py-20 px-4">
         <div className="max-w-4xl mx-auto text-center">
-          <h1 className="text-5xl font-bold mb-6">Community Vibes</h1>
-          <p className="text-xl mb-8">
-            Connect with airline teams, share stories, and engage with passion projects
+          <p className="mb-4 text-sm font-semibold uppercase tracking-widest text-brand-100">Community Vibes · Rwanda discovery</p>
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-6">DISCOVER RWANDA – BUSINESS, CULTURE & EXPERIENCES</h1>
+          <p className="text-lg sm:text-xl mb-8">
+            Explore Rwanda's businesses, cultural heritage, tourism, events, venues and unique local experiences, all in one place.
           </p>
+          <Link href="/business/apply" className="inline-flex items-center rounded-lg bg-white px-6 py-3 font-semibold text-primary hover:bg-brand-50">Showcase your business</Link>
         </div>
       </section>
 
       {/* Tabs */}
       <section className="bg-white border-b sticky top-16 z-40">
         <div className="max-w-7xl mx-auto px-4">
-          <div className="flex space-x-8">
+          <div className="flex gap-4 sm:gap-8 overflow-x-auto">
+            <button type="button" aria-pressed={activeTab === 'discover'} onClick={() => setActiveTab('discover')} className={`shrink-0 py-4 px-2 border-b-2 font-semibold transition ${activeTab === 'discover' ? 'border-primary text-primary' : 'border-transparent text-gray-600 hover:text-gray-900'}`}>
+              <div className="flex items-center gap-2"><MapPin className="h-5 w-5" /><span>Discover Rwanda</span></div>
+            </button>
             <button
               onClick={() => setActiveTab('posts')}
-              className={`py-4 px-2 border-b-2 font-semibold transition ${
+              aria-pressed={activeTab === 'posts'}
+              className={`shrink-0 py-4 px-2 border-b-2 font-semibold transition ${
                 activeTab === 'posts'
                   ? 'border-primary text-primary'
                   : 'border-transparent text-gray-600 hover:text-gray-900'
@@ -100,7 +114,8 @@ export default function Community() {
             </button>
             <button
               onClick={() => setActiveTab('events')}
-              className={`py-4 px-2 border-b-2 font-semibold transition ${
+              aria-pressed={activeTab === 'events'}
+              className={`shrink-0 py-4 px-2 border-b-2 font-semibold transition ${
                 activeTab === 'events'
                   ? 'border-primary text-primary'
                   : 'border-transparent text-gray-600 hover:text-gray-900'
@@ -113,7 +128,8 @@ export default function Community() {
             </button>
             <button
               onClick={() => setActiveTab('memories')}
-              className={`py-4 px-2 border-b-2 font-semibold transition ${
+              aria-pressed={activeTab === 'memories'}
+              className={`shrink-0 py-4 px-2 border-b-2 font-semibold transition ${
                 activeTab === 'memories'
                   ? 'border-primary text-primary'
                   : 'border-transparent text-gray-600 hover:text-gray-900'
@@ -126,7 +142,7 @@ export default function Community() {
             </button>
             <Link
               href="/community/merchandise"
-              className="py-4 px-2 border-b-2 border-transparent text-gray-600 hover:text-gray-900 font-semibold transition"
+              className="shrink-0 py-4 px-2 border-b-2 border-transparent text-gray-600 hover:text-gray-900 font-semibold transition"
             >
               <div className="flex items-center space-x-2">
                 <Users className="w-5 h-5" />
@@ -138,6 +154,10 @@ export default function Community() {
       </section>
 
       <div className="max-w-7xl mx-auto px-4 py-8">
+        {activeTab === 'discover' && <RwandaDiscovery />}
+        {activeTab !== 'discover' && dataError && <p role="alert" className="mb-6 rounded-lg border border-red-200 bg-red-50 p-4 text-red-700">{dataError}</p>}
+        {activeTab !== 'discover' && actionError && <p role="alert" className="mb-6 rounded-lg border border-red-200 bg-red-50 p-4 text-red-700">{actionError}</p>}
+        {activeTab === 'posts' && !loading && !dataError && posts.length === 0 && <p className="rounded-lg bg-white p-6 text-gray-600">No community posts are available yet.</p>}
         {/* Posts Tab */}
         {activeTab === 'posts' && (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -159,7 +179,7 @@ export default function Community() {
                 {posts.map((post: any) => (
                   <div key={post.id} className="bg-white rounded-lg shadow hover:shadow-lg transition">
                     {(post.image || post.display_image || post.image_url) && (
-                      <div className="h-48 bg-gradient-to-br from-purple-400 to-pink-400 overflow-hidden">
+                      <div className="h-48 bg-gradient-to-br from-brand-400 to-brand-400 overflow-hidden">
                         <img
                           src={getItemImage(post) || ''}
                           alt={post.title}
@@ -180,9 +200,9 @@ export default function Community() {
                         <div className="flex items-center space-x-4">
                           <button
                             onClick={() => handleLike(post.id)}
-                            className="flex items-center space-x-1 hover:text-red-500 transition"
+                            className="flex items-center space-x-1 hover:text-brand-500 transition"
                           >
-                            <Heart className={`w-4 h-4 ${post.is_liked ? 'fill-red-500 text-red-500' : ''}`} />
+                            <Heart className={`w-4 h-4 ${post.is_liked ? 'fill-brand-500 text-brand-500' : ''}`} />
                             <span>{post.likes_count}</span>
                           </button>
                           <div className="flex items-center space-x-1">
@@ -202,9 +222,15 @@ export default function Community() {
 
         {/* Events Tab */}
         {activeTab === 'events' && (
+          <section aria-labelledby="community-events-heading">
+          <h2 id="community-events-heading" className="mb-2 text-2xl font-bold text-gray-900">Community events & announcements</h2>
+          <p className="mb-6 text-sm text-gray-600">Events below come from the existing community feed. Rwanda discovery event concepts are separate and cannot be registered for here.</p>
+          {loading && <p role="status" className="mb-6 text-gray-500">Loading community events...</p>}
+          {!loading && !dataError && events.length === 0 && <p className="rounded-lg bg-white p-6 text-gray-600">No community events are listed yet.</p>}
           <div className="grid md:grid-cols-2 gap-6">
             {events.map((event: any) => (
               <div key={event.id} className="bg-white rounded-lg shadow hover:shadow-lg transition p-6">
+                {getItemImage(event) && <PhotoGallery name={event.title} images={[getItemImage(event)!]} label="Community event image" className="h-44 rounded-lg mb-5" />}
                 <div className="flex items-start space-x-4">
                   <div className="w-16 h-16 bg-primary/10 rounded-lg flex flex-col items-center justify-center flex-shrink-0">
                     <span className="text-2xl font-bold text-primary">
@@ -214,28 +240,28 @@ export default function Community() {
                       {new Date(event.start_date).toLocaleString('default', { month: 'short' })}
                     </span>
                   </div>
-                  <div className="flex-1">
-                    <span className="px-3 py-1 bg-purple-100 text-purple-600 text-xs font-semibold rounded-full">
+                  <div className="flex-1 min-w-0">
+                    <span className="px-3 py-1 bg-brand-100 text-primary text-xs font-semibold rounded-full">
                       {event.event_type}
                     </span>
                     <h3 className="text-xl font-semibold mt-2 mb-2">{event.title}</h3>
                     <p className="text-gray-600 text-sm mb-4">{event.description}</p>
                     
-                    <div className="flex items-center justify-between">
+                    <div className="flex flex-wrap gap-3 items-center justify-between">
                       <div className="text-sm text-gray-500">
                         <p>{event.location || 'Virtual Event'}</p>
                         <p>{event.participants_count} participants</p>
                       </div>
                       <button 
                         onClick={() => !event.is_registered && handleEventRegister(event.id)}
-                        disabled={event.is_registered || registeringEventId === event.id}
+                        disabled={event.is_registered || registeringEventId === String(event.id)}
                         className={`px-4 py-2 rounded-lg transition flex items-center gap-2 ${
                           event.is_registered 
                             ? 'bg-green-600 text-white cursor-default' 
                             : 'bg-primary text-white hover:bg-primary/90'
-                        } ${registeringEventId === event.id ? 'opacity-70 cursor-wait' : ''}`}
+                        } ${registeringEventId === String(event.id) ? 'opacity-70 cursor-wait' : ''}`}
                       >
-                        {registeringEventId === event.id ? (
+                        {registeringEventId === String(event.id) ? (
                           <>
                             <Loader2 className="w-4 h-4 animate-spin" />
                             Registering...
@@ -252,6 +278,7 @@ export default function Community() {
               </div>
             ))}
           </div>
+          </section>
         )}
 
         {/* Vibe Memories Tab */}
@@ -293,7 +320,7 @@ export default function Community() {
                           className="w-full h-full object-cover group-hover:scale-110 transition duration-300"
                         />
                       ) : (
-                        <div className="w-full h-full bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center">
+                        <div className="w-full h-full bg-gradient-to-br from-brand-400 to-brand-400 flex items-center justify-center">
                           <Camera className="w-12 h-12 text-white" />
                         </div>
                       )}
@@ -326,6 +353,9 @@ export default function Community() {
             </div>
           </div>
         )}
+        {activeTab === 'posts' && <CommunityExamples kind="posts" />}
+        {activeTab === 'events' && <CommunityExamples kind="events" />}
+        {activeTab === 'memories' && <CommunityExamples kind="memories" />}
       </div>
     </div>
   );

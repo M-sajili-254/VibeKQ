@@ -141,7 +141,7 @@ export default function Profile() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
-          <div className="w-16 h-16 border-4 border-red-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <div className="w-16 h-16 border-4 border-brand-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-gray-600">Loading profile...</p>
         </div>
       </div>
@@ -156,17 +156,17 @@ export default function Profile() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="bg-gradient-to-r from-red-700 to-red-600 text-white py-14 px-4">
+      <div className="bg-gradient-to-r from-brand-700 to-brand-600 text-white py-14 px-4">
         <div className="max-w-6xl mx-auto">
-          <p className="text-sm font-semibold uppercase tracking-wide text-red-100 mb-2">Passenger profile</p>
+          <p className="text-sm font-semibold uppercase tracking-wide text-brand-100 mb-2">Passenger profile</p>
           <h1 className="text-4xl font-black mb-2">Your destination preferences</h1>
-          <p className="text-red-100">Shape the recommendations and marketplace access you receive after every landing.</p>
+          <p className="text-brand-100">Shape the recommendations and marketplace access you receive after every landing.</p>
         </div>
       </div>
 
       <div className="max-w-6xl mx-auto px-4 py-8 space-y-6">
         <div className="bg-white rounded-3xl shadow-lg overflow-hidden">
-          <div className="h-32 bg-gradient-to-r from-red-600 to-orange-500"></div>
+          <div className="h-32 bg-gradient-to-r from-brand-600 to-brand-500"></div>
           <div className="relative px-6 pb-6">
             <div className="absolute -top-14 left-6 w-28 h-28 bg-white rounded-full border-4 border-white shadow-lg overflow-hidden flex items-center justify-center">
               {user.profile_picture ? (
@@ -186,7 +186,7 @@ export default function Profile() {
                   <button
                     onClick={handleSave}
                     disabled={saving}
-                    className="px-4 py-2 bg-red-600 text-white rounded-xl hover:bg-red-700 transition flex items-center gap-2 disabled:opacity-60"
+                    className="px-4 py-2 bg-primary text-white rounded-xl hover:bg-brand-900 transition flex items-center gap-2 disabled:opacity-60"
                   >
                     <Save className="w-4 h-4" />
                     {saving ? 'Saving...' : 'Save'}
@@ -206,7 +206,7 @@ export default function Profile() {
               ) : (
                 <button
                   onClick={() => setEditing(true)}
-                  className="px-4 py-2 bg-red-600 text-white rounded-xl hover:bg-red-700 transition flex items-center gap-2"
+                  className="px-4 py-2 bg-primary text-white rounded-xl hover:bg-brand-900 transition flex items-center gap-2"
                 >
                   <Edit className="w-4 h-4" />
                   Edit profile
@@ -218,7 +218,7 @@ export default function Profile() {
               <h2 className="text-3xl font-bold text-gray-900">{user.first_name} {user.last_name}</h2>
               <p className="text-gray-500">@{user.username}</p>
               <div className="mt-4 flex flex-wrap gap-3">
-                <span className="px-3 py-1 rounded-full bg-red-100 text-red-700 text-sm font-semibold">
+                <span className="px-3 py-1 rounded-full bg-brand-100 text-primary text-sm font-semibold">
                   {user.user_type === 'staff'
                     ? 'Airline Staff'
                     : user.user_type === 'business_partner'
@@ -234,7 +234,7 @@ export default function Profile() {
                   </span>
                 )}
                 {user.last_ticket_number && (
-                  <span className="px-3 py-1 rounded-full bg-yellow-100 text-yellow-800 text-sm font-semibold flex items-center gap-1">
+                  <span className="px-3 py-1 rounded-full bg-amber-100 text-amber-800 text-sm font-semibold flex items-center gap-1">
                     <Ticket className="w-4 h-4" />
                     {user.last_ticket_number}
                   </span>
@@ -253,7 +253,7 @@ export default function Profile() {
         <div className="grid lg:grid-cols-2 gap-6">
           <div className="bg-white rounded-3xl shadow p-6 space-y-5">
             <h3 className="text-xl font-bold flex items-center gap-2">
-              <User className="w-5 h-5 text-red-600" />
+              <User className="w-5 h-5 text-primary" />
               Personal details
             </h3>
 
@@ -270,7 +270,7 @@ export default function Profile() {
                 {editing ? (
                   <input
                     type={field.type || 'text'}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-transparent outline-none"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-brand-600 focus:border-transparent outline-none"
                     value={(formData as any)[field.key]}
                     onChange={(event) => setFormData({ ...formData, [field.key]: event.target.value })}
                   />
@@ -285,7 +285,7 @@ export default function Profile() {
               {editing ? (
                 <textarea
                   rows={4}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-transparent outline-none"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-brand-600 focus:border-transparent outline-none"
                   value={formData.bio}
                   onChange={(event) => setFormData({ ...formData, bio: event.target.value })}
                 />
@@ -297,7 +297,7 @@ export default function Profile() {
 
           <div className="bg-white rounded-3xl shadow p-6 space-y-5">
             <h3 className="text-xl font-bold flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-red-600" />
+              <Sparkles className="w-5 h-5 text-primary" />
               Personalization engine
             </h3>
 
@@ -306,7 +306,7 @@ export default function Profile() {
                 <label className="block text-sm font-medium text-gray-700 mb-1">Budget</label>
                 {editing ? (
                   <select
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-transparent outline-none"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-brand-600 focus:border-transparent outline-none"
                     value={formData.preferred_budget}
                     onChange={(event) => setFormData({ ...formData, preferred_budget: event.target.value })}
                   >
@@ -324,7 +324,7 @@ export default function Profile() {
                 <label className="block text-sm font-medium text-gray-700 mb-1">Travel frequency</label>
                 {editing ? (
                   <select
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-transparent outline-none"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-brand-600 focus:border-transparent outline-none"
                     value={formData.travel_frequency}
                     onChange={(event) => setFormData({ ...formData, travel_frequency: event.target.value })}
                   >
@@ -354,7 +354,7 @@ export default function Profile() {
                   <input
                     type="text"
                     placeholder="Use commas to separate values"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-transparent outline-none"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-brand-600 focus:border-transparent outline-none"
                     value={(formData as any)[key]}
                     onChange={(event) => setFormData({ ...formData, [key]: event.target.value })}
                   />
@@ -369,7 +369,7 @@ export default function Profile() {
               {editing ? (
                 <input
                   type="text"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-transparent outline-none"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-brand-600 focus:border-transparent outline-none"
                   value={formData.dietary_preferences}
                   onChange={(event) => setFormData({ ...formData, dietary_preferences: event.target.value })}
                 />
@@ -383,7 +383,7 @@ export default function Profile() {
               {editing ? (
                 <textarea
                   rows={3}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-transparent outline-none"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-brand-600 focus:border-transparent outline-none"
                   value={formData.accessibility_needs}
                   onChange={(event) => setFormData({ ...formData, accessibility_needs: event.target.value })}
                 />
@@ -397,7 +397,7 @@ export default function Profile() {
               {editing ? (
                 <textarea
                   rows={3}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-600 focus:border-transparent outline-none"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-brand-600 focus:border-transparent outline-none"
                   value={formData.recommendation_notes}
                   onChange={(event) => setFormData({ ...formData, recommendation_notes: event.target.value })}
                 />
@@ -411,7 +411,7 @@ export default function Profile() {
         {user.active_destination && (
           <div className="bg-white rounded-3xl shadow p-6">
             <h3 className="text-xl font-bold flex items-center gap-2 mb-4">
-              <Briefcase className="w-5 h-5 text-red-600" />
+              <Briefcase className="w-5 h-5 text-primary" />
               Active destination access
             </h3>
             <div className="grid md:grid-cols-3 gap-4">

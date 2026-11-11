@@ -134,7 +134,7 @@ for dest_data in destinations_data:
     dest, created = Destination.objects.get_or_create(
         city=dest_data['city'],
         country=dest_data['country'],
-        defaults=dest_data
+        defaults={**dest_data, 'is_demo': True}
     )
     updated_fields = []
     for field in ('name', 'description', 'featured'):
@@ -448,8 +448,11 @@ for service_data in services_data:
     service, created = Service.objects.get_or_create(
         name=service_data['name'],
         destination=service_data['destination'],
-        defaults=service_data
+        defaults={**service_data, 'is_demo': True}
     )
+    if not service.is_demo and service.provider_id == partner.id:
+        service.is_demo = True
+        service.save(update_fields=['is_demo'])
     if created:
         print(f"✓ Created service: {service.name}")
 

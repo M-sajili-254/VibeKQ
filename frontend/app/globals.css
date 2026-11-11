@@ -10,19 +10,19 @@
     --card-foreground: 240 10% 3.9%;
     --popover: 0 0% 100%;
     --popover-foreground: 240 10% 3.9%;
-    --primary: 0 85% 45%;
+    --primary: 163 88% 20%;
     --primary-foreground: 0 0% 100%;
     --secondary: 240 4.8% 95.9%;
     --secondary-foreground: 240 5.9% 10%;
     --muted: 240 4.8% 95.9%;
     --muted-foreground: 240 3.8% 46.1%;
-    --accent: 0 85% 45%;
+    --accent: 163 88% 20%;
     --accent-foreground: 0 0% 100%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
     --border: 240 5.9% 90%;
     --input: 240 5.9% 90%;
-    --ring: 0 85% 45%;
+    --ring: 163 88% 20%;
     --radius: 0.5rem;
   }
 
@@ -33,19 +33,19 @@
     --card-foreground: 0 0% 98%;
     --popover: 240 10% 3.9%;
     --popover-foreground: 0 0% 98%;
-    --primary: 0 85% 45%;
+    --primary: 163 88% 20%;
     --primary-foreground: 0 0% 100%;
     --secondary: 240 3.7% 15.9%;
     --secondary-foreground: 0 0% 98%;
     --muted: 240 3.7% 15.9%;
     --muted-foreground: 240 5% 64.9%;
-    --accent: 0 85% 45%;
+    --accent: 163 88% 20%;
     --accent-foreground: 0 0% 100%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
     --border: 240 3.7% 15.9%;
     --input: 240 3.7% 15.9%;
-    --ring: 0 85% 45%;
+    --ring: 163 88% 20%;
   }
 }
 
@@ -58,19 +58,18 @@
   }
 }
 
-/* Kenya Airways Red Theme */
 .gradient-warm {
-  background: linear-gradient(135deg, #C8102E 0%, #E31837 50%, #FF1744 100%);
+  background: linear-gradient(135deg, #064e3b 0%, #065f46 50%, #047857 100%);
 }
 
 .gradient-hero {
-  background: linear-gradient(135deg, rgba(200, 16, 46, 0.95) 0%, rgba(227, 24, 55, 0.9) 100%);
+  background: linear-gradient(135deg, rgba(6, 78, 59, 0.95) 0%, rgba(6, 95, 70, 0.9) 100%);
 }
 
 .kq-red {
-  background-color: #C8102E;
+  background-color: hsl(var(--primary));
 }
 
 .kq-red-light {
-  background-color: #E31837;
+  background-color: #047857;
 }

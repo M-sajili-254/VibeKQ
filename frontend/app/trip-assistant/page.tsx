@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { destinationService, getItemImage } from '@/utils/api';
 import { getDestinationWelcomeMessage } from '@/utils/destination';
+import PhotoGallery from '@/components/PhotoGallery';
 
 type CommunityKey = 'airport' | 'destination';
 
@@ -95,7 +96,7 @@ function TripAssistantContent() {
     const fetchDestinations = async () => {
       try {
         const data = await destinationService.getAll();
-        const destinationResults = data.results || data || [];
+        const destinationResults = data;
         setDestinations(destinationResults);
       } catch (error) {
         console.error('Error fetching destinations:', error);
@@ -269,7 +270,7 @@ function TripAssistantContent() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
-          <div className="w-16 h-16 border-4 border-red-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <div className="w-16 h-16 border-4 border-brand-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
         <p className="text-gray-600">Loading destination experience...</p>
         </div>
       </div>
@@ -278,9 +279,9 @@ function TripAssistantContent() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <section className="bg-gradient-to-br from-slate-950 via-red-950 to-slate-900 text-white px-4 py-20">
+      <section className="bg-gradient-to-br from-slate-950 via-brand-950 to-slate-900 text-white px-4 py-20">
         <div className="max-w-7xl mx-auto">
-          <div className="flex flex-wrap items-center gap-3 mb-6 text-sm font-medium text-yellow-300">
+          <div className="flex flex-wrap items-center gap-3 mb-6 text-sm font-medium text-amber-300">
             <Sparkles className="w-4 h-4" />
             <span>Single ticket. Single destination. One connected marketplace.</span>
           </div>
@@ -302,7 +303,7 @@ function TripAssistantContent() {
                 {passport ? (
                   <button
                     onClick={() => document.getElementById('destination-passport')?.scrollIntoView({ behavior: 'smooth' })}
-                    className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-yellow-400 text-slate-950 font-bold rounded-full hover:bg-yellow-300 transition"
+                    className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-amber-400 text-slate-950 font-bold rounded-full hover:bg-amber-300 transition"
                   >
                     Open My Destination
                     <ArrowRight className="w-5 h-5" />
@@ -310,7 +311,7 @@ function TripAssistantContent() {
                 ) : (
                   <button
                     onClick={() => router.push('/ticket-login')}
-                    className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-yellow-400 text-slate-950 font-bold rounded-full hover:bg-yellow-300 transition"
+                    className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-amber-400 text-slate-950 font-bold rounded-full hover:bg-amber-300 transition"
                   >
                     Login with Ticket
                     <Ticket className="w-5 h-5" />
@@ -330,21 +331,21 @@ function TripAssistantContent() {
               <h2 className="text-xl font-bold mb-4">What this destination includes</h2>
               <div className="grid gap-4 text-sm text-gray-100">
                 <div className="flex gap-3">
-                  <Plane className="w-5 h-5 text-yellow-300 shrink-0 mt-0.5" />
+                  <Plane className="w-5 h-5 text-amber-300 shrink-0 mt-0.5" />
                   <div>
                     <p className="font-semibold text-white">Airport business</p>
                     <p>Lounges, airport dining, retail, transfers, hotels, and other services inside the airport environment.</p>
                   </div>
                 </div>
                 <div className="flex gap-3">
-                  <MapPin className="w-5 h-5 text-yellow-300 shrink-0 mt-0.5" />
+                  <MapPin className="w-5 h-5 text-amber-300 shrink-0 mt-0.5" />
                   <div>
                     <p className="font-semibold text-white">Destination business</p>
                     <p>Hotels, transport, restaurants, tours, shopping, healthcare, events, and destination merchants beyond the airport.</p>
                   </div>
                 </div>
                 <div className="flex gap-3">
-                  <CreditCard className="w-5 h-5 text-yellow-300 shrink-0 mt-0.5" />
+                  <CreditCard className="w-5 h-5 text-amber-300 shrink-0 mt-0.5" />
                   <div>
                     <p className="font-semibold text-white">Marketplace and payments</p>
                     <p>Book, reserve, and pay for products and services through one consistent checkout flow.</p>
@@ -371,7 +372,7 @@ function TripAssistantContent() {
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between gap-4 flex-wrap mb-6">
             <div>
-              <p className="text-sm font-semibold uppercase tracking-wide text-red-600">
+              <p className="text-sm font-semibold uppercase tracking-wide text-primary">
                 {hasTicketAccess ? 'Your ticket-linked destination' : 'Global demonstration destinations'}
               </p>
               <h2 className="text-3xl font-bold text-gray-900">
@@ -381,7 +382,7 @@ function TripAssistantContent() {
             {!isAuthenticated && (
               <button
                 onClick={() => router.push('/ticket-login')}
-                className="inline-flex items-center gap-2 text-red-600 font-semibold"
+                className="inline-flex items-center gap-2 text-primary font-semibold"
               >
                 <Lock className="w-4 h-4" />
                 Unlock with your ticket
@@ -399,7 +400,7 @@ function TripAssistantContent() {
                   }
                 }}
                 className={`text-left rounded-3xl overflow-hidden bg-white shadow hover:shadow-xl transition ${
-                  selectedDestination?.id === destination.id ? 'ring-2 ring-red-500' : ''
+                  selectedDestination?.id === destination.id ? 'ring-2 ring-brand-500' : ''
                 }`}
               >
                 <div className="h-48 bg-gray-200 relative">
@@ -411,7 +412,7 @@ function TripAssistantContent() {
                     />
                   )}
                   {destination.featured && (
-                    <span className="absolute top-4 right-4 px-3 py-1 rounded-full bg-yellow-400 text-slate-900 text-xs font-bold">
+                    <span className="absolute top-4 right-4 px-3 py-1 rounded-full bg-amber-400 text-slate-900 text-xs font-bold">
                       {hasTicketAccess ? 'My Destination' : 'Demo'}
                     </span>
                   )}
@@ -422,13 +423,13 @@ function TripAssistantContent() {
                     <span>{destination.country}</span>
                   </div>
                   <h3 className="text-2xl font-bold text-gray-900">{destination.city}</h3>
-                  <p className="text-sm font-semibold text-red-600 mt-2">
+                  <p className="text-sm font-semibold text-primary mt-2">
                     {getDestinationWelcomeMessage(destination.city)}
                   </p>
                   <p className="text-sm text-gray-600 mt-2 line-clamp-3">{destination.hero_tagline || destination.description}</p>
                   <div className="mt-4 flex gap-2 flex-wrap text-xs font-semibold">
-                    <span className="px-3 py-1 rounded-full bg-red-50 text-red-700">{destination.airport_services_count} airport services</span>
-                    <span className="px-3 py-1 rounded-full bg-orange-50 text-orange-700">{destination.destination_services_count} destination services</span>
+                    <span className="px-3 py-1 rounded-full bg-brand-50 text-primary">{destination.airport_services_count} airport services</span>
+                    <span className="px-3 py-1 rounded-full bg-brand-50 text-primary">{destination.destination_services_count} destination services</span>
                   </div>
                 </div>
               </button>
@@ -459,7 +460,7 @@ function TripAssistantContent() {
                     </span>
                   )}
                   {selectedDestination && (
-                    <span className="px-3 py-1 bg-orange-100 text-orange-700 text-sm font-semibold rounded-full flex items-center">
+                    <span className="px-3 py-1 bg-brand-100 text-primary text-sm font-semibold rounded-full flex items-center">
                       <MapPin className="w-3 h-3 mr-1" />
                       {(destinations.find((d: any) => d.id === selectedDestination) as any)?.city || 'Destination'}
                     </span>
@@ -467,7 +468,7 @@ function TripAssistantContent() {
                 </div>
                 <div className="p-8">
                   <div className="flex flex-wrap items-center gap-3 mb-4">
-                    <span className="px-3 py-1 rounded-full bg-red-100 text-red-700 text-sm font-semibold">
+                    <span className="px-3 py-1 rounded-full bg-brand-100 text-primary text-sm font-semibold">
                       {selectedDestination.airport_code} • {selectedDestination.currency_code}
                     </span>
                     {passport?.destination?.id === selectedDestination.id && (
@@ -489,14 +490,14 @@ function TripAssistantContent() {
 
                   <div className="grid md:grid-cols-2 gap-4">
                     <div className="rounded-2xl bg-slate-950 text-white p-5">
-                      <p className="text-sm text-yellow-300 mb-2">Airport gateway</p>
+                      <p className="text-sm text-amber-300 mb-2">Airport gateway</p>
                       <h3 className="text-xl font-bold">{selectedDestination.airport_name}</h3>
                       <p className="mt-2 text-sm text-gray-300">
                         Services inside the airport environment for before departure and after landing.
                       </p>
                     </div>
-                    <div className="rounded-2xl bg-orange-50 p-5">
-                      <p className="text-sm text-red-600 mb-2">Destination city</p>
+                    <div className="rounded-2xl bg-brand-50 p-5">
+                      <p className="text-sm text-primary mb-2">Destination city</p>
                       <h3 className="text-xl font-bold text-gray-900">{selectedDestination.city} destination business ecosystem</h3>
                       <p className="mt-2 text-sm text-gray-600">
                         Hotels, transport, food, attractions, shopping, events, and wellness beyond the airport.
@@ -510,7 +511,7 @@ function TripAssistantContent() {
                 {passport?.profile && (
                   <div className="bg-white rounded-3xl shadow p-6">
                     <div className="flex items-center gap-2 mb-4">
-                      <Sparkles className="w-5 h-5 text-red-600" />
+                      <Sparkles className="w-5 h-5 text-primary" />
                       <h3 className="text-xl font-bold text-gray-900">Personalized traveler profile</h3>
                     </div>
                     <div className="grid grid-cols-2 gap-3 text-sm">
@@ -528,13 +529,13 @@ function TripAssistantContent() {
                         <p className="text-gray-500 mb-1">Interests</p>
                         <div className="flex flex-wrap gap-2">
                           {asStringArray(passport.profile.interests).map((interest: string) => (
-                            <span key={interest} className="px-3 py-1 rounded-full bg-red-50 text-red-700 font-medium">
+                            <span key={interest} className="px-3 py-1 rounded-full bg-brand-50 text-primary font-medium">
                               {interest}
                             </span>
                           ))}
                         </div>
                       </div>
-                      <Link href="/profile" className="inline-flex items-center gap-2 text-red-600 font-semibold">
+                      <Link href="/profile" className="inline-flex items-center gap-2 text-primary font-semibold">
                         Refine my profile
                         <ArrowRight className="w-4 h-4" />
                       </Link>
@@ -544,7 +545,7 @@ function TripAssistantContent() {
 
                 <div className="bg-white rounded-3xl shadow p-6">
                   <div className="flex items-center gap-2 mb-4">
-                    <Calendar className="w-5 h-5 text-red-600" />
+                    <Calendar className="w-5 h-5 text-primary" />
                     <h3 className="text-xl font-bold text-gray-900">Before and after arrival</h3>
                   </div>
                   <div className="space-y-4">
@@ -570,15 +571,16 @@ function TripAssistantContent() {
               <div className="mb-10">
                 <div className="flex items-end justify-between gap-4 flex-wrap mb-6">
                   <div>
-                    <p className="text-sm font-semibold uppercase tracking-wide text-red-600">For this passenger</p>
+                    <p className="text-sm font-semibold uppercase tracking-wide text-primary">For this passenger</p>
                     <h3 className="text-3xl font-bold text-gray-900">Recommended immediately after landing</h3>
                   </div>
                 </div>
                 <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-6">
                   {recommendations.slice(0, 4).map((service: any) => (
                     <div key={service.id} className="bg-white rounded-3xl shadow p-5">
+                      <PhotoGallery images={getItemImage(service) ? [getItemImage(service)!] : []} name={service.name} label={service.is_demo ? 'Demo · illustrative photo' : 'Service photo'} className="h-40 rounded-2xl mb-4" />
                       <div className="flex items-center justify-between gap-3 mb-3">
-                        <span className="px-3 py-1 rounded-full bg-yellow-100 text-yellow-800 text-xs font-bold">
+                        <span className="px-3 py-1 rounded-full bg-amber-100 text-amber-800 text-xs font-bold">
                           Score {service.recommendation_score ?? '—'}
                         </span>
                         <span className="text-xs font-semibold text-gray-500">{service.community_label}</span>
@@ -587,7 +589,7 @@ function TripAssistantContent() {
                       <p className="text-sm text-gray-600 mt-2 line-clamp-3">{service.description}</p>
                       <div className="mt-4 flex flex-wrap gap-2">
                         {asStringArray(service.recommendation_reasons).map((reason: string) => (
-                          <span key={reason} className="px-3 py-1 rounded-full bg-red-50 text-red-700 text-xs font-medium">
+                          <span key={reason} className="px-3 py-1 rounded-full bg-brand-50 text-primary text-xs font-medium">
                             {reason}
                           </span>
                         ))}
@@ -595,7 +597,7 @@ function TripAssistantContent() {
                       <div className="mt-4">
                         <Link
                           href={`/trip-assistant/services/${service.id}`}
-                          className="inline-flex items-center gap-2 text-red-600 font-semibold"
+                          className="inline-flex items-center gap-2 text-primary font-semibold"
                         >
                           View service
                           <ArrowRight className="w-4 h-4" />
@@ -609,7 +611,7 @@ function TripAssistantContent() {
 
             <div className="flex items-center justify-between gap-4 flex-wrap mb-6">
               <div>
-                <p className="text-sm font-semibold uppercase tracking-wide text-red-600">Marketplace</p>
+                <p className="text-sm font-semibold uppercase tracking-wide text-primary">Marketplace</p>
                 <h3 className="text-3xl font-bold text-gray-900">Segmented business communities</h3>
               </div>
               {categories.length > 0 && (
@@ -617,7 +619,7 @@ function TripAssistantContent() {
                   <button
                     onClick={() => setSelectedCategory(null)}
                     className={`px-4 py-2 rounded-full text-sm font-semibold ${
-                      !selectedCategory ? 'bg-red-600 text-white' : 'bg-white text-gray-700'
+                      !selectedCategory ? 'bg-primary text-white' : 'bg-white text-gray-700'
                     }`}
                   >
                     All categories
@@ -627,7 +629,7 @@ function TripAssistantContent() {
                       key={category.id}
                       onClick={() => setSelectedCategory(category.id)}
                       className={`px-4 py-2 rounded-full text-sm font-semibold ${
-                        selectedCategory === category.id ? 'bg-red-600 text-white' : 'bg-white text-gray-700'
+                        selectedCategory === category.id ? 'bg-primary text-white' : 'bg-white text-gray-700'
                       }`}
                     >
                       {category.name}
@@ -645,7 +647,7 @@ function TripAssistantContent() {
                   <div key={communityKey} className="bg-white rounded-3xl shadow-lg p-6">
                     <div className="flex items-center justify-between gap-4 flex-wrap mb-6">
                       <div>
-                        <p className="text-sm font-semibold uppercase tracking-wide text-red-600">
+                        <p className="text-sm font-semibold uppercase tracking-wide text-primary">
                           {communityLabels[communityKey]}
                         </p>
                         <h4 className="text-2xl font-bold text-gray-900">
@@ -659,10 +661,11 @@ function TripAssistantContent() {
 
                     <div className="space-y-4">
                       {(filteredCommunities[communityKey]?.services || []).map((service: any) => (
-                        <div key={service.id} className="rounded-2xl border border-gray-100 p-4 hover:border-red-200 transition">
+                        <div key={service.id} className="rounded-2xl border border-gray-100 p-4 hover:border-brand-200 transition">
+                          <PhotoGallery images={getItemImage(service) ? [getItemImage(service)!] : []} name={service.name} label={service.is_demo ? 'Demo · illustrative photo' : 'Service photo'} className="h-48 rounded-xl mb-4" />
                           <div className="flex items-start justify-between gap-4">
                             <div>
-                              <p className="text-xs font-semibold uppercase tracking-wide text-red-600 mb-1">
+                              <p className="text-xs font-semibold uppercase tracking-wide text-primary mb-1">
                                 {service.category_name}
                               </p>
                               <h5 className="text-lg font-bold text-gray-900">{service.name}</h5>
@@ -672,7 +675,7 @@ function TripAssistantContent() {
                                   {service.journey_stage_label}
                                 </span>
                                 {service.location_label && (
-                                  <span className="px-3 py-1 rounded-full bg-orange-50 text-orange-700 text-xs font-medium">
+                                  <span className="px-3 py-1 rounded-full bg-brand-50 text-primary text-xs font-medium">
                                     {service.location_label}
                                   </span>
                                 )}
@@ -680,7 +683,7 @@ function TripAssistantContent() {
                             </div>
                             <div className="text-right shrink-0">
                               <p className="text-sm text-gray-500">From</p>
-                              <p className="text-2xl font-black text-red-700">
+                              <p className="text-2xl font-black text-primary">
                                 {formatPrice(service.price)}
                               </p>
                               <p className="text-sm text-gray-500">{service.currency}</p>
@@ -691,7 +694,7 @@ function TripAssistantContent() {
                             {isAuthenticated ? (
                               <Link
                                 href={`/trip-assistant/services/${service.id}`}
-                                className="inline-flex items-center gap-2 text-red-600 font-semibold"
+                                className="inline-flex items-center gap-2 text-primary font-semibold"
                               >
                                 Book now
                                 <ArrowRight className="w-4 h-4" />
@@ -699,7 +702,7 @@ function TripAssistantContent() {
                             ) : (
                               <button
                                 onClick={() => router.push('/ticket-login')}
-                                className="inline-flex items-center gap-2 text-red-600 font-semibold"
+                                className="inline-flex items-center gap-2 text-primary font-semibold"
                               >
                                 Unlock with ticket
                                 <Lock className="w-4 h-4" />

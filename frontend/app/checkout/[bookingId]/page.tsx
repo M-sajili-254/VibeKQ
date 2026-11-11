@@ -141,7 +141,7 @@ export default function Checkout() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
-          <div className="w-16 h-16 border-4 border-red-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <div className="w-16 h-16 border-4 border-brand-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-gray-600">Loading checkout...</p>
         </div>
       </div>
@@ -155,7 +155,7 @@ export default function Checkout() {
           <h2 className="text-2xl font-semibold text-gray-600 mb-4">Booking Not Found</h2>
           <button
             onClick={() => router.push('/trip-assistant')}
-            className="px-6 py-3 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition"
+            className="px-6 py-3 bg-primary text-white font-semibold rounded-lg hover:bg-brand-900 transition"
           >
             Back to Services
           </button>
@@ -240,12 +240,12 @@ export default function Checkout() {
                 
                 <div className="pt-3 border-t">
                   <p className="text-gray-600">Total Amount</p>
-                  <p className="text-2xl font-bold text-red-700">${parseFloat(booking.total_price).toFixed(2)}</p>
+                  <p className="text-2xl font-bold text-primary">${parseFloat(booking.total_price).toFixed(2)}</p>
                 </div>
               </div>
 
               {booking.service?.community_label && (
-                <div className="mt-4 rounded-2xl bg-red-50 p-4 text-sm text-red-800">
+                <div className="mt-4 rounded-2xl bg-brand-50 p-4 text-sm text-primary">
                   This purchase is part of the <strong>{booking.service.community_label}</strong>.
                 </div>
               )}
@@ -281,10 +281,10 @@ export default function Checkout() {
                   {/* Card Option */}
                   <button
                     onClick={() => setPaymentMethod('card')}
-                    className="group border-2 border-gray-200 rounded-lg p-6 hover:border-blue-500 hover:bg-blue-50 transition text-left"
+                    className="group border-2 border-gray-200 rounded-lg p-6 hover:border-brand-500 hover:bg-brand-50 transition text-left"
                   >
-                    <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4 group-hover:bg-blue-200 transition">
-                      <CreditCard className="w-6 h-6 text-blue-600" />
+                    <div className="w-12 h-12 bg-brand-100 rounded-lg flex items-center justify-center mb-4 group-hover:bg-brand-200 transition">
+                      <CreditCard className="w-6 h-6 text-primary" />
                     </div>
                     <h3 className="text-lg font-semibold mb-2">Debit/Credit Card</h3>
                     <p className="text-sm text-gray-600">Pay securely with your card</p>
@@ -336,7 +336,7 @@ export default function Checkout() {
                     </button>
 
                     {processing && (
-                      <div className="bg-blue-50 border border-blue-200 text-blue-700 px-4 py-3 rounded-lg text-sm">
+                      <div className="bg-brand-50 border border-brand-200 text-primary px-4 py-3 rounded-lg text-sm">
                         <p className="font-semibold mb-1">STK Push Sent!</p>
                         <p>Please check your phone and enter your M-Pesa PIN to complete the payment.</p>
                       </div>
@@ -353,8 +353,8 @@ export default function Checkout() {
                   </button>
                   
                   <div className="space-y-4">
-                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
-                      <p className="text-sm text-blue-800">
+                    <div className="bg-brand-50 border border-brand-200 rounded-lg p-4 mb-4">
+                      <p className="text-sm text-primary">
                         <strong>Demo Mode:</strong> Card payment integration with Stripe. In production, this would show Stripe Elements for secure card input.
                       </p>
                     </div>
@@ -362,7 +362,7 @@ export default function Checkout() {
                     <button
                       onClick={handleCardPayment}
                       disabled={processing}
-                      className="w-full py-4 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
+                      className="w-full py-4 bg-primary text-white font-semibold rounded-lg hover:bg-brand-900 transition disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
                     >
                       {processing ? (
                         <>

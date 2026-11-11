@@ -29,6 +29,7 @@ class PartnerApplication(TimeStampedModel, IDModel):
     business_description = models.TextField()
     business_logo = models.ImageField(upload_to='business_logos/')
     business_documents = models.FileField(upload_to='business_documents/')
+    photo_rights_confirmed = models.BooleanField(default=False)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     admin_notes = models.TextField(blank=True, null=True)
     reviewed_at = models.DateTimeField(blank=True, null=True)
@@ -60,12 +61,22 @@ class Partnership(TimeStampedModel, IDModel):
     total_bookings = models.IntegerField(default=0)
     rating = models.DecimalField(max_digits=3, decimal_places=2, default=0.0)
     active = models.BooleanField(default=True)
+    is_demo = models.BooleanField(default=False)
     
     def __str__(self):
         return f"{self.business_name} Partnership"
     
     class Meta:
         ordering = ['-created_at']
+
+
+class MerchantPhoto(TimeStampedModel, IDModel):
+    application = models.ForeignKey(PartnerApplication, on_delete=models.CASCADE, related_name='photos')
+    partnership = models.ForeignKey(Partnership, on_delete=models.SET_NULL, related_name='photos', blank=True, null=True)
+    image = models.ImageField(upload_to='merchant_photos/')
+
+    class Meta:
+        ordering = ['created_at', 'id']
 
 
 class SponsoredContent(TimeStampedModel, IDModel):

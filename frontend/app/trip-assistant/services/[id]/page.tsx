@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { MapPin, Star, DollarSign, CheckCircle, ArrowLeft, Calendar, Users } from 'lucide-react';
 import { serviceService, bookingService, getImageUrl, getItemImage } from '@/utils/api';
+import PhotoGallery from '@/components/PhotoGallery';
 
 export default function ServiceDetail() {
   const params = useParams();
@@ -67,7 +68,7 @@ export default function ServiceDetail() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
-          <div className="w-16 h-16 border-4 border-red-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <div className="w-16 h-16 border-4 border-brand-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-gray-600">Loading service details...</p>
         </div>
       </div>
@@ -81,7 +82,7 @@ export default function ServiceDetail() {
           <h2 className="text-2xl font-semibold text-gray-600 mb-4">Service Not Found</h2>
           <Link
             href="/trip-assistant"
-            className="inline-block px-6 py-3 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition"
+            className="inline-block px-6 py-3 bg-primary text-white font-semibold rounded-lg hover:bg-brand-900 transition"
           >
             Back to Trip Assistant
           </Link>
@@ -93,7 +94,7 @@ export default function ServiceDetail() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <section className="bg-gradient-to-r from-red-700 to-red-600 text-white py-8 px-4">
+      <section className="bg-gradient-to-r from-brand-700 to-brand-600 text-white py-8 px-4">
         <div className="max-w-7xl mx-auto">
           <Link 
             href="/trip-assistant" 
@@ -111,21 +112,12 @@ export default function ServiceDetail() {
           <div className="grid lg:grid-cols-3 gap-8">
             {/* Main Content */}
             <div className="lg:col-span-2">
+              {service.is_demo && <p role="note" className="mb-6 rounded-2xl border border-amber-200 bg-amber-50 p-5 text-sm text-amber-900">Demo listing: imagery, prices and bookings are illustrative. This is not an onboarded merchant or evidence of live activity.</p>}
               {/* Service Image */}
-              <div className="relative h-96 bg-gradient-to-br from-red-100 to-red-50 rounded-lg overflow-hidden mb-6">
-                {getItemImage(service) ? (
-                  <img
-                    src={getItemImage(service) || ''}
-                    alt={service.name}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="flex items-center justify-center h-full">
-                    <MapPin className="w-32 h-32 text-red-300" />
-                  </div>
-                )}
+              <div className="relative h-96 bg-gradient-to-br from-brand-100 to-brand-50 rounded-lg overflow-hidden mb-6">
+                <PhotoGallery images={getItemImage(service) ? [getItemImage(service)!] : []} name={service.name} label={service.is_demo ? 'Demo · illustrative destination photo' : 'Service photo'} className="h-full" />
                 
-                {service.verified && (
+                {!service.is_demo && service.verified && (
                   <div className="absolute top-4 right-4 bg-green-500 text-white px-4 py-2 rounded-full font-semibold flex items-center space-x-2">
                     <CheckCircle className="w-5 h-5" />
                     <span>Verified Provider</span>
@@ -144,9 +136,9 @@ export default function ServiceDetail() {
                     </div>
                     <p className="text-gray-600">by {service.provider_name || service.provider?.business_name}</p>
                   </div>
-                  {service.rating > 0 && (
-                    <div className="flex items-center space-x-2 bg-yellow-50 px-4 py-2 rounded-lg">
-                      <Star className="w-6 h-6 text-yellow-500 fill-yellow-500" />
+                  {!service.is_demo && service.rating > 0 && (
+                    <div className="flex items-center space-x-2 bg-amber-50 px-4 py-2 rounded-lg">
+                      <Star className="w-6 h-6 text-amber-500 fill-amber-500" />
                       <span className="text-2xl font-bold">{service.rating}</span>
                     </div>
                   )}
@@ -157,7 +149,7 @@ export default function ServiceDetail() {
                   <p className="text-gray-700 leading-relaxed">{service.description}</p>
                 </div>
 
-                {service.total_bookings > 0 && (
+                {!service.is_demo && service.total_bookings > 0 && (
                   <div className="mt-4 pt-4 border-t">
                     <p className="text-gray-600">
                       <span className="font-semibold">{service.total_bookings}</span> people have booked this service
@@ -176,7 +168,7 @@ export default function ServiceDetail() {
                         <div className="flex items-center justify-between mb-2">
                           <p className="font-semibold">{review.user_name}</p>
                           <div className="flex items-center space-x-1">
-                            <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
+                            <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
                             <span>{review.rating}</span>
                           </div>
                         </div>
@@ -193,7 +185,7 @@ export default function ServiceDetail() {
               <div className="bg-white rounded-lg shadow p-6 sticky top-4">
                 <div className="mb-6">
                   <p className="text-gray-600 text-sm mb-1">Price per person</p>
-                  <p className="text-4xl font-bold text-red-700 flex items-center">
+                  <p className="text-4xl font-bold text-primary flex items-center">
                     <DollarSign className="w-8 h-8" />
                     {parseFloat(service.price).toFixed(0)}
                     <span className="text-lg text-gray-500 ml-2">{service.currency}</span>
@@ -201,7 +193,7 @@ export default function ServiceDetail() {
                 </div>
 
                 {(service.community_label || service.journey_stage_label) && (
-                  <div className="mb-6 rounded-2xl bg-red-50 p-4 text-sm text-red-800">
+                  <div className="mb-6 rounded-2xl bg-brand-50 p-4 text-sm text-primary">
                     <p className="font-semibold">{service.community_label}</p>
                     {service.journey_stage_label && <p>{service.journey_stage_label}</p>}
                   </div>
@@ -229,7 +221,7 @@ export default function ServiceDetail() {
                         type="date"
                         required
                         min={new Date().toISOString().split('T')[0]}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-600 focus:border-transparent outline-none"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-600 focus:border-transparent outline-none"
                         value={bookingData.booking_date}
                         onChange={(e) => setBookingData({ ...bookingData, booking_date: e.target.value })}
                       />
@@ -240,7 +232,7 @@ export default function ServiceDetail() {
                       <input
                         type="time"
                         required
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-600 focus:border-transparent outline-none"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-600 focus:border-transparent outline-none"
                         value={bookingData.booking_time}
                         onChange={(e) => setBookingData({ ...bookingData, booking_time: e.target.value })}
                       />
@@ -255,7 +247,7 @@ export default function ServiceDetail() {
                         type="number"
                         required
                         min="1"
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-600 focus:border-transparent outline-none"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-600 focus:border-transparent outline-none"
                         value={bookingData.number_of_people}
                         onChange={(e) => setBookingData({ ...bookingData, number_of_people: parseInt(e.target.value) })}
                       />
@@ -265,7 +257,7 @@ export default function ServiceDetail() {
                       <label className="block text-sm font-medium text-gray-700 mb-2">Special Requests (Optional)</label>
                       <textarea
                         rows={3}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-600 focus:border-transparent outline-none"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-600 focus:border-transparent outline-none"
                         value={bookingData.special_requests}
                         onChange={(e) => setBookingData({ ...bookingData, special_requests: e.target.value })}
                         placeholder="Any special requirements?"
@@ -275,7 +267,7 @@ export default function ServiceDetail() {
                     <div className="pt-4 border-t">
                       <div className="flex justify-between mb-4">
                         <span className="text-gray-600">Total</span>
-                        <span className="text-2xl font-bold text-red-700">
+                        <span className="text-2xl font-bold text-primary">
                           ${(parseFloat(service.price) * bookingData.number_of_people).toFixed(2)}
                         </span>
                       </div>
@@ -283,7 +275,7 @@ export default function ServiceDetail() {
                       <button
                         type="submit"
                         disabled={bookingLoading}
-                        className="w-full py-3 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed"
+                        className="w-full py-3 bg-primary text-white font-semibold rounded-lg hover:bg-brand-900 transition disabled:bg-gray-400 disabled:cursor-not-allowed"
                       >
                         {bookingLoading ? 'Booking...' : 'Book Now'}
                       </button>
